@@ -1,131 +1,175 @@
 import { useState, useEffect, useRef } from 'react'
 
-function BotHelper({ tips }) {
+import botNormal from '../assets/images/bot_normal.png'
+import botSleepy from '../assets/images/bot_sleepy.png'
+import botSleeping from '../assets/images/bot_sleeping.png'
+
+function BotHelper({ tips, highlight = false }) {
   const [showTip, setShowTip] = useState(false)
   const [currentTip, setCurrentTip] = useState('')
-  const timerRef = useRef(null)
-  const autoTipTimerRef = useRef(null)
+  const [isHovered, setIsHovered] = useState(false)
+  const [botState, setBotState] = useState('normal')
+  const inactivityTimer = useRef(null)
+  const sleepTimer = useRef(null)
+  const autoTipTimer = useRef(null)
+  const tipTimeoutRef = useRef(null)
 
   const showRandomTip = () => {
-    console.log('Бот показывает совет:', tips) // Для отладки
-    if (!tips || tips.length === 0) {
-      setCurrentTip('Нажми на меня, если нужен совет!')
-    } else {
-      const randomIndex = Math.floor(Math.random() * tips.length)
-      setCurrentTip(tips[randomIndex])
-    }
+    if (!tips || tips.length === 0) return
+    
+    if (tipTimeoutRef.current) clearTimeout(tipTimeoutRef.current)
+    
+    const randomIndex = Math.floor(Math.random() * tips.length)
+    setCurrentTip(tips[randomIndex])
     setShowTip(true)
     
-    if (timerRef.current) clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => {
+    tipTimeoutRef.current = setTimeout(() => {
       setShowTip(false)
-    }, 10000)
-  }
-
-  const handleBotClick = () => {
-    showRandomTip()
-    if (autoTipTimerRef.current) clearTimeout(autoTipTimerRef.current)
-    startAutoTipTimer()
+    }, 6000)
   }
 
   const startAutoTipTimer = () => {
-    if (autoTipTimerRef.current) clearTimeout(autoTipTimerRef.current)
-    autoTipTimerRef.current = setTimeout(() => {
-      if (!showTip) {
+    if (autoTipTimer.current) clearInterval(autoTipTimer.current)
+    autoTipTimer.current = setInterval(() => {
+      if (botState === 'normal' && !showTip) {
         showRandomTip()
       }
     }, 10000)
   }
 
+  const resetInactivityTimer = () => {
+    setBotState('normal')
+    
+    if (inactivityTimer.current) clearTimeout(inactivityTimer.current)
+    if (sleepTimer.current) clearTimeout(sleepTimer.current)
+    
+    inactivityTimer.current = setTimeout(() => {
+      setBotState('sleepy')
+      
+      sleepTimer.current = setTimeout(() => {
+        setBotState('sleeping')
+      }, 1500)
+    }, 15000)
+  }
+
   useEffect(() => {
+    const activityEvents = ['click', 'mousemove', 'keydown', 'touchstart']
+    
+    const handleActivity = () => {
+      resetInactivityTimer()
+    }
+    
+    activityEvents.forEach(event => {
+      window.addEventListener(event, handleActivity)
+    })
+    
+    resetInactivityTimer()
     startAutoTipTimer()
+    
     return () => {
-      if (timerRef.current) clearTimeout(timerRef.current)
-      if (autoTipTimerRef.current) clearTimeout(autoTipTimerRef.current)
+      activityEvents.forEach(event => {
+        window.removeEventListener(event, handleActivity)
+      })
+      if (inactivityTimer.current) clearTimeout(inactivityTimer.current)
+      if (sleepTimer.current) clearTimeout(sleepTimer.current)
+      if (autoTipTimer.current) clearInterval(autoTipTimer.current)
+      if (tipTimeoutRef.current) clearTimeout(tipTimeoutRef.current)
     }
   }, [tips])
+
+  useEffect(() => {
+    if (isHovered) {
+      if (inactivityTimer.current) clearTimeout(inactivityTimer.current)
+      if (sleepTimer.current) clearTimeout(sleepTimer.current)
+      setBotState('normal')
+    } else {
+      resetInactivityTimer()
+    }
+  }, [isHovered])
+
+  const handleBotClick = () => {
+    showRandomTip()
+  }
+
+  const getBotImage = () => {
+    switch (botState) {
+      case 'sleepy':
+        return botSleepy
+      case 'sleeping':
+        return botSleeping
+      default:
+        return botNormal
+    }
+  }
 
   return (
     <>
       <div
         onClick={handleBotClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         style={{
           position: 'fixed',
           bottom: '30px',
           right: '30px',
-          width: '80px',
-          height: '80px',
+          width: isHovered ? '150px' : '140px',
+          height: isHovered ? '150px' : '140px',
           cursor: 'pointer',
           zIndex: 1000,
-          transition: 'transform 0.2s'
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-      >
-        {/* Заглушка персонажа - заменишь на свою картинку */}
-        <div style={{
-          width: '100%',
-          height: '100%',
-          backgroundColor: '#ff6b35',
+          transition: 'all 0.2s ease',
+          animation: 'none',
           borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '2.5rem',
-          boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
-        }}>
-          🤖
-        </div>
+          overflow: 'hidden',
+          backgroundColor: 'rgba(46, 125, 86, 0.85)',
+          border: '3px solid rgba(255, 255, 255, 0.9)',
+          boxShadow: isHovered ? '0 8px 30px rgba(0,0,0,0.25)' : '0 6px 20px rgba(0,0,0,0.2)',
+          boxSizing: 'border-box'
+        }}
+      >
+        <img 
+          src={getBotImage()} 
+          alt="Помощник"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            display: 'block',
+            padding: '12px'
+          }}
+        />
       </div>
 
       {showTip && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: '120px',
-            right: '30px',
-            maxWidth: '300px',
-            backgroundColor: 'white',
-            borderRadius: '20px',
-            padding: '14px 18px',
-            boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
-            zIndex: 999,
-            animation: 'slideIn 0.3s ease-out',
-            borderLeft: '5px solid #ff6b35'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-            <span style={{ fontSize: '1.5rem' }}>💡</span>
-            <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: '1.4', color: '#333', flex: 1 }}>
-              {currentTip}
-            </p>
-            <button
-              onClick={() => setShowTip(false)}
-              style={{
-                background: 'none',
-                border: 'none',
-                fontSize: '1rem',
-                cursor: 'pointer',
-                color: '#ccc',
-                padding: '0 4px'
-              }}
-            >
-              ✕
-            </button>
-          </div>
+        <div style={{
+          position: 'fixed',
+          bottom: '180px',
+          right: '30px',
+          maxWidth: '350px',
+          minWidth: '250px',
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          borderRadius: '24px',
+          padding: '18px 24px',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+          zIndex: 999,
+          animation: 'bounceIn 0.3s ease',
+          borderLeft: '4px solid #2e7d56'
+        }}>
+          <p style={{ margin: 0, fontSize: '1.1rem', color: '#333', lineHeight: '1.5' }}>
+            {currentTip}
+          </p>
         </div>
       )}
 
       <style>
         {`
-          @keyframes slideIn {
-            from {
+          @keyframes bounceIn {
+            0% {
               opacity: 0;
-              transform: translateY(20px);
+              transform: scale(0.8) translateY(20px);
             }
-            to {
+            100% {
               opacity: 1;
-              transform: translateY(0);
+              transform: scale(1) translateY(0);
             }
           }
         `}
