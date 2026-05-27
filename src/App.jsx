@@ -1,17 +1,27 @@
-import { useState } from 'react'
-import BotHelper from './components/BotHelper'
+import { useState, useEffect } from 'react'
 import TopNavBar from './components/TopNavBar'
 import HeaderWithLogo from './components/HeaderWithLogo'
+import BotHelper from './components/BotHelper'
 import ExitModal from './components/ExitModal'
+import StoryIntro from './components/StoryIntro'
+import StoryOutro from './components/StoryOutro'
+import useSpeech from './hooks/useSpeech'
 import './index.css'
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState('start')
+  const [showIntro, setShowIntro] = useState(false)
+  const [showOutro, setShowOutro] = useState(false)
+  const [pendingStory, setPendingStory] = useState(null)
   const [showExitModal, setShowExitModal] = useState(false)
   const [pendingScreen, setPendingScreen] = useState(null)
+  const { speak, stop } = useSpeech()
   
+  const [balance, setBalance] = useState(null)
+  const [loading, setLoading] = useState(true)
+
   const [stats, setStats] = useState({
-    money: 500,
+    money: 0,
     score: 0,
     level: 1
   })
@@ -21,37 +31,74 @@ function App() {
     story2: 0
   })
 
+  useEffect(() => {
+    fetch('http://localhost:3001/api/game/state')
+      .then(res => {
+        if (!res.ok) throw new Error('Бэкенд не отвечает')
+        return res.json()
+      })
+      .then(data => {
+        console.log('Данные с бэкенда:', data)
+        setBalance(data.balance)
+        setStats(prev => ({ ...prev, money: data.balance || 0 }))
+        setLoading(false)
+      })
+      .catch(error => {
+        console.warn('Бэкенд не доступен:', error.message)
+        setBalance(0)
+        setLoading(false)
+      })
+  }, [])
+
   const getTipsForScreen = () => {
     if (currentScreen === 'start') {
-      return [
-        'Выбери историю, которая тебе интересна!',
-        'Финансовая грамотность — это весело!',
-        'Помни: деньги любят счёт!',
-        'Начни с первой истории, она проще!'
-      ]
+      return ['Выбери историю, которая тебе интересна!', 'Финансовая грамотность — это весело!', 'Помни: деньги любят счёт!']
     }
     if (currentScreen === 'story1') {
-      return [
-        'Сначала купи хлеб и молоко!',
-        'Не трать всё на сладости!',
-        'Составь список продуктов до магазина',
-        'Сравнивай цены на товары!'
-      ]
+      return ['Сначала купи хлеб и молоко!', 'Не трать всё на сладости!', 'Составь список продуктов до магазина']
     }
     if (currentScreen === 'story2') {
-      return [
-        'Копить сложнее, но выгоднее кредита!',
-        'В кредите придётся отдавать больше денег',
-        'Если копить каждый день по 10₽, за месяц накопится 300₽!',
-        'Спроси у родителей, как они планируют бюджет'
-      ]
+      return ['Копить сложнее, но выгоднее кредита!', 'В кредите придётся отдавать больше денег', 'Если копить каждый день по 10₽, за месяц накопится 300₽!']
     }
     return ['Нажми на меня, если нужен совет!']
   }
 
+  const openStory = (storyId, storyTitle, storyDesc) => {
+    stop()
+    speak(`Вы выбрали историю: ${storyTitle}. ${storyDesc}`)
+    setPendingStory(storyId)
+    setShowIntro(true)
+  }
+
+  const handleIntroComplete = () => {
+    setShowIntro(false)
+    setTimeout(() => {
+      setCurrentScreen(pendingStory)
+      setPendingStory(null)
+    }, 50)
+  }
+
+  const completeStory = () => {
+    setShowOutro(true)
+  }
+
+  const handleOutroComplete = () => {
+    setShowOutro(false)
+    setTimeout(() => {
+      setCurrentScreen('start')
+    }, 50)
+  }
+
   const handleExit = (targetScreen) => {
-    setPendingScreen(targetScreen)
-    setShowExitModal(true)
+    const currentProgress = currentScreen === 'story1' ? progress.story1 : progress.story2
+    if (currentProgress > 0) {
+      stop()
+      speak('Точно хочешь выйти? Весь прогресс будет потерян!')
+      setPendingScreen(targetScreen)
+      setShowExitModal(true)
+    } else {
+      setCurrentScreen(targetScreen)
+    }
   }
 
   const confirmExit = () => {
@@ -70,31 +117,32 @@ function App() {
     setPendingScreen(null)
   }
 
-  // Стартовый экран
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontSize: '1.2rem', color: '#666' }}>
+        Загрузка...
+      </div>
+    )
+  }
+
   if (currentScreen === 'start') {
     return (
       <div className="app-container">
-        <HeaderWithLogo 
-          title="Финансовая грамотность для детей"
-          subtitle="Учись управлять деньгами весело и интересно!"
-        />
-
+        <HeaderWithLogo title="Финансовая грамотность для детей" subtitle="Учись управлять деньгами весело и интересно!" />
         <main className="main-content">
           <div className="stories-grid">
-            <div className="story-card" onClick={() => setCurrentScreen('story1')}>
+            <div className="story-card" onClick={() => openStory('story1', 'Покупка продуктов', 'Тебе нужно купить хлеб, молоко и что-то вкусное')}>
               <div className="story-icon">🛒</div>
               <h2>Покупка продуктов</h2>
-              <p>У тебя есть 500 рублей. Сможешь купить всё необходимое?</p>
+              <p>У тебя есть {balance} рублей. Сможешь купить всё необходимое?</p>
             </div>
-
-            <div className="story-card" onClick={() => setCurrentScreen('story2')}>
+            <div className="story-card" onClick={() => openStory('story2', 'Копим или берём в долг?', 'Узнай, что выгоднее: копить или взять кредит')}>
               <div className="story-icon">💰</div>
               <h2>Копим или берём в долг?</h2>
               <p>Хочешь новую игрушку? Что выгоднее: копить или взять кредит?</p>
             </div>
           </div>
         </main>
-
         <footer className="footer">
           <div>© 2026 Банк Центр-Инвест</div>
           <div className="contact-info">
@@ -102,202 +150,82 @@ function App() {
             <span>✉ info@center-invest.ru</span>
           </div>
         </footer>
-        
         <BotHelper tips={getTipsForScreen()} />
-      </div>
-    )
-  }
-  
-  // История 1
-  if (currentScreen === 'story1') {
-    return (
-      <div className="app-container">
-        <HeaderWithLogo 
-          title="Покупка продуктов"
-          isSmall={true}
-        />
-
-        <TopNavBar 
-          onBack={() => handleExit('start')}
-          progress={progress.story1}
-          stats={stats}
-        />
-
-        <main className="main-content" style={{ 
-          paddingTop: '0',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <div style={{ 
-            maxWidth: '700px',
-            width: '100%',
-            margin: '0 auto'
-          }}>
-            <div style={{ 
-              background: 'rgba(255,255,255,0.95)',
-              backdropFilter: 'blur(10px)',
-              borderRadius: '40px', 
-              padding: '45px 35px',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-              border: '1px solid rgba(255,255,255,0.6)',
-              textAlign: 'center'
-            }}>
-              <h3 style={{ 
-                marginBottom: '25px', 
-                color: '#ff6b35', 
-                fontSize: '1.8rem',
-                fontWeight: '600'
-              }}>
-                🛒 Твой бюджет: {stats.money} ₽
-              </h3>
-              
-              <p style={{ 
-                color: '#666', 
-                fontSize: '1.2rem',
-                marginBottom: '35px'
-              }}>
-                Здесь будет игра с продуктами!
-              </p>
-              
-              {/* Демо-кнопка - БОЛЬШАЯ И ПО ЦЕНТРУ */}
-              <div>
-                <button 
-                  onClick={() => setProgress({...progress, story1: Math.min(progress.story1 + 20, 100)})}
-                  style={{
-                    padding: '16px 35px',
-                    background: 'linear-gradient(135deg, #4CAF50, #45a049)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '40px',
-                    cursor: 'pointer',
-                    fontSize: '1.2rem',
-                    fontWeight: 'bold',
-                    boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
-                  }}
-                >
-                  +20% прогресса (демо)
-                </button>
-              </div>
-            </div>
-          </div>
-        </main>
-
-        <footer className="footer-small">
-          <span>Банк Центр-Инвест • Учимся финансовой грамотности</span>
-        </footer>
-        
-        <BotHelper tips={getTipsForScreen()} />
-
-        {showExitModal && (
-          <ExitModal onConfirm={confirmExit} onCancel={cancelExit} />
+        {showIntro && pendingStory === 'story1' && (
+          <StoryIntro title="Покупка продуктов" text="Сегодня ты пойдёшь в магазин один! У тебя есть деньги на счету. Нужно купить хлеб, молоко и что-то вкусное. Будь внимателен: денег может не хватить на всё!" onComplete={handleIntroComplete} />
+        )}
+        {showIntro && pendingStory === 'story2' && (
+          <StoryIntro title="Копим или берём в долг?" text="Ты очень хочешь новую игрушку, но денег пока не хватает. У тебя есть выбор: копить каждый день или попросить у родителей в долг. Что выберешь?" onComplete={handleIntroComplete} />
         )}
       </div>
     )
   }
   
-  // История 2
+  if (currentScreen === 'story1') {
+    return (
+      <div className="app-container">
+        <HeaderWithLogo title="Покупка продуктов" />
+        <TopNavBar onBack={() => handleExit('start')} progress={progress.story1} stats={{ ...stats, money: balance }} />
+        <main className="main-content" style={{ paddingTop: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ maxWidth: '800px', width: '100%', margin: '0 auto' }}>
+            <div style={{ background: 'rgba(255,255,255,0.95)', borderRadius: '40px', padding: '50px 40px', textAlign: 'center' }}>
+              <h3 style={{ marginBottom: '25px', color: '#2e7d32', fontSize: '1.8rem' }}>🛒 Твой бюджет: {balance} ₽</h3>
+              <p style={{ color: '#666', fontSize: '1.2rem', marginBottom: '35px' }}>Здесь будет игра с продуктами!</p>
+              <button onClick={() => {
+                const newProgress = Math.min(progress.story1 + 20, 100)
+                setProgress({...progress, story1: newProgress})
+                if (newProgress === 100) {
+                  speak('Поздравляю! Ты успешно справился с покупками!')
+                  completeStory()
+                }
+              }} style={{ padding: '16px 35px', background: 'linear-gradient(135deg, #2e7d32, #1b5e20)', color: 'white', border: 'none', borderRadius: '40px', cursor: 'pointer', fontSize: '1.2rem' }}>
+                +20% прогресса (демо)
+              </button>
+            </div>
+          </div>
+        </main>
+        <footer className="footer"><span>Банк Центр-Инвест • Учимся финансовой грамотности</span></footer>
+        <BotHelper tips={getTipsForScreen()} />
+        {showExitModal && <ExitModal onConfirm={confirmExit} onCancel={cancelExit} />}
+        {showOutro && <StoryOutro title="Покупка продуктов" text="Отлично! Ты справился с походом в магазин! Теперь ты знаешь, что важно планировать покупки и не тратить всё сразу. Получай награду: плюс десять к опыту!" onComplete={handleOutroComplete} />}
+      </div>
+    )
+  }
+  
   if (currentScreen === 'story2') {
     return (
       <div className="app-container">
-        <HeaderWithLogo 
-          title="Копим или берём в долг?"
-          isSmall={true}
-        />
-
-        <TopNavBar 
-          onBack={() => handleExit('start')}
-          progress={progress.story2}
-          stats={stats}
-        />
-
-        <main className="main-content" style={{ 
-          paddingTop: '0',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <div style={{ 
-            maxWidth: '700px',
-            width: '100%',
-            margin: '0 auto'
-          }}>
-            <div style={{ 
-              background: 'rgba(255,255,255,0.95)',
-              backdropFilter: 'blur(10px)',
-              borderRadius: '40px', 
-              padding: '45px 35px',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-              border: '1px solid rgba(255,255,255,0.6)',
-              textAlign: 'center'
-            }}>
-              <h3 style={{ 
-                marginBottom: '30px', 
-                color: '#ff6b35', 
-                fontSize: '1.8rem',
-                fontWeight: '600'
-              }}>
-                💰 Что выберешь?
-              </h3>
-              
+        <HeaderWithLogo title="Копим или берём в долг?" />
+        <TopNavBar onBack={() => handleExit('start')} progress={progress.story2} stats={{ ...stats, money: balance }} />
+        <main className="main-content" style={{ paddingTop: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ maxWidth: '800px', width: '100%', margin: '0 auto' }}>
+            <div style={{ background: 'rgba(255,255,255,0.95)', borderRadius: '40px', padding: '50px 40px', textAlign: 'center' }}>
+              <h3 style={{ marginBottom: '30px', color: '#2e7d32', fontSize: '1.8rem' }}>💰 Что выберешь?</h3>
               <div style={{ display: 'flex', gap: '20px', flexDirection: 'column', alignItems: 'center' }}>
-                <button 
-                  onClick={() => {
-                    setStats({...stats, money: 600, score: stats.score + 10})
-                    setProgress({...progress, story2: 100})
-                  }}
-                  style={{ 
-                    padding: '18px 30px',
-                    width: '100%',
-                    maxWidth: '350px',
-                    fontSize: '1.2rem', 
-                    borderRadius: '50px', 
-                    border: 'none', 
-                    background: 'linear-gradient(135deg, #4CAF50, #45a049)', 
-                    color: 'white', 
-                    cursor: 'pointer',
-                    fontWeight: 'bold',
-                    boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
-                  }}
-                >
+                <button onClick={() => {
+                  speak('Отличный выбор! Копить в банке выгодно, твои деньги будут расти')
+                  setStats({...stats, money: balance + 100, score: stats.score + 10})
+                  setProgress({...progress, story2: 100})
+                  completeStory()
+                }} style={{ padding: '18px 30px', width: '100%', maxWidth: '350px', fontSize: '1.2rem', borderRadius: '50px', border: 'none', background: 'linear-gradient(135deg, #2e7d32, #1b5e20)', color: 'white', cursor: 'pointer' }}>
                   🏦 Копить в банке (вклад)
                 </button>
-                
-                <button 
-                  onClick={() => {
-                    setStats({...stats, money: 450, score: stats.score + 5})
-                    setProgress({...progress, story2: 100})
-                  }}
-                  style={{ 
-                    padding: '18px 30px',
-                    width: '100%',
-                    maxWidth: '350px',
-                    fontSize: '1.2rem', 
-                    borderRadius: '50px', 
-                    border: 'none', 
-                    background: 'linear-gradient(135deg, #ff9800, #fb8c00)', 
-                    color: 'white', 
-                    cursor: 'pointer',
-                    fontWeight: 'bold',
-                    boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
-                  }}
-                >
+                <button onClick={() => {
+                  speak('Кредит удобен, но помни: отдавать придётся больше, чем взял')
+                  setStats({...stats, money: balance - 50, score: stats.score + 5})
+                  setProgress({...progress, story2: 100})
+                  completeStory()
+                }} style={{ padding: '18px 30px', width: '100%', maxWidth: '350px', fontSize: '1.2rem', borderRadius: '50px', border: 'none', background: 'linear-gradient(135deg, #ff9800, #fb8c00)', color: 'white', cursor: 'pointer' }}>
                   👨‍👩‍👧 Попросить у родителей (кредит)
                 </button>
               </div>
             </div>
           </div>
         </main>
-
-        <footer className="footer-small">
-          <span>Банк Центр-Инвест • Учимся финансовой грамотности</span>
-        </footer>
-        
+        <footer className="footer"><span>Банк Центр-Инвест • Учимся финансовой грамотности</span></footer>
         <BotHelper tips={getTipsForScreen()} />
-
-        {showExitModal && (
-          <ExitModal onConfirm={confirmExit} onCancel={cancelExit} />
-        )}
+        {showExitModal && <ExitModal onConfirm={confirmExit} onCancel={cancelExit} />}
+        {showOutro && <StoryOutro title="Копим или берём в долг?" text="Отличный выбор! Теперь ты знаешь разницу между вкладом и кредитом. Помни: копить выгоднее, но требует терпения!" onComplete={handleOutroComplete} />}
       </div>
     )
   }
