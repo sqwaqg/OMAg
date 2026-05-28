@@ -1,70 +1,73 @@
-import { useState, useEffect } from 'react'
-import TopNavBar from './components/TopNavBar'
-import HeaderWithLogo from './components/HeaderWithLogo'
-import BotHelper from './components/BotHelper'
-import ExitModal from './components/ExitModal'
-import StoryIntro from './components/StoryIntro'
-import StoryOutro from './components/StoryOutro'
-import DialogScene1 from './components/DialogScene1'
-import DialogScene2 from './components/DialogScene2'
-import ChoiceDialog2 from './components/ChoiceDialog2'
-import InteractiveBackground from './components/InteractiveBackground'
-import useSpeech from './hooks/useSpeech'
-import { story1Dialogs, story1IntroText, story1OutroText, story1Tips } from './data/story1Data'
-import { story2IntroText, story2OutroText, story2Tips, depositDialogs, creditDialogs, endingSuccess, endingFail, depositSuccess, familyDialogs } from './data/story2Data'
-import './index.css'
-import story1Image from './assets/images/story1.png'
-import story2Image from './assets/images/story2.png'
+import { useState, useEffect } from 'react';
+import TopNavBar from './components/TopNavBar';
+import HeaderWithLogo from './components/HeaderWithLogo';
+import BotHelper from './components/BotHelper';
+import ExitModal from './components/ExitModal';
+import StoryIntro from './components/StoryIntro';
+import StoryOutro from './components/StoryOutro';
+import DialogScene1 from './components/DialogScene1';
+import DialogScene2 from './components/DialogScene2';
+import ChoiceDialog2 from './components/ChoiceDialog2';
+import InteractiveBackground from './components/InteractiveBackground';
+import useSpeech from './hooks/useSpeech';
+import { story1Dialogs, story1IntroText, story1OutroText, story1Tips } from './data/story1Data';
+import { story2IntroText, story2OutroText, story2Tips, depositDialogs, creditDialogs, endingSuccess, endingFail, depositSuccess, familyDialogs } from './data/story2Data';
+import './index.css';
+import story1Image from './assets/images/story1.png';
+import story2Image from './assets/images/story2.png';
+import CatchGame from './components/CatchGame';
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState('start')
-  const [showIntro, setShowIntro] = useState(false)
-  const [showOutro, setShowOutro] = useState(false)
-  const [pendingStory, setPendingStory] = useState(null)
-  const [showExitModal, setShowExitModal] = useState(false)
-  const [pendingScreen, setPendingScreen] = useState(null)
-  const [gameStarted, setGameStarted] = useState(false)
-  const [botHighlight, setBotHighlight] = useState(false)
-  const { speak, stop } = useSpeech()
+  const [currentScreen, setCurrentScreen] = useState('start');
+  const [showIntro, setShowIntro] = useState(false);
+  const [showOutro, setShowOutro] = useState(false);
+  const [pendingStory, setPendingStory] = useState(null);
+  const [showExitModal, setShowExitModal] = useState(false);
+  const [pendingScreen, setPendingScreen] = useState(null);
+  const [gameStarted, setGameStarted] = useState(false);
+  const [botHighlight, setBotHighlight] = useState(false);
+  const { speak, stop } = useSpeech();
   
-  // Состояния для истории 2
-  const [story2Choice, setStory2Choice] = useState(null)
-  const [showChoice, setShowChoice] = useState(false)
-  const [showFamilyDialog, setShowFamilyDialog] = useState(false)
-  const [gameResult, setGameResult] = useState(null)
+  const [story2Choice, setStory2Choice] = useState(null);
+  const [showChoice, setShowChoice] = useState(false);
+  const [showFamilyDialog, setShowFamilyDialog] = useState(false);
+  const [gameResult, setGameResult] = useState(null);
   
-  const [balance, setBalance] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [showGame, setShowGame] = useState(false);
+  const [gameConfig, setGameConfig] = useState(null);
+  
+  const [balance, setBalance] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const [stats, setStats] = useState({
     money: 0,
     score: 0,
     level: 1
-  })
+  });
 
   const [progress, setProgress] = useState({
     story1: 0,
     story2: 0
-  })
+  });
 
   useEffect(() => {
     fetch('http://localhost:3001/api/game/state')
       .then(res => {
-        if (!res.ok) throw new Error('Бэкенд не отвечает')
-        return res.json()
+        if (!res.ok) throw new Error('Бэкенд не отвечает');
+        return res.json();
       })
       .then(data => {
-        console.log('Данные с бэкенда:', data)
-        setBalance(data.balance)
-        setStats(prev => ({ ...prev, money: data.balance || 0 }))
-        setLoading(false)
+        console.log('Данные с бэкенда:', data);
+        setBalance(data.balance);
+        setStats(prev => ({ ...prev, money: data.balance || 0 }));
+        setLoading(false);
       })
       .catch(error => {
-        console.warn('Бэкенд не доступен:', error.message)
-        setBalance(500)
-        setLoading(false)
-      })
-  }, [])
+        console.warn('Бэкенд не доступен:', error.message);
+        setBalance(500);
+        setLoading(false);
+      });
+  }, []);
 
   const getTipsForScreen = () => {
     if (currentScreen === 'start') {
@@ -79,130 +82,161 @@ function App() {
         'Не бойся ошибаться — это часть обучения!',
         'Финансовая грамотность открывает много возможностей!',
         'Я всегда рядом, если нужен совет!'
-      ]
+      ];
     }
     if (currentScreen === 'story1') {
-      return story1Tips
+      return story1Tips;
     }
     if (currentScreen === 'story2') {
-      return story2Tips
+      return story2Tips;
     }
-    return ['Нажми на меня, если нужен совет!', 'Я всегда готов помочь тебе!', 'Спроси меня о чём угодно!']
-  }
+    return ['Нажми на меня, если нужен совет!', 'Я всегда готов помочь тебе!', 'Спроси меня о чём угодно!'];
+  };
 
   const openStory = (storyId, storyTitle, storyDesc) => {
-  console.log('🔴 openStory ВЫЗВАН для', storyId)
-  stop()
-  speak(`Вы выбрали историю: ${storyTitle}. ${storyDesc}`)
-  setPendingStory(storyId)
-  setShowIntro(true)
-  setGameStarted(false)
-  // сброс состояний
-  setStory2Choice(null)
-  setShowChoice(false)
-  setShowFamilyDialog(false)
-  setGameResult(null)
-}
+    console.log('openStory called for', storyId);
+    stop();
+    speak(`Вы выбрали историю: ${storyTitle}. ${storyDesc}`);
+    setPendingStory(storyId);
+    setShowIntro(true);
+    setGameStarted(false);
+    setStory2Choice(null);
+    setShowChoice(false);
+    setShowFamilyDialog(false);
+    setGameResult(null);
+    setShowGame(false);
+    setGameConfig(null);
+  };
 
-const handleIntroComplete = () => {
-  console.log('🟢 handleIntroComplete ВЫЗВАН, pendingStory:', pendingStory)
-  setShowIntro(false)
-  if (pendingStory === 'story2') {
-    console.log('Переход на story2')
-    setCurrentScreen('story2')
-    setShowFamilyDialog(true)
-  } else if (pendingStory === 'story1') {
-    console.log('Переход на story1 для диалога, gameStarted = false')
-    setCurrentScreen('story1')
-    setGameStarted(false)   // ← ДИАЛОГ (не игра)
-  }
-  setPendingStory(null)
-}
+  const handleIntroComplete = () => {
+    console.log('handleIntroComplete called, pendingStory:', pendingStory);
+    setShowIntro(false);
+    if (pendingStory === 'story2') {
+      console.log('Переход на story2');
+      setCurrentScreen('story2');
+      setShowFamilyDialog(true);
+    } else if (pendingStory === 'story1') {
+      console.log('Переход на story1 для диалога');
+      setCurrentScreen('story1');
+      setGameStarted(false);
+    }
+    setPendingStory(null);
+  };
 
   const handleFamilyDialogComplete = () => {
-    console.log('Семейный диалог завершён, переходим к выбору')
-    setShowFamilyDialog(false)
-    setShowChoice(true)
-  }
+    console.log('Семейный диалог завершён, переходим к выбору');
+    setShowFamilyDialog(false);
+    setShowChoice(true);
+  };
 
   const handleChoiceComplete = (choice) => {
-    console.log('Выбор сделан:', choice)
-    setStory2Choice(choice)
-    setShowChoice(false)
-    setGameStarted(true)
-  }
+    console.log('Выбор сделан:', choice);
+    setStory2Choice(choice);
+    setShowChoice(false);
+    
+    if (choice === 'deposit') {
+      setGameConfig({
+        mode: 'deposit',
+        target: 500,
+        positiveValues: [100, 150],
+        negativeValues: [-50],
+        positiveCount: 48,
+        negativeCount: 2,
+        totalItems: 50,
+        stopOnTarget: true
+      });
+    } else {
+      setGameConfig({
+        mode: 'credit',
+        target: 2300,
+        positiveValues: [100, 150],
+        negativeValues: [-50, -150],
+        positiveCount: 32,
+        negativeCount: 18,
+        totalItems: 50,
+        stopOnTarget: true
+      });
+    }
+    setShowGame(true);
+  };
 
   const handleDialogComplete = () => {
-    console.log('Диалог завершён, currentScreen:', currentScreen)
+    console.log('Диалог завершён, currentScreen:', currentScreen);
     if (currentScreen === 'story1') {
-      setGameStarted(true)
+      setGameStarted(true);
     } else if (currentScreen === 'story2') {
       if (story2Choice === 'deposit') {
-        setGameResult('deposit_success')
+        setGameResult('deposit_success');
       } else {
-        setGameResult('credit_success')
+        setGameResult('credit_success');
       }
     }
-  }
+  };
 
   const completeStory = () => {
-    setShowOutro(true)
-  }
+    setShowOutro(true);
+  };
 
   const handleOutroComplete = () => {
-    setShowOutro(false)
-    setCurrentScreen('start')
-    setGameStarted(false)
-    setGameResult(null)
-    setStory2Choice(null)
-    setShowChoice(false)
-    setShowFamilyDialog(false)
-  }
+    setShowOutro(false);
+    setCurrentScreen('start');
+    setGameStarted(false);
+    setGameResult(null);
+    setStory2Choice(null);
+    setShowChoice(false);
+    setShowFamilyDialog(false);
+    setShowGame(false);
+    setGameConfig(null);
+  };
 
   const handleExit = (targetScreen) => {
-    const currentProgress = currentScreen === 'story1' ? progress.story1 : progress.story2
+    const currentProgress = currentScreen === 'story1' ? progress.story1 : progress.story2;
     if (currentProgress > 0) {
-      stop()
-      speak('Точно хочешь выйти? Весь прогресс будет потерян!')
-      setPendingScreen(targetScreen)
-      setShowExitModal(true)
+      stop();
+      speak('Точно хочешь выйти? Весь прогресс будет потерян!');
+      setPendingScreen(targetScreen);
+      setShowExitModal(true);
     } else {
-      setCurrentScreen(targetScreen)
-      setGameStarted(false)
-      setGameResult(null)
-      setStory2Choice(null)
-      setShowChoice(false)
-      setShowFamilyDialog(false)
+      setCurrentScreen(targetScreen);
+      setGameStarted(false);
+      setGameResult(null);
+      setStory2Choice(null);
+      setShowChoice(false);
+      setShowFamilyDialog(false);
+      setShowGame(false);
+      setGameConfig(null);
     }
-  }
+  };
 
   const confirmExit = () => {
     if (currentScreen === 'story1') {
-      setProgress({...progress, story1: 0})
+      setProgress({...progress, story1: 0});
     } else if (currentScreen === 'story2') {
-      setProgress({...progress, story2: 0})
+      setProgress({...progress, story2: 0});
     }
-    setCurrentScreen(pendingScreen)
-    setShowExitModal(false)
-    setPendingScreen(null)
-    setGameStarted(false)
-    setGameResult(null)
-    setStory2Choice(null)
-    setShowChoice(false)
-    setShowFamilyDialog(false)
-  }
+    setCurrentScreen(pendingScreen);
+    setShowExitModal(false);
+    setPendingScreen(null);
+    setGameStarted(false);
+    setGameResult(null);
+    setStory2Choice(null);
+    setShowChoice(false);
+    setShowFamilyDialog(false);
+    setShowGame(false);
+    setGameConfig(null);
+  };
 
   const cancelExit = () => {
-    setShowExitModal(false)
-    setPendingScreen(null)
-  }
+    setShowExitModal(false);
+    setPendingScreen(null);
+  };
 
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontSize: '1.2rem', color: '#666' }}>
         Загрузка...
       </div>
-    )
+    );
   }
 
   // СТАРТОВЫЙ ЭКРАН
@@ -253,31 +287,31 @@ const handleIntroComplete = () => {
           />
         )}
       </div>
-    )
+    );
   }
   
   // ИСТОРИЯ 1
   if (currentScreen === 'story1') {
-    console.log('🔵 Мы внутри блока story1, gameStarted =', gameStarted)
+    console.log('Story1 block, gameStarted =', gameStarted);
     if (!gameStarted) {
-      console.log('🟣 Запускаем DialogScene1 (диалог)')
+      console.log('Запускаем DialogScene1');
       return (
         <>
           <InteractiveBackground />
           <DialogScene1 
             onComplete={() => {
-              console.log('✅ Диалог завершён, переключаем gameStarted = true')
-              setGameStarted(true)
+              console.log('Диалог завершён, переключаем gameStarted = true');
+              setGameStarted(true);
             }} 
             balance={balance || stats.money}
             onBotHint={(isHighlight) => setBotHighlight(isHighlight)}
             dialogs={story1Dialogs}
           />
         </>
-      )
+      );
     }
     
-    console.log('🟢 Запускаем игру (бюджет 500 ₽)')
+    console.log('Запускаем игру (бюджет 500 ₽)');
     return (
       <div className="app-container">
         <InteractiveBackground />
@@ -301,11 +335,11 @@ const handleIntroComplete = () => {
                 Здесь будет игра с продуктами!
               </p>
               <button onClick={() => {
-                const newProgress = Math.min(progress.story1 + 20, 100)
-                setProgress({...progress, story1: newProgress})
+                const newProgress = Math.min(progress.story1 + 20, 100);
+                setProgress({...progress, story1: newProgress});
                 if (newProgress === 100) {
-                  speak('Поздравляю! Ты успешно справился с покупками!')
-                  completeStory()
+                  speak('Поздравляю! Ты успешно справился с покупками!');
+                  completeStory();
                 }
               }} style={{ 
                 padding: '16px 35px', 
@@ -327,12 +361,12 @@ const handleIntroComplete = () => {
         {showExitModal && <ExitModal onConfirm={confirmExit} onCancel={cancelExit} />}
         {showOutro && <StoryOutro title={story1OutroText.title} text={story1OutroText.text} onComplete={handleOutroComplete} />}
       </div>
-    )
+    );
   }
   
   // ИСТОРИЯ 2
   if (currentScreen === 'story2') {
-    // Этап 0: семейный диалог (родители и девочка)
+    // Семейный диалог
     if (showFamilyDialog) {
       return (
         <>
@@ -344,45 +378,87 @@ const handleIntroComplete = () => {
             onBotHint={(isHighlight) => setBotHighlight(isHighlight)}
           />
         </>
-      )
+      );
     }
     
-    // Этап 1: выбор между мамой и папой
+    // Выбор между мамой и папой
     if (showChoice) {
       return (
         <>
           <InteractiveBackground />
           <ChoiceDialog2 onChoice={handleChoiceComplete} />
         </>
-      )
+      );
     }
     
-    // Этап 2: диалог в зависимости от выбора
-    if (gameStarted && !gameResult) {
-      const dialogs = story2Choice === 'deposit' ? depositDialogs : creditDialogs
+    // Игра (ловля монет)
+    if (showGame && gameConfig) {
       return (
-        <>
-          <InteractiveBackground />
-          <DialogScene2 
-            onComplete={handleDialogComplete}
-            balance={balance || stats.money}
-            dialogs={dialogs}
-            onBotHint={(isHighlight) => setBotHighlight(isHighlight)}
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'white', zIndex: 1000, overflow: 'auto' }}>
+          <CatchGame
+            config={gameConfig}
+            onFinish={(result, finalScore) => {
+              setShowGame(false);
+              let message = '';
+              let moneyChange = 0;
+              
+              if (gameConfig.mode === 'deposit') {
+                if (finalScore >= 500) {
+                  message = 'Ты накопила 500 рублей. Вместе с процентами по вкладу и подарками на день рождения ты можешь купить ноутбук или планшет с чехлом.';
+                  moneyChange = 500;
+                  setGameResult('deposit_success');
+                } else {
+                  message = 'Доченька, со дня твоего рождения и вклада прошёл ровно год. У тебя накопилось 11500 рублей. Ты накопила 500 рублей, как мы договаривались? (Ответ: Нет, я не накопила). Смотри, у тебя сегодня было день рождения, тебе подарили деньги, плюс остались деньги с прошлого дня рождения, плюс 1500 рублей благодаря вкладу. Ты можешь сложить свои деньги и купить ноутбук вместо планшета, либо купить планшет и какой-нибудь чехол к нему.';
+                  moneyChange = 0;
+                  setGameResult('deposit_fail');
+                }
+              } else {
+                if (result === 'win') {
+                  message = 'Ты вернул долг! Планшет и серёжки — твои!';
+                  moneyChange = 2300;
+                  setGameResult('credit_success');
+                } else {
+                  message = 'Ты не накопил 2300. Папа продал твои серёжки, они покрыли остаток долга. Планшет остался, но серёжек больше нет.';
+                  moneyChange = 0;
+                  setGameResult('credit_fail');
+                }
+              }
+              
+              fetch('http://localhost:3001/api/game/earn', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: moneyChange })
+              }).catch(err => console.warn('API error:', err));
+              
+              setStats(prev => ({ ...prev, money: prev.money + moneyChange }));
+              setProgress(prev => ({ ...prev, story2: 100 }));
+              speak(message);
+            }}
           />
-        </>
-      )
+        </div>
+      );
     }
     
-    // Этап 3: финал
+    // Финальный диалог
     if (gameResult) {
-      let endingTitle = ''
-      let endingText = ''
+      let endingTitle = '';
+      let endingText = '';
       if (story2Choice === 'deposit') {
-        endingTitle = depositSuccess.title
-        endingText = depositSuccess.text
+        if (gameResult === 'deposit_success') {
+          endingTitle = depositSuccess.title;
+          endingText = depositSuccess.text;
+        } else {
+          endingTitle = 'История с вкладом';
+          endingText = 'Доченька, со дня твоего рождения и вклада прошёл ровно год. У тебя накопилось 11500 рублей. Ты накопила 500 рублей, как мы договаривались? (Ответ: Нет, я не накопила). Смотри, у тебя сегодня было день рождения, тебе подарили деньги, плюс остались деньги с прошлого дня рождения, плюс 1500 рублей благодаря вкладу. Ты можешь сложить свои деньги и купить ноутбук вместо планшета, либо купить планшет и какой-нибудь чехол к нему.';
+        }
       } else {
-        endingTitle = endingSuccess.title
-        endingText = endingSuccess.text
+        if (gameResult === 'credit_success') {
+          endingTitle = endingSuccess.title;
+          endingText = endingSuccess.text;
+        } else {
+          endingTitle = endingFail.title;
+          endingText = endingFail.text;
+        }
       }
       return (
         <StoryOutro 
@@ -390,13 +466,13 @@ const handleIntroComplete = () => {
           text={endingText}
           onComplete={handleOutroComplete}
         />
-      )
+      );
     }
     
-    return null
+    return null;
   }
 
-  return null
+  return null;
 }
 
-export default App
+export default App;
