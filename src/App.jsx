@@ -5,14 +5,16 @@ import BotHelper from './components/BotHelper'
 import ExitModal from './components/ExitModal'
 import StoryIntro from './components/StoryIntro'
 import StoryOutro from './components/StoryOutro'
-import DialogScene from './components/DialogScene'
-import useSpeech from './hooks/useSpeech'
+import DialogScene1 from './components/DialogScene1'
+import DialogScene2 from './components/DialogScene2'
+import ChoiceDialog2 from './components/ChoiceDialog2'
 import InteractiveBackground from './components/InteractiveBackground'
+import useSpeech from './hooks/useSpeech'
+import { story1Dialogs, story1IntroText, story1OutroText, story1Tips } from './data/story1Data'
+import { story2IntroText, story2OutroText, story2Tips, depositDialogs, creditDialogs, endingSuccess, endingFail, depositSuccess, familyDialogs } from './data/story2Data'
 import './index.css'
 import story1Image from './assets/images/story1.png'
 import story2Image from './assets/images/story2.png'
-import { story1Dialogs, story1IntroText, story1OutroText, story1Tips } from './data/story1Data'
-import { story2Dialogs, story2IntroText, story2OutroText, story2Tips } from './data/story2Data'
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState('start')
@@ -24,6 +26,12 @@ function App() {
   const [gameStarted, setGameStarted] = useState(false)
   const [botHighlight, setBotHighlight] = useState(false)
   const { speak, stop } = useSpeech()
+  
+  // Состояния для истории 2
+  const [story2Choice, setStory2Choice] = useState(null)
+  const [showChoice, setShowChoice] = useState(false)
+  const [showFamilyDialog, setShowFamilyDialog] = useState(false)
+  const [gameResult, setGameResult] = useState(null)
   
   const [balance, setBalance] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -58,74 +66,83 @@ function App() {
       })
   }, [])
 
-const getTipsForScreen = () => {
-  if (currentScreen === 'start') {
-    return [
-      'Привет! Я твой друг и помощник в мире денег!',
-      'Давай вместе учиться управлять деньгами!',
-      'Деньги — это весело, когда знаешь, как с ними обращаться!',
-      'Я здесь, чтобы помочь тебе стать финансово грамотным!',
-      'Каждый день узнавай что-то новое о деньгах!',
-      'Вместе мы научимся копить и тратить с умом!',
-      'Не бойся ошибаться — это часть обучения!',
-      'Финансовая грамотность открывает много возможностей!',
-      'Я всегда рядом, если нужен совет!'
-    ]
+  const getTipsForScreen = () => {
+    if (currentScreen === 'start') {
+      return [
+        'Привет! Я твой друг и помощник в мире денег!',
+        'Давай вместе учиться управлять деньгами!',
+        'Деньги — это весело, когда знаешь, как с ними обращаться!',
+        'Я здесь, чтобы помочь тебе стать финансово грамотным!',
+        'Каждый день узнавай что-то новое о деньгах!',
+        'Ты можешь задать мне любой вопрос о финансах!',
+        'Вместе мы научимся копить и тратить с умом!',
+        'Не бойся ошибаться — это часть обучения!',
+        'Финансовая грамотность открывает много возможностей!',
+        'Я всегда рядом, если нужен совет!'
+      ]
+    }
+    if (currentScreen === 'story1') {
+      return story1Tips
+    }
+    if (currentScreen === 'story2') {
+      return story2Tips
+    }
+    return ['Нажми на меня, если нужен совет!', 'Я всегда готов помочь тебе!', 'Спроси меня о чём угодно!']
   }
-  if (currentScreen === 'story1') {
-    return [
-      'Сначала купи хлеб и молоко — это самое важное!',
-      'Смотри на цены и сравнивай товары!',
-      'Не бери всё подряд — думай о бюджете!',
-      'Сладости можно купить, но только после нужных продуктов!',
-      'Составь список до магазина — так легче!',
-      'Помни: нужное важнее желаемого!',
-      'Иногда дешевле купить больше и дешевле за килограмм!',
-      'Не забывай проверять срок годности!',
-      '500 рублей — это не так много, выбирай с умом!',
-      'Ты справишься, главное — внимательность!'
-    ]
-  }
-  if (currentScreen === 'story2') {
-    return [
-      'Копить каждый день понемногу — отличная привычка!',
-      'Вклад в банке — твои деньги работают на тебя!',
-      'Кредит удобен, но отдавать придётся больше!',
-      'Маленькие сбережения превращаются в большую цель!',
-      'Подумай дважды, прежде чем взять в долг!',
-      'Копить сложнее, но выгоднее в конце!',
-      'Установи цель и копи шаг за шагом!',
-      'Каждый отложенный рубль приближает мечту!',
-      'Банковский вклад помогает сохранить деньги!',
-      'Кредит бери только в самом крайнем случае!'
-    ]
-  }
-  return [
-    'Нажми на меня, если нужен совет!',
-    'Я всегда готов помочь тебе!',
-    'Спроси меня о чём угодно!'
-  ]
-}
 
   const openStory = (storyId, storyTitle, storyDesc) => {
-    console.log('openStory:', storyId)
-    stop()
-    speak(`Вы выбрали историю: ${storyTitle}. ${storyDesc}`)
-    setPendingStory(storyId)
-    setShowIntro(true)
+  console.log('🔴 openStory ВЫЗВАН для', storyId)
+  stop()
+  speak(`Вы выбрали историю: ${storyTitle}. ${storyDesc}`)
+  setPendingStory(storyId)
+  setShowIntro(true)
+  setGameStarted(false)
+  // сброс состояний
+  setStory2Choice(null)
+  setShowChoice(false)
+  setShowFamilyDialog(false)
+  setGameResult(null)
+}
+
+const handleIntroComplete = () => {
+  console.log('🟢 handleIntroComplete ВЫЗВАН, pendingStory:', pendingStory)
+  setShowIntro(false)
+  if (pendingStory === 'story2') {
+    console.log('Переход на story2')
+    setCurrentScreen('story2')
+    setShowFamilyDialog(true)
+  } else if (pendingStory === 'story1') {
+    console.log('Переход на story1 для диалога, gameStarted = false')
+    setCurrentScreen('story1')
+    setGameStarted(false)   // ← ДИАЛОГ (не игра)
+  }
+  setPendingStory(null)
+}
+
+  const handleFamilyDialogComplete = () => {
+    console.log('Семейный диалог завершён, переходим к выбору')
+    setShowFamilyDialog(false)
+    setShowChoice(true)
   }
 
-  const handleIntroComplete = () => {
-    console.log('Интро завершено, переходим к диалогу')
-    setShowIntro(false)
-    // Сразу переключаем на экран истории, но диалог покажется через gameStarted
-    setCurrentScreen(pendingStory)
-    setPendingStory(null)
+  const handleChoiceComplete = (choice) => {
+    console.log('Выбор сделан:', choice)
+    setStory2Choice(choice)
+    setShowChoice(false)
+    setGameStarted(true)
   }
 
   const handleDialogComplete = () => {
-    console.log('Диалог завершён, начинаем игру')
-    setGameStarted(true)
+    console.log('Диалог завершён, currentScreen:', currentScreen)
+    if (currentScreen === 'story1') {
+      setGameStarted(true)
+    } else if (currentScreen === 'story2') {
+      if (story2Choice === 'deposit') {
+        setGameResult('deposit_success')
+      } else {
+        setGameResult('credit_success')
+      }
+    }
   }
 
   const completeStory = () => {
@@ -136,6 +153,10 @@ const getTipsForScreen = () => {
     setShowOutro(false)
     setCurrentScreen('start')
     setGameStarted(false)
+    setGameResult(null)
+    setStory2Choice(null)
+    setShowChoice(false)
+    setShowFamilyDialog(false)
   }
 
   const handleExit = (targetScreen) => {
@@ -148,6 +169,10 @@ const getTipsForScreen = () => {
     } else {
       setCurrentScreen(targetScreen)
       setGameStarted(false)
+      setGameResult(null)
+      setStory2Choice(null)
+      setShowChoice(false)
+      setShowFamilyDialog(false)
     }
   }
 
@@ -161,6 +186,10 @@ const getTipsForScreen = () => {
     setShowExitModal(false)
     setPendingScreen(null)
     setGameStarted(false)
+    setGameResult(null)
+    setStory2Choice(null)
+    setShowChoice(false)
+    setShowFamilyDialog(false)
   }
 
   const cancelExit = () => {
@@ -176,7 +205,7 @@ const getTipsForScreen = () => {
     )
   }
 
-  // ========== СТАРТОВЫЙ ЭКРАН (с интро) ==========
+  // СТАРТОВЫЙ ЭКРАН
   if (currentScreen === 'start') {
     return (
       <div className="app-container">
@@ -191,7 +220,6 @@ const getTipsForScreen = () => {
               <h2>Покупка продуктов</h2>
               <p>У тебя есть {balance} рублей. Сможешь купить всё необходимое?</p>
             </div>
-
             <div className="story-card" onClick={() => openStory('story2', 'Копим или берём в долг?', 'Узнай, что выгоднее: копить или взять кредит')}>
               <div className="story-image">
                 <img src={story2Image} alt="Копим или берём в долг?" />
@@ -210,143 +238,165 @@ const getTipsForScreen = () => {
         </footer>
         <BotHelper tips={getTipsForScreen()} highlight={botHighlight} />
         
-        {/* ИНТРО - показывается поверх стартового экрана */}
         {showIntro && pendingStory === 'story1' && (
           <StoryIntro 
-            title="Покупка продуктов" 
-            text="Сегодня ты пойдёшь в магазин один! У тебя есть деньги на счету. Нужно купить хлеб, молоко и что-то вкусное. Будь внимателен: денег может не хватить на всё!" 
-            onComplete={handleIntroComplete} 
+            title={story1IntroText.title}
+            text={story1IntroText.text}
+            onComplete={handleIntroComplete}
           />
         )}
         {showIntro && pendingStory === 'story2' && (
           <StoryIntro 
-            title="Копим или берём в долг?" 
-            text="Ты очень хочешь новую игрушку, но денег пока не хватает. У тебя есть выбор: копить каждый день или попросить у родителей в долг. Что выберешь?" 
-            onComplete={handleIntroComplete} 
+            title={story2IntroText.title}
+            text={story2IntroText.text}
+            onComplete={handleIntroComplete}
           />
         )}
       </div>
     )
   }
   
- // ИСТОРИЯ 1
-if (currentScreen === 'story1') {
-  if (!gameStarted) {
-    return (
-      <>
-        <InteractiveBackground />
-        <DialogScene 
-          onComplete={handleDialogComplete} 
-          balance={balance || stats.money}
-          onBotHint={(isHighlight) => setBotHighlight(isHighlight)}
-          dialogs={story1Dialogs}
-        />
-        <BotHelper tips={story1Tips} highlight={botHighlight} />
-      </>
-    )
-  }
-  
-  return (
-    <div className="app-container">
-      <InteractiveBackground />
-      <HeaderWithLogo title="Покупка продуктов" />
-      <TopNavBar onBack={() => handleExit('start')} progress={progress.story1} stats={{ ...stats, money: balance }} />
-      <main className="main-content" style={{ paddingTop: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ maxWidth: '800px', width: '100%', margin: '0 auto' }}>
-          <div style={{ 
-            background: 'rgba(255, 255, 255, 0.9)',
-            backdropFilter: 'blur(12px)',
-            borderRadius: '40px', 
-            padding: '50px 40px',
-            boxShadow: '0 15px 35px rgba(0, 0, 0, 0.15)',
-            textAlign: 'center',
-            border: '1px solid rgba(255, 255, 255, 0.4)'
-          }}>
-            <h3 style={{ marginBottom: '25px', color: '#1a5c1a', fontSize: '1.8rem' }}>
-              🛒 Твой бюджет: {balance} ₽
-            </h3>
-            <p style={{ color: '#3a5a3a', fontSize: '1.2rem', marginBottom: '35px' }}>
-              Здесь будет игра с продуктами!
-            </p>
-            <button onClick={() => {
-              const newProgress = Math.min(progress.story1 + 20, 100)
-              setProgress({...progress, story1: newProgress})
-              if (newProgress === 100) {
-                speak('Поздравляю! Ты успешно справился с покупками!')
-                completeStory()
-              }
-            }} style={{ 
-              padding: '16px 35px', 
-              background: 'linear-gradient(135deg, #2e7d32, #1b5e20)', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '40px', 
-              cursor: 'pointer', 
-              fontSize: '1.2rem',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
-            }}>
-              +20% прогресса (демо)
-            </button>
-          </div>
-        </div>
-      </main>
-      <footer className="footer"><span>Банк Центр-Инвест • Учимся финансовой грамотности</span></footer>
-      <BotHelper tips={story1Tips} highlight={botHighlight} />
-      {showExitModal && <ExitModal onConfirm={confirmExit} onCancel={cancelExit} />}
-      {showOutro && <StoryOutro title={story1OutroText.title} text={story1OutroText.text} onComplete={handleOutroComplete} />}
-    </div>
-  )
-}
-  
-  // ========== ИСТОРИЯ 2 ==========
-  if (currentScreen === 'story2') {
+  // ИСТОРИЯ 1
+  if (currentScreen === 'story1') {
+    console.log('🔵 Мы внутри блока story1, gameStarted =', gameStarted)
     if (!gameStarted) {
+      console.log('🟣 Запускаем DialogScene1 (диалог)')
       return (
-        <DialogScene 
-          onComplete={handleDialogComplete} 
-          balance={balance || stats.money}
-          onBotHint={(isHighlight) => setBotHighlight(isHighlight)}
-        />
+        <>
+          <InteractiveBackground />
+          <DialogScene1 
+            onComplete={() => {
+              console.log('✅ Диалог завершён, переключаем gameStarted = true')
+              setGameStarted(true)
+            }} 
+            balance={balance || stats.money}
+            onBotHint={(isHighlight) => setBotHighlight(isHighlight)}
+            dialogs={story1Dialogs}
+          />
+        </>
       )
     }
     
+    console.log('🟢 Запускаем игру (бюджет 500 ₽)')
     return (
       <div className="app-container">
         <InteractiveBackground />
-        <HeaderWithLogo title="Копим или берём в долг?" />
-        <TopNavBar onBack={() => handleExit('start')} progress={progress.story2} stats={{ ...stats, money: balance }} />
+        <HeaderWithLogo title="Покупка продуктов" />
+        <TopNavBar onBack={() => handleExit('start')} progress={progress.story1} stats={{ ...stats, money: balance }} />
         <main className="main-content" style={{ paddingTop: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ maxWidth: '800px', width: '100%', margin: '0 auto' }}>
-            <div style={{ background: 'rgba(255,255,255,0.95)', borderRadius: '40px', padding: '50px 40px', textAlign: 'center' }}>
-              <h3 style={{ marginBottom: '30px', color: '#2e7d32', fontSize: '1.8rem' }}>💰 Что выберешь?</h3>
-              <div style={{ display: 'flex', gap: '20px', flexDirection: 'column', alignItems: 'center' }}>
-                <button onClick={() => {
-                  speak('Отличный выбор! Копить в банке выгодно, твои деньги будут расти')
-                  setStats({...stats, money: balance + 100, score: stats.score + 10})
-                  setProgress({...progress, story2: 100})
+            <div style={{ 
+              background: 'rgba(255, 255, 255, 0.9)',
+              backdropFilter: 'blur(12px)',
+              borderRadius: '40px', 
+              padding: '50px 40px',
+              boxShadow: '0 15px 35px rgba(0, 0, 0, 0.15)',
+              textAlign: 'center',
+              border: '1px solid rgba(255, 255, 255, 0.4)'
+            }}>
+              <h3 style={{ marginBottom: '25px', color: '#1a5c1a', fontSize: '1.8rem' }}>
+                🛒 Твой бюджет: {balance} ₽
+              </h3>
+              <p style={{ color: '#3a5a3a', fontSize: '1.2rem', marginBottom: '35px' }}>
+                Здесь будет игра с продуктами!
+              </p>
+              <button onClick={() => {
+                const newProgress = Math.min(progress.story1 + 20, 100)
+                setProgress({...progress, story1: newProgress})
+                if (newProgress === 100) {
+                  speak('Поздравляю! Ты успешно справился с покупками!')
                   completeStory()
-                }} style={{ padding: '18px 30px', width: '100%', maxWidth: '350px', fontSize: '1.2rem', borderRadius: '50px', border: 'none', background: 'linear-gradient(135deg, #2e7d32, #1b5e20)', color: 'white', cursor: 'pointer' }}>
-                  🏦 Копить в банке (вклад)
-                </button>
-                <button onClick={() => {
-                  speak('Кредит удобен, но помни: отдавать придётся больше, чем взял')
-                  setStats({...stats, money: balance - 50, score: stats.score + 5})
-                  setProgress({...progress, story2: 100})
-                  completeStory()
-                }} style={{ padding: '18px 30px', width: '100%', maxWidth: '350px', fontSize: '1.2rem', borderRadius: '50px', border: 'none', background: 'linear-gradient(135deg, #ff9800, #fb8c00)', color: 'white', cursor: 'pointer' }}>
-                  👨‍👩‍👧 Попросить у родителей (кредит)
-                </button>
-              </div>
+                }
+              }} style={{ 
+                padding: '16px 35px', 
+                background: 'linear-gradient(135deg, #2e7d32, #1b5e20)', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '40px', 
+                cursor: 'pointer', 
+                fontSize: '1.2rem',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+              }}>
+                +20% прогресса (демо)
+              </button>
             </div>
           </div>
         </main>
         <footer className="footer"><span>Банк Центр-Инвест • Учимся финансовой грамотности</span></footer>
         <BotHelper tips={getTipsForScreen()} highlight={botHighlight} />
         {showExitModal && <ExitModal onConfirm={confirmExit} onCancel={cancelExit} />}
-        {showOutro && <StoryOutro title="Копим или берём в долг?" text="Отличный выбор! Теперь ты знаешь разницу между вкладом и кредитом. Помни: копить выгоднее, но требует терпения!" onComplete={handleOutroComplete} />}
+        {showOutro && <StoryOutro title={story1OutroText.title} text={story1OutroText.text} onComplete={handleOutroComplete} />}
       </div>
     )
   }
+  
+  // ИСТОРИЯ 2
+  if (currentScreen === 'story2') {
+    // Этап 0: семейный диалог (родители и девочка)
+    if (showFamilyDialog) {
+      return (
+        <>
+          <InteractiveBackground />
+          <DialogScene2 
+            onComplete={handleFamilyDialogComplete}
+            balance={balance || stats.money}
+            dialogs={familyDialogs}
+            onBotHint={(isHighlight) => setBotHighlight(isHighlight)}
+          />
+        </>
+      )
+    }
+    
+    // Этап 1: выбор между мамой и папой
+    if (showChoice) {
+      return (
+        <>
+          <InteractiveBackground />
+          <ChoiceDialog2 onChoice={handleChoiceComplete} />
+        </>
+      )
+    }
+    
+    // Этап 2: диалог в зависимости от выбора
+    if (gameStarted && !gameResult) {
+      const dialogs = story2Choice === 'deposit' ? depositDialogs : creditDialogs
+      return (
+        <>
+          <InteractiveBackground />
+          <DialogScene2 
+            onComplete={handleDialogComplete}
+            balance={balance || stats.money}
+            dialogs={dialogs}
+            onBotHint={(isHighlight) => setBotHighlight(isHighlight)}
+          />
+        </>
+      )
+    }
+    
+    // Этап 3: финал
+    if (gameResult) {
+      let endingTitle = ''
+      let endingText = ''
+      if (story2Choice === 'deposit') {
+        endingTitle = depositSuccess.title
+        endingText = depositSuccess.text
+      } else {
+        endingTitle = endingSuccess.title
+        endingText = endingSuccess.text
+      }
+      return (
+        <StoryOutro 
+          title={endingTitle}
+          text={endingText}
+          onComplete={handleOutroComplete}
+        />
+      )
+    }
+    
+    return null
+  }
+
+  return null
 }
 
 export default App
