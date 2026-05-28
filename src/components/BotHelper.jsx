@@ -4,8 +4,9 @@ import botNormal from '../assets/images/bot_normal.png'
 import botSleepy from '../assets/images/bot_sleepy.png'
 import botSleeping from '../assets/images/bot_sleeping.png'
 import botWaking from '../assets/images/bot_waking.png'
+import botHappy from '../assets/images/bot_happy.png'
 
-function BotHelper({ tips, highlight = false }) {
+function BotHelper({ tips, highlight = false, isHappy = false }) {
   const [showTip, setShowTip] = useState(false)
   const [currentTip, setCurrentTip] = useState('')
   const [isHovered, setIsHovered] = useState(false)
@@ -141,8 +142,11 @@ function BotHelper({ tips, highlight = false }) {
     }, 100)
   }
 
-  // Выбор картинки
+  // Выбор картинки (ДОБАВЛЕНА ПРОВЕРКА НА isHappy)
   const getBotImage = () => {
+    // Если бот счастливый - показываем счастливую картинку
+    if (isHappy) return botHappy
+    
     switch (botState) {
       case 'sleepy': return botSleepy
       case 'sleeping': return botSleeping
@@ -168,7 +172,7 @@ function BotHelper({ tips, highlight = false }) {
           transition: 'all 0.2s ease',
           borderRadius: '50%',
           overflow: 'hidden',
-          background: 'linear-gradient(135deg, #7ec8e0, #4a90b0, #2c6e8f)',
+          background: 'linear-gradient(135deg, #e9d5ff, #c084fc, #a855f7, #7e22ce)',
           border: '3px solid rgba(255, 255, 255, 0.9)',
           boxShadow: isHovered ? '0 8px 30px rgba(0,0,0,0.3)' : '0 6px 20px rgba(0,0,0,0.2)'
         }}

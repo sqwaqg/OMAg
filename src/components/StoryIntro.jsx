@@ -5,14 +5,14 @@ function StoryIntro({ title, text, onComplete }) {
   const [isFadingOut, setIsFadingOut] = useState(false)
   const { speak, stop } = useSpeech()
 
-  // Автоматическая быстрая озвучка при появлении
+  // Автоматическая озвучка при появлении
   useEffect(() => {
     speak(text, { rate: 0.95 })
-    return () => stop()
+    return () => stop() // ← очистка при размонтировании
   }, [text, speak, stop])
 
   const handleContinue = () => {
-    stop()
+    stop() // ← останавливаем озвучку перед закрытием
     setIsFadingOut(true)
     setTimeout(() => {
       onComplete()

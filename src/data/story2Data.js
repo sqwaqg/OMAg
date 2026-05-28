@@ -72,16 +72,21 @@ export const story2Tips = [
 
 export const gameConfig = {
   deposit: {
-    initialMoney: 10000,
-    targetMoney: 12300,
-    interest: 15,
-    years: 1
+    target: 500,
+    positiveValues: [100, 150],
+    negativeValues: [-50, -150],
+    positiveCount: 5,
+    negativeCount: 3,
+    totalItems: 8,
+    stopOnTarget: true
   },
   credit: {
-    loanAmount: 2000,
-    targetMoney: 2300,
-    interest: 15,
-    years: 1,
-    penalty: 'earrings'
+    target: 2300,
+    positiveValues: [100, 150],
+    negativeValues: [-50, -150],
+    positiveCount: 12,
+    negativeCount: 6,
+    totalItems: 18,
+    stopOnTarget: true
   }
-}
+};

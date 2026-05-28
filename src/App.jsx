@@ -16,6 +16,8 @@ import './index.css';
 import story1Image from './assets/images/story1.png';
 import story2Image from './assets/images/story2.png';
 import CatchGame from './components/CatchGame';
+import VictoryDialog from './components/VictoryDialog';
+import LossDialog from './components/LossDialog';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState('start');
@@ -178,6 +180,7 @@ function App() {
   };
 
   const handleOutroComplete = () => {
+    stop();
     setShowOutro(false);
     setCurrentScreen('start');
     setGameStarted(false);
@@ -185,14 +188,14 @@ function App() {
     setStory2Choice(null);
     setShowChoice(false);
     setShowFamilyDialog(false);
-    setShowGame(false);
-    setGameConfig(null);
   };
 
   const handleExit = (targetScreen) => {
     const currentProgress = currentScreen === 'story1' ? progress.story1 : progress.story2;
+    
+    stop();
+    
     if (currentProgress > 0) {
-      stop();
       speak('Точно хочешь выйти? Весь прогресс будет потерян!');
       setPendingScreen(targetScreen);
       setShowExitModal(true);
@@ -203,12 +206,12 @@ function App() {
       setStory2Choice(null);
       setShowChoice(false);
       setShowFamilyDialog(false);
-      setShowGame(false);
-      setGameConfig(null);
     }
   };
 
   const confirmExit = () => {
+    stop();
+    
     if (currentScreen === 'story1') {
       setProgress({...progress, story1: 0});
     } else if (currentScreen === 'story2') {
@@ -222,8 +225,6 @@ function App() {
     setStory2Choice(null);
     setShowChoice(false);
     setShowFamilyDialog(false);
-    setShowGame(false);
-    setGameConfig(null);
   };
 
   const cancelExit = () => {
@@ -270,7 +271,7 @@ function App() {
             <span>✉ info@center-invest.ru</span>
           </div>
         </footer>
-        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} />
+        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} isHappy={false} />
         
         {showIntro && pendingStory === 'story1' && (
           <StoryIntro 
@@ -299,13 +300,14 @@ function App() {
         <>
           <InteractiveBackground />
           <DialogScene1 
-            onComplete={() => {
-              console.log('Диалог завершён, переключаем gameStarted = true');
-              setGameStarted(true);
-            }} 
+            onComplete={handleDialogComplete} 
             balance={balance || stats.money}
             onBotHint={(isHighlight) => setBotHighlight(isHighlight)}
             dialogs={story1Dialogs}
+            onUpdateBalance={(newBalance) => {
+              setBalance(newBalance);
+              setStats(prev => ({ ...prev, money: newBalance }));
+            }}
           />
         </>
       );
@@ -357,7 +359,7 @@ function App() {
           </div>
         </main>
         <footer className="footer"><span>Банк Центр-Инвест • Учимся финансовой грамотности</span></footer>
-        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} />
+        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} isHappy={false} />
         {showExitModal && <ExitModal onConfirm={confirmExit} onCancel={cancelExit} />}
         {showOutro && <StoryOutro title={story1OutroText.title} text={story1OutroText.text} onComplete={handleOutroComplete} />}
       </div>
@@ -377,6 +379,7 @@ function App() {
             dialogs={familyDialogs}
             onBotHint={(isHighlight) => setBotHighlight(isHighlight)}
           />
+          <BotHelper tips={story2Tips} highlight={botHighlight} isHappy={false} />
         </>
       );
     }
@@ -387,6 +390,7 @@ function App() {
         <>
           <InteractiveBackground />
           <ChoiceDialog2 onChoice={handleChoiceComplete} />
+          <BotHelper tips={story2Tips} highlight={botHighlight} isHappy={false} />
         </>
       );
     }
@@ -408,17 +412,17 @@ function App() {
                   moneyChange = 500;
                   setGameResult('deposit_success');
                 } else {
-                  message = 'Доченька, со дня твоего рождения и вклада прошёл ровно год. У тебя накопилось 11500 рублей. Ты накопила 500 рублей, как мы договаривались? (Ответ: Нет, я не накопила). Смотри, у тебя сегодня было день рождения, тебе подарили деньги, плюс остались деньги с прошлого дня рождения, плюс 1500 рублей благодаря вкладу. Ты можешь сложить свои деньги и купить ноутбук вместо планшета, либо купить планшет и какой-нибудь чехол к нему.';
+                  message = 'Доченька, со дня твоего рождения и вклада прошёл ровно год. У тебя накопилось 11500 рублей. Ты не накопила 500 рублей, как мы договаривались? Смотри, у тебя сегодня было день рождения, тебе подарили деньги, плюс остались деньги с прошлого дня рождения, плюс 1500 рублей благодаря вкладу. Ты можешь сложить свои деньги и купить ноутбук вместо планшета, либо купить планшет и какой-нибудь чехол к нему.';
                   moneyChange = 0;
                   setGameResult('deposit_fail');
                 }
               } else {
                 if (result === 'win') {
-                  message = 'Ты вернул долг! Планшет и серёжки — твои!';
+                  message = 'Ты вернула долг! Планшет и бантики — твои!';
                   moneyChange = 2300;
                   setGameResult('credit_success');
                 } else {
-                  message = 'Ты не накопил 2300. Папа продал твои серёжки, они покрыли остаток долга. Планшет остался, но серёжек больше нет.';
+                  message = 'Ты не накопила 2300. Папа продал твои бантики, они покрыли остаток долга. Планшет остался, но бантиков больше нет.';
                   moneyChange = 0;
                   setGameResult('credit_fail');
                 }
@@ -434,6 +438,10 @@ function App() {
               setProgress(prev => ({ ...prev, story2: 100 }));
               speak(message);
             }}
+            onBack={() => {
+              setShowGame(false);
+              setShowChoice(true);
+            }}
           />
         </div>
       );
@@ -441,30 +449,60 @@ function App() {
     
     // Финальный диалог
     if (gameResult) {
+      // Победа в кредите или вкладе — показываем счастливый диалог с планшетом
+      if ((story2Choice === 'credit' && gameResult === 'credit_success') ||
+          (story2Choice === 'deposit' && gameResult === 'deposit_success')) {
+        return (
+          <VictoryDialog 
+            onComplete={() => {
+              setGameResult(null);
+              setStory2Choice(null);
+              setShowChoice(false);
+              setGameStarted(false);
+              setCurrentScreen('start');
+            }}
+            score={stats.money}
+            type={story2Choice}
+          />
+        );
+      }
+      
+      // Поражение в кредите — показываем диалог с потерей бантиков
+      if (story2Choice === 'credit' && gameResult === 'credit_fail') {
+        return (
+          <LossDialog 
+            onComplete={() => {
+              setGameResult(null);
+              setStory2Choice(null);
+              setShowChoice(false);
+              setGameStarted(false);
+              setCurrentScreen('start');
+            }}
+            type="credit"
+          />
+        );
+      }
+      
+      // Поражение во вкладе — оставляем старый текст (или можно сделать отдельный диалог)
+      // Пока оставим как было
       let endingTitle = '';
       let endingText = '';
-      if (story2Choice === 'deposit') {
-        if (gameResult === 'deposit_success') {
-          endingTitle = depositSuccess.title;
-          endingText = depositSuccess.text;
-        } else {
-          endingTitle = 'История с вкладом';
-          endingText = 'Доченька, со дня твоего рождения и вклада прошёл ровно год. У тебя накопилось 11500 рублей. Ты накопила 500 рублей, как мы договаривались? (Ответ: Нет, я не накопила). Смотри, у тебя сегодня было день рождения, тебе подарили деньги, плюс остались деньги с прошлого дня рождения, плюс 1500 рублей благодаря вкладу. Ты можешь сложить свои деньги и купить ноутбук вместо планшета, либо купить планшет и какой-нибудь чехол к нему.';
-        }
-      } else {
-        if (gameResult === 'credit_success') {
-          endingTitle = endingSuccess.title;
-          endingText = endingSuccess.text;
-        } else {
-          endingTitle = endingFail.title;
-          endingText = endingFail.text;
-        }
+      if (story2Choice === 'deposit' && gameResult === 'deposit_fail') {
+        endingTitle = 'История с вкладом';
+        endingText = 'Доченька, со дня твоего рождения и вклада прошёл ровно год. У тебя накопилось 11500 рублей. Ты накопила 500 рублей, как мы договаривались? Смотри, у тебя сегодня было день рождения, тебе подарили деньги, плюс остались деньги с прошлого дня рождения, плюс 1500 рублей благодаря вкладу. Ты можешь сложить свои деньги и купить ноутбук вместо планшета, либо купить планшет и какой-нибудь чехол к нему.';
       }
+      
       return (
         <StoryOutro 
           title={endingTitle}
           text={endingText}
-          onComplete={handleOutroComplete}
+          onComplete={() => {
+            setGameResult(null);
+            setStory2Choice(null);
+            setShowChoice(false);
+            setGameStarted(false);
+            setCurrentScreen('start');
+          }}
         />
       );
     }
