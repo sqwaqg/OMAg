@@ -120,7 +120,7 @@ function BotHelper({ tips, highlight = false }) {
           animation: 'none',
           borderRadius: '50%',
           overflow: 'hidden',
-          backgroundColor: 'rgba(46, 125, 86, 0.85)',
+          backgroundColor: 'rgba(134, 84, 180, 0.85)',
           border: '3px solid rgba(255, 255, 255, 0.9)',
           boxShadow: isHovered ? '0 8px 30px rgba(0,0,0,0.25)' : '0 6px 20px rgba(0,0,0,0.2)',
           boxSizing: 'border-box'
@@ -152,7 +152,6 @@ function BotHelper({ tips, highlight = false }) {
           boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
           zIndex: 999,
           animation: 'bounceIn 0.3s ease',
-          borderLeft: '4px solid #2e7d56'
         }}>
           <p style={{ margin: 0, fontSize: '1.1rem', color: '#333', lineHeight: '1.5' }}>
             {currentTip}
