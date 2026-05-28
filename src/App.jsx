@@ -11,10 +11,10 @@ import ChoiceDialog2 from './components/ChoiceDialog2'
 import InteractiveBackground from './components/InteractiveBackground'
 import useSpeech from './hooks/useSpeech'
 import { story1Dialogs, story1IntroText, story1OutroText, story1Tips } from './data/story1Data'
-import { story2IntroText, story2OutroText, story2Tips, depositDialogs, creditDialogs, endingSuccess, endingFail, depositSuccess, familyDialogs } from './data/story2Data'
 import './index.css'
 import story1Image from './assets/images/story1.png'
 import story2Image from './assets/images/story2.png'
+import { story2IntroText, story2OutroText, story2Tips, depositDialogs, creditDialogs, endingSuccess, endingFail, depositSuccess, depositFail, familyDialogs } from './data/story2Data'
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState('start')
@@ -374,24 +374,29 @@ const handleIntroComplete = () => {
     }
     
     // Этап 3: финал
-    if (gameResult) {
-      let endingTitle = ''
-      let endingText = ''
-      if (story2Choice === 'deposit') {
-        endingTitle = depositSuccess.title
-        endingText = depositSuccess.text
-      } else {
-        endingTitle = endingSuccess.title
-        endingText = endingSuccess.text
+      if (gameResult) {
+        let endingTitle = ''
+        let endingText = ''
+        if (story2Choice === 'deposit') {
+          if (gameResult === 'deposit_success') {
+            endingTitle = depositSuccess.title
+            endingText = depositSuccess.text
+          } else if (gameResult === 'deposit_fail') {
+            endingTitle = depositFail.title
+            endingText = depositFail.text
+          }
+        } else {
+          endingTitle = endingSuccess.title
+          endingText = endingSuccess.text
+        }
+        return (
+          <StoryOutro 
+            title={endingTitle}
+            text={endingText}
+            onComplete={handleOutroComplete}
+          />
+        )
       }
-      return (
-        <StoryOutro 
-          title={endingTitle}
-          text={endingText}
-          onComplete={handleOutroComplete}
-        />
-      )
-    }
     
     return null
   }

@@ -17,13 +17,8 @@ function BotHelper({ tips, highlight = false }) {
   const autoTipTimer = useRef(null)
   const tipTimer = useRef(null)
 
-  // Показать случайный совет (без эмодзи)
   const showRandomTip = () => {
-    // Не показываем советы если бот не в нормальном состоянии
-    if (botState !== 'normal') {
-      /*console.log('Бот не в normal, совет не показываем. Состояние:', botState)*/
-      return
-    }
+    if (botState !== 'normal') return
     if (!tips || tips.length === 0) return
     
     if (tipTimer.current) clearTimeout(tipTimer.current)
@@ -37,35 +32,24 @@ function BotHelper({ tips, highlight = false }) {
     }, 5000)
   }
 
-  // Запуск автоматических подсказок (только если бот в normal)
   const startAutoTips = () => {
     if (autoTipTimer.current) clearInterval(autoTipTimer.current)
     autoTipTimer.current = setInterval(() => {
-      // Проверяем ещё раз внутри интервала
       if (botState === 'normal' && !showTip) {
         showRandomTip()
       }
     }, 10000)
   }
 
-  // Функция пробуждения
   const wakeUp = () => {
-    /*console.log('wakeUp вызван, текущее состояние:', botState)*/
-    
-    // Очищаем старые таймеры
     if (inactivityTimer.current) clearTimeout(inactivityTimer.current)
     if (sleepTimer.current) clearTimeout(sleepTimer.current)
     
-    // Если бот спит - показываем пробуждение
     if (botState === 'sleeping') {
       setBotState('waking')
-      /*console.log('Состояние изменено на waking')*/
-      
       if (wakingTimer.current) clearTimeout(wakingTimer.current)
       wakingTimer.current = setTimeout(() => {
-        /*console.log('Возврат в normal из waking')*/
         setBotState('normal')
-        // Запускаем новый цикл бездействия
         startInactivityTimer()
       }, 1500)
     } else if (botState === 'sleepy') {
@@ -77,29 +61,22 @@ function BotHelper({ tips, highlight = false }) {
     }
   }
 
-  // Запуск таймера бездействия (12 секунд до sleepy)
   const startInactivityTimer = () => {
     if (inactivityTimer.current) clearTimeout(inactivityTimer.current)
     if (sleepTimer.current) clearTimeout(sleepTimer.current)
     
     inactivityTimer.current = setTimeout(() => {
-      /*console.log('Таймер бездействия: переводим в sleepy')*/
       setBotState('sleepy')
-      
       sleepTimer.current = setTimeout(() => {
-        /*console.log('Таймер сна: переводим в sleeping')*/
         setBotState('sleeping')
       }, 1500)
-    }, 12000) // 12 секунд бездействия
+    }, 12000)
   }
 
-  // Сброс бездействия при активности
   const resetInactivity = () => {
-    /*console.log('resetInactivity вызван')*/
     wakeUp()
   }
 
-  // Следим за активностью пользователя
   useEffect(() => {
     const events = ['click', 'mousemove', 'keydown', 'touchstart']
     const handleActivity = () => resetInactivity()
@@ -118,22 +95,18 @@ function BotHelper({ tips, highlight = false }) {
     }
   }, [])
 
-  // Следим за изменением botState для перезапуска авто-подсказок
   useEffect(() => {
     if (botState === 'normal') {
-      // Если вернулись в normal, убеждаемся что таймер подсказок работает
       startAutoTips()
     }
   }, [botState])
 
-  // При наведении на бота
   useEffect(() => {
     if (isHovered) {
       resetInactivity()
     }
   }, [isHovered])
 
-  // Клик по боту
   const handleBotClick = () => {
     resetInactivity()
     setTimeout(() => {
@@ -141,7 +114,6 @@ function BotHelper({ tips, highlight = false }) {
     }, 100)
   }
 
-  // Выбор картинки
   const getBotImage = () => {
     switch (botState) {
       case 'sleepy': return botSleepy
@@ -168,7 +140,7 @@ function BotHelper({ tips, highlight = false }) {
           transition: 'all 0.2s ease',
           borderRadius: '50%',
           overflow: 'hidden',
-          background: 'linear-gradient(135deg, #7ec8e0, #4a90b0, #2c6e8f)',
+          background: 'linear-gradient(135deg, #c5a3ff, #8b5cf6, #6d28d9, #4c1d95)',
           border: '3px solid rgba(255, 255, 255, 0.9)',
           boxShadow: isHovered ? '0 8px 30px rgba(0,0,0,0.3)' : '0 6px 20px rgba(0,0,0,0.2)'
         }}
