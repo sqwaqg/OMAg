@@ -1,3 +1,5 @@
+import botSleeping from '../assets/images/bot_sleeping.png';
+
 function ExitModal({ onConfirm, onCancel }) {
   return (
     <div style={{
@@ -37,7 +39,7 @@ function ExitModal({ onConfirm, onCancel }) {
           fontSize: '2.5rem',
           boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
         }}>
-          🦊
+          <img src={botSleeping} alt="Бот" style={{ width: '60px', height: '60px', borderRadius: '50%' }} />
         </div>
         <h3 style={{ marginBottom: '12px', color: '#1a5c1a', fontSize: '1.5rem' }}>Точно хочешь выйти?</h3>
         <p style={{ marginBottom: '25px', color: '#4a6a4a', fontSize: '1rem', lineHeight: '1.4' }}>

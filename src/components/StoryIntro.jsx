@@ -7,9 +7,9 @@ function StoryIntro({ title, text, onComplete }) {
 
   // Автоматическая быстрая озвучка при появлении
   useEffect(() => {
-    speak(text, { rate: 0.95 })
-    return () => stop()
-  }, [text, speak, stop])
+  speak(text, { rate: 1.2 });
+  return () => stop(); // это уже есть
+}, [text, speak, stop]);
 
   const handleContinue = () => {
     stop()

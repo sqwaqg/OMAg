@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import useSpeech from '../hooks/useSpeech'
 import background2 from '../assets/images/background2.png'
-import foxGirl from '../assets/images/fox_girl.png'
+import foxGirl from '../assets/images/fox_girl_with_bows.png'  // ← изменено
 import foxMother from '../assets/images/fox_mother.png'
 import foxFather from '../assets/images/fox_father.png'
 
@@ -120,25 +120,25 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs }) {
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.5s ease'
     }} onClick={handleScreenClick}>
       
-      {/* Девочка слева */}
-      <div style={{ position: 'absolute', bottom: 0, left: '10%', width: '35%', maxWidth: '350px', animation: 'slideInLeft 0.5s ease', zIndex: 5 }}>
+      {/* Девочка слева (8%) */}
+      <div style={{ position: 'absolute', bottom: 0, left: '8%', width: '35%', maxWidth: '350px', animation: 'slideInLeft 0.5s ease', zIndex: 5 }}>
         <img src={foxGirl} alt="Лисёнок" style={{ width: '100%', height: 'auto' }} />
       </div>
 
-      {/* Мама справа */}
-      <div style={{ position: 'absolute', bottom: 0, right: '18%', width: '32%', maxWidth: '320px', animation: 'slideInRight 0.5s ease', zIndex: 5 }}>
-        <img src={foxMother} alt="Мама" style={{ width: '100%', height: 'auto' }} />
-      </div>
-
-      {/* Папа справа выше */}
-      <div style={{ position: 'absolute', bottom: '8%', right: '5%', width: '34%', maxWidth: '340px', animation: 'slideInRight 0.5s ease', zIndex: 4 }}>
+      {/* Папа справа — должен быть ближе к зрителю (выше z-index) */}
+      <div style={{ position: 'absolute', bottom: '2%', left: '70%', width: '38%', maxWidth: '380px', animation: 'slideInRight 0.5s ease', zIndex: 6 }}>
         <img src={foxFather} alt="Папа" style={{ width: '100%', height: 'auto' }} />
       </div>
 
-      {/* Облачко девочки */}
+      {/* Мама справа — сзади */}
+      <div style={{ position: 'absolute', bottom: 0, left: '60%', width: '38%', maxWidth: '380px', animation: 'slideInRight 0.5s ease', zIndex: 5 }}>
+        <img src={foxMother} alt="Мама" style={{ width: '100%', height: 'auto' }} />
+      </div>
+
+      {/* Облачко девочки — слева, ближе к ней */}
       {isGirl && dialogText && (
         <div style={{
-          position: 'absolute', bottom: '50%', left: '18%', width: '40%', maxWidth: '380px',
+          position: 'absolute', bottom: '50%', left: '15%', width: '35%', maxWidth: '350px',
           backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: '28px', padding: '18px 24px',
           animation: 'bubbleAppearLeft 0.3s ease', zIndex: 10
         }}>
@@ -147,10 +147,10 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs }) {
         </div>
       )}
 
-      {/* Облачко мамы */}
+      {/* Облачко мамы — справа, над мамой */}
       {isMother && dialogText && (
         <div style={{
-          position: 'absolute', bottom: '50%', right: '28%', width: '40%', maxWidth: '380px',
+          position: 'absolute', bottom: '55%', left: '55%', width: '35%', maxWidth: '350px',
           backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: '28px', padding: '18px 24px',
           animation: 'bubbleAppearRight 0.3s ease', zIndex: 10
         }}>
@@ -159,10 +159,10 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs }) {
         </div>
       )}
 
-      {/* Облачко папы */}
+      {/* Облачко папы — справа, над папой */}
       {isFather && dialogText && (
         <div style={{
-          position: 'absolute', bottom: '50%', right: '12%', width: '40%', maxWidth: '380px',
+          position: 'absolute', bottom: '55%', left: '65%', width: '35%', maxWidth: '350px',
           backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: '28px', padding: '18px 24px',
           animation: 'bubbleAppearRight 0.3s ease', zIndex: 10
         }}>
@@ -170,8 +170,6 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs }) {
           <p style={{ fontSize: '1.2rem', lineHeight: '1.45', color: '#333' }}>{dialogText}</p>
         </div>
       )}
-
-      <button onClick={goToNext} style={{ position: 'absolute', bottom: '5%', right: '5%', padding: '12px 28px', backgroundColor: '#2e7d32', color: 'white', border: 'none', borderRadius: '40px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer', zIndex: 20 }}>Вперёд →</button>
 
       <style>{`
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

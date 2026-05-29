@@ -4,8 +4,9 @@ import botNormal from '../assets/images/bot_normal.png'
 import botSleepy from '../assets/images/bot_sleepy.png'
 import botSleeping from '../assets/images/bot_sleeping.png'
 import botWaking from '../assets/images/bot_waking.png'
+import botHappy from '../assets/images/bot_happy.png'
 
-function BotHelper({ tips, highlight = false }) {
+function BotHelper({ tips, highlight = false, isHappy = false, customTip = '' }) {
   const [showTip, setShowTip] = useState(false)
   const [currentTip, setCurrentTip] = useState('')
   const [isHovered, setIsHovered] = useState(false)
@@ -16,6 +17,18 @@ function BotHelper({ tips, highlight = false }) {
   const wakingTimer = useRef(null)
   const autoTipTimer = useRef(null)
   const tipTimer = useRef(null)
+
+  // Показываем внешнюю подсказку (из игры)
+  useEffect(() => {
+    if (customTip && customTip !== '') {
+      setCurrentTip(customTip)
+      setShowTip(true)
+      if (tipTimer.current) clearTimeout(tipTimer.current)
+      tipTimer.current = setTimeout(() => {
+        setShowTip(false)
+      }, 5000)
+    }
+  }, [customTip])
 
   const showRandomTip = () => {
     if (botState !== 'normal') return
@@ -115,6 +128,7 @@ function BotHelper({ tips, highlight = false }) {
   }
 
   const getBotImage = () => {
+    if (isHappy) return botHappy
     switch (botState) {
       case 'sleepy': return botSleepy
       case 'sleeping': return botSleeping
