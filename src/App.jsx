@@ -43,6 +43,7 @@ function App() {
   const [balance, setBalance] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Состояния для 1 истории (магазин)
   const [difficulty, setDifficulty] = useState(null);
   const [showShop, setShowShop] = useState(false);
 
@@ -113,6 +114,9 @@ function App() {
     setGameResult(null);
     setShowGame(false);
     setGameConfig(null);
+    // Сброс для 1 истории
+    setDifficulty(null);
+    setShowShop(false);
   };
 
   const handleIntroComplete = () => {
@@ -195,6 +199,8 @@ function App() {
     setShowFamilyDialog(false);
     setShowGame(false);
     setGameConfig(null);
+    setDifficulty(null);
+    setShowShop(false);
   };
 
   const handleExit = (targetScreen) => {
@@ -213,6 +219,8 @@ function App() {
       setShowFamilyDialog(false);
       setShowGame(false);
       setGameConfig(null);
+      setDifficulty(null);
+      setShowShop(false);
     }
   };
 
@@ -232,6 +240,8 @@ function App() {
     setShowFamilyDialog(false);
     setShowGame(false);
     setGameConfig(null);
+    setDifficulty(null);
+    setShowShop(false);
   };
 
   const cancelExit = () => {
@@ -300,6 +310,7 @@ function App() {
   
   // ИСТОРИЯ 1
   if (currentScreen === 'story1') {
+    // Диалог с мамой
     if (!gameStarted) {
       return (
         <>
@@ -316,64 +327,93 @@ function App() {
       );
     }
     
+    // Выбор сложности и магазин (без TopNavBar и прогресса)
     return (
-      <div className="app-container">
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, overflow: 'auto' }}>
         <InteractiveBackground />
-        <HeaderWithLogo title="Покупка продуктов" />
-        <TopNavBar onBack={() => handleExit('start')} progress={progress.story1} stats={{ ...stats, money: balance }} />
-        <main className="main-content" style={{ paddingTop: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ maxWidth: '800px', width: '100%', margin: '0 auto' }}>
-            <div style={{ 
-              background: 'rgba(255, 255, 255, 0.9)',
-              backdropFilter: 'blur(12px)',
-              borderRadius: '40px', 
-              padding: '50px 40px',
-              boxShadow: '0 15px 35px rgba(0, 0, 0, 0.15)',
-              textAlign: 'center',
-              border: '1px solid rgba(255, 255, 255, 0.4)'
-            }}>
-              {!difficulty && !showShop && (
-  <div style={{ textAlign: 'center', marginTop: '20px' }}>
-    <h3>Выберите уровень сложности</h3>
-    <div style={{ marginTop: '20px' }}>
-      <button
-        onClick={() => setDifficulty('easy')}
-        style={{ margin: '10px', padding: '12px 24px', fontSize: '16px', cursor: 'pointer' }}
-      >
-        Лёгкий
-      </button>
-      <button
-        onClick={() => setDifficulty('hard')}
-        style={{ margin: '10px', padding: '12px 24px', fontSize: '16px', cursor: 'pointer' }}
-      >
-        Сложный
-      </button>
-    </div>
-  </div>
-)}
-
-{difficulty && !showShop && (
-  <div style={{ marginTop: '20px' }}>
-    <ShopGame
-      difficulty={difficulty}
-      onFinish={(totalSpent) => {
-        setShowShop(true);
-        const remaining = 500 - totalSpent;
-        fetch('http://localhost:3001/api/game/earn', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: remaining })
-        }).catch(err => console.warn('API error:', err));
-        setProgress(prev => ({ ...prev, story1: 100 }));
-        completeStory();
-      }}
-    />
-  </div>
-)}
+        {!difficulty && !showShop && (
+          <div style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: 'rgba(255,255,255,0.95)',
+            backdropFilter: 'blur(12px)',
+            borderRadius: '40px',
+            padding: '40px',
+            textAlign: 'center',
+            zIndex: 1001,
+            minWidth: '300px'
+          }}>
+            <h2 style={{ color: '#2e7d32', marginBottom: '20px' }}>🛒 Выбери уровень сложности</h2>
+            <p style={{ marginBottom: '25px', color: '#666' }}>Чем выше сложность, тем дороже продукты!</p>
+            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setDifficulty('easy')}
+                style={{
+                  padding: '15px 35px',
+                  background: 'linear-gradient(135deg, #4caf50, #2e7d32)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50px',
+                  fontSize: '1.2rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer'
+                }}
+              >
+                🟢 Лёгкий уровень
+              </button>
+              <button
+                onClick={() => setDifficulty('hard')}
+                style={{
+                  padding: '15px 35px',
+                  background: 'linear-gradient(135deg, #ff9800, #f57c00)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50px',
+                  fontSize: '1.2rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer'
+                }}
+              >
+                🔴 Сложный уровень
+              </button>
             </div>
           </div>
-        </main>
-        <footer className="footer"><span>Банк Центр-Инвест • Учимся финансовой грамотности</span></footer>
+        )}
+        
+        {difficulty && !showShop && (
+          <ShopGame
+            difficulty={difficulty}
+            onFinish={(totalSpent) => {
+              setShowShop(true);
+              const remaining = (balance || stats.money) - totalSpent;
+              const earned = totalSpent;
+              
+              setBalance(remaining);
+              setStats(prev => ({ ...prev, money: remaining }));
+              setProgress(prev => ({ ...prev, story1: 100 }));
+              
+              fetch('http://localhost:3001/api/game/earn', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: earned })
+              }).catch(err => console.warn('API error:', err));
+              
+              if (totalSpent <= (balance || stats.money)) {
+                speak('Поздравляю! Ты успешно справился с покупками!');
+              } else {
+                speak('Ты превысил бюджет! В следующий раз будь внимательнее.');
+              }
+              
+              completeStory();
+            }}
+            onBack={() => {
+              setDifficulty(null);
+            }}
+          />
+        )}
+        
         <BotHelper tips={getTipsForScreen()} highlight={botHighlight} />
         {showExitModal && <ExitModal onConfirm={confirmExit} onCancel={cancelExit} />}
         {showOutro && <StoryOutro title={story1OutroText.title} text={story1OutroText.text} onComplete={handleOutroComplete} />}
@@ -448,7 +488,7 @@ function App() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ amount: moneyChange })
               }).catch(err => console.warn('API error:', err));
-              
+            
               setStats(prev => ({ ...prev, money: prev.money + moneyChange }));
               setProgress(prev => ({ ...prev, story2: 100 }));
               speak(message);
