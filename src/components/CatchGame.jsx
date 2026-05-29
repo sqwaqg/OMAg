@@ -21,7 +21,6 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
   const [missed, setMissed] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [result, setResult] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(60);
   const catcherRef = useRef(null);
   const gameAreaRef = useRef(null);
   const animationRef = useRef(null);
@@ -54,7 +53,7 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
       encouragementTimer.current = setInterval(() => {
         const randomPhrase = encouragementPhrases[Math.floor(Math.random() * encouragementPhrases.length)];
         if (onEncouragement) onEncouragement(randomPhrase);
-      }, 5000); // каждые 5 секунд
+      }, 5000);
     };
     
     startEncouragementTimer();
@@ -63,23 +62,6 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
       if (encouragementTimer.current) clearInterval(encouragementTimer.current);
     };
   }, [gameOver, onEncouragement]);
-
-  // Таймер
-  useEffect(() => {
-    if (gameOver) return;
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setGameOver(true);
-          setResult('lose');
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [gameOver]);
 
   const generateItems = () => {
     const itemsList = [];
@@ -264,7 +246,7 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
-          ← Назад
+          Назад
         </button>
         
         <div style={{ 
@@ -281,41 +263,26 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
           <span>🎯</span> Цель: {target} ₽
         </div>
         
-        <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-          <div style={{ 
-            fontSize: '1.2rem', 
-            fontWeight: 'bold', 
-            color: timeLeft < 10 ? '#c62828' : '#2e7d32',
-            background: 'rgba(46,125,50,0.15)',
-            padding: '8px 16px',
-            borderRadius: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}>
-            <span>⏱️</span> {timeLeft} сек
-          </div>
-          <div style={{ 
-            fontSize: '1.5rem', 
-            fontWeight: 'bold', 
-            color: '#1b5e20',
-            background: 'rgba(46,125,50,0.15)',
-            padding: '8px 20px',
-            borderRadius: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            minWidth: '150px',
-            justifyContent: 'center'
-          }}>
-            <span>💰</span> <span style={{ minWidth: '70px', textAlign: 'center' }}>{score}</span> ₽
-          </div>
+        <div style={{ 
+          fontSize: '1.5rem', 
+          fontWeight: 'bold', 
+          color: '#1b5e20',
+          background: 'rgba(46,125,50,0.15)',
+          padding: '8px 20px',
+          borderRadius: '40px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          minWidth: '150px',
+          justifyContent: 'center'
+        }}>
+          <span>💰</span> <span style={{ minWidth: '70px', textAlign: 'center' }}>{score}</span> ₽
         </div>
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'center', gap: '30px', marginBottom: '15px' }}>
-        <div style={{ fontSize: '1rem', color: '#2e7d32' }}>✅ Поймано: {caught}</div>
-        <div style={{ fontSize: '1rem', color: '#c62828' }}>❌ Промахи: {missed}</div>
+        <div style={{ fontSize: '1rem', color: '#2e7d32' }}>Поймано: {caught}</div>
+        <div style={{ fontSize: '1rem', color: '#c62828' }}>Промахи: {missed}</div>
       </div>
 
       <div
@@ -366,7 +333,7 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
                 zIndex: 10
               }}
             >
-              <img src={itemImage} alt="монета" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              <img src={itemImage} alt="coin" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             </div>
           );
         })}
@@ -386,7 +353,7 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
         >
           <img 
             src={pigImage} 
-            alt="Копилка"
+            alt="piggy bank"
             style={{
               width: '100%',
               height: '100%',
