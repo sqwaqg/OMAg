@@ -17,17 +17,17 @@ const ShopGame = ({ difficulty, onFinish }) => {
   ];
 
   const prices = {
-  easy: {
-    bread: [40, 60], milk: [70, 90], eggs: [100, 130], carrot: [30, 50],
-    sausage: [150, 200], yogurt: [60, 90], banana: [50, 80], candy: [20, 35],
-    lollipop: [15, 25], cocacola: [80, 110], ball: [200, 300], apple: [60, 90]
-  },
-  hard: {
-    bread: [52, 67], milk: [69, 112], eggs: [87, 115], carrot: [45, 89],
-    sausage: [120, 209], yogurt: [77, 118], banana: [66, 99], candy: [29, 54],
-    lollipop: [22, 41], cocacola: [99, 144], ball: [99, 199], apple: [79, 119]
-  }
-};
+    easy: {
+      bread: [40, 60], milk: [70, 90], eggs: [100, 130], carrot: [30, 50],
+      sausage: [150, 200], yogurt: [60, 90], banana: [50, 80], candy: [20, 35],
+      lollipop: [15, 25], cocacola: [80, 110], ball: [200, 300], apple: [60, 90]
+    },
+    hard: {
+      bread: [52, 67], milk: [69, 112], eggs: [87, 115], carrot: [45, 89],
+      sausage: [120, 209], yogurt: [77, 118], banana: [66, 99], candy: [29, 54],
+      lollipop: [22, 41], cocacola: [99, 144], ball: [99, 199], apple: [79, 119]
+    }
+  };
 
   const currentPrices = prices[difficulty];
   const [selectedItems, setSelectedItems] = useState({});
@@ -37,21 +37,29 @@ const ShopGame = ({ difficulty, onFinish }) => {
   const balance = 500;
   const itemsPerSlide = 6;
   const totalSlides = Math.ceil(categories.length / itemsPerSlide);
-  const currentItems = categories.slice(currentSlide * itemsPerSlide, (currentSlide + 1) * itemsPerSlide);
+  const currentCategories = categories.slice(currentSlide * itemsPerSlide, (currentSlide + 1) * itemsPerSlide);
+
+  // Проверка, выбран ли товар (любой вариант)
+  const isSelected = (categoryId) => {
+    return !!selectedItems[categoryId];
+  };
 
   const selectItem = (category, variant) => {
     const price = currentPrices[category.id][variant];
-    const currentSelection = selectedItems[category.id];
+    const currentlySelected = selectedItems[category.id];
 
-    if (currentSelection && currentSelection.variant === variant) {
+    // Если уже выбран этот же вариант — удаляем
+    if (currentlySelected && currentlySelected.variant === variant) {
       removeItem(category.id);
       return;
     }
 
-    if (currentSelection) {
+    // Если выбран другой вариант — сначала удаляем старый
+    if (currentlySelected) {
       removeItem(category.id, false);
     }
 
+    // Добавляем новый вариант
     setSelectedItems(prev => ({
       ...prev,
       [category.id]: { variant, price, name: category.name, required: category.required }
@@ -106,23 +114,23 @@ const ShopGame = ({ difficulty, onFinish }) => {
 
   return (
     <div style={{ display: 'flex', gap: '30px', padding: '20px' }}>
-      {/* Левая часть: товары и слайды */}
+      {/* Левая часть: товары (каждый вариант — отдельная кнопка) */}
       <div style={{ flex: 2 }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px', marginBottom: '20px' }}>
-          {currentItems.map(cat => (
+          {currentCategories.map(cat => (
             <div key={cat.id} style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '12px' }}>
-              <strong>{cat.name}</strong> {cat.required && <span style={{ color: 'red' }}>(обяз)</span>}
-              <div style={{ marginTop: '10px' }}>
-                <button onClick={() => selectItem(cat, 0)} style={{ marginRight: '10px', padding: '8px 12px' }}>
-                  Дешёвый: {currentPrices[cat.id][0]} ₽
+              <div><strong>{cat.name}</strong> {cat.required && <span style={{ color: 'red' }}>(обяз)</span>}</div>
+              <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
+                <button onClick={() => selectItem(cat, 0)} style={{ flex: 1, padding: '8px' }}>
+                  {currentPrices[cat.id][0]} ₽
                 </button>
-                <button onClick={() => selectItem(cat, 1)} style={{ padding: '8px 12px' }}>
-                  Дорогой: {currentPrices[cat.id][1]} ₽
+                <button onClick={() => selectItem(cat, 1)} style={{ flex: 1, padding: '8px' }}>
+                  {currentPrices[cat.id][1]} ₽
                 </button>
               </div>
-              {selectedItems[cat.id] && (
+              {isSelected(cat.id) && (
                 <div style={{ color: 'green', marginTop: '8px' }}>
-                  Выбран: {selectedItems[cat.id].variant === 0 ? 'Дешёвый' : 'Дорогой'} ({selectedItems[cat.id].price} ₽)
+                  Выбран: {selectedItems[cat.id].price} ₽
                 </div>
               )}
             </div>
@@ -146,11 +154,11 @@ const ShopGame = ({ difficulty, onFinish }) => {
         <h3>Список покупок</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {categories.map(cat => {
-            const isSelected = !!selectedItems[cat.id];
-            if (!isSelected && !cat.required) return null;
+            const selected = selectedItems[cat.id];
+            if (!selected && !cat.required) return null;
             return (
-              <div key={cat.id} style={{ textDecoration: isSelected ? 'line-through' : 'none' }}>
-                {cat.name} {isSelected ? `(${selectedItems[cat.id].price} ₽)` : '(не выбран)'}
+              <div key={cat.id} style={{ textDecoration: selected ? 'line-through' : 'none' }}>
+                {cat.name} {selected ? `(${selected.price} ₽)` : '(не выбран)'}
               </div>
             );
           })}
