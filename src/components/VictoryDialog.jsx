@@ -39,10 +39,10 @@ function VictoryDialog({ onComplete, score, type }) {
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.5s ease'
     }}>
       {/* Девочка слева — меняется на счастливую */}
-      <div style={{ position: 'absolute', bottom: 0, left: '10%', width: '30%', maxWidth: '300px', animation: 'slideInLeft 0.5s ease', transition: 'all 0.5s' }}>
+      <div style={{ position: 'absolute', bottom: 0, left: '10%', width: '30%', maxWidth: '300px', animation: 'slideInLeft 0.5s ease' }}>
         <img src={isHappy ? foxGirlHappy : foxGirl} alt="Лисичка" style={{ width: '100%', height: 'auto' }} />
       </div>
-      {/* Планшет (большой, летит к девочке) */}
+      {/* Планшет (анимация) */}
       {showTablet && (
         <div style={{
           position: 'absolute',
@@ -64,20 +64,24 @@ function VictoryDialog({ onComplete, score, type }) {
       <div style={{ position: 'absolute', bottom: '5%', right: '3%', width: '34%', maxWidth: '340px', animation: 'slideInRight 0.5s ease' }}>
         <img src={foxFather} alt="Папа" style={{ width: '100%', height: 'auto' }} />
       </div>
-      {/* Облачко */}
+      {/* Увеличенное облачко */}
       <div style={{
         position: 'absolute', bottom: '40%', left: '50%', transform: 'translateX(-50%)',
-        width: '60%', maxWidth: '500px', backgroundColor: 'rgba(255,255,255,0.95)',
-        borderRadius: '30px', padding: '25px 30px', textAlign: 'center',
-        boxShadow: '0 15px 35px rgba(0,0,0,0.2)', animation: 'bubbleAppear 0.4s ease'
+        width: '65%', maxWidth: '600px', backgroundColor: 'rgba(255,255,255,0.96)',
+        borderRadius: '48px', padding: '35px 40px', textAlign: 'center',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.25)', animation: 'bubbleAppear 0.4s ease'
       }}>
-        <div style={{ fontSize: '3rem', marginBottom: '10px' }}>🎉🏆🎉</div>
-        <h2 style={{ color: '#2e7d32', marginBottom: '15px', fontSize: '1.8rem' }}>Поздравляем!</h2>
-        <p style={{ fontSize: '1.2rem', lineHeight: '1.5', color: '#333', marginBottom: '25px' }}>
+        <div style={{ fontSize: '4rem', marginBottom: '15px' }}>🎉🏆🎉</div>
+        <h2 style={{ color: '#2e7d32', marginBottom: '20px', fontSize: '2rem', fontWeight: 'bold' }}>Поздравляем!</h2>
+        <p style={{ fontSize: '1.3rem', lineHeight: '1.5', color: '#333', marginBottom: '30px' }}>
           Ты накопила {score} ₽ и получила планшет!<br />
           Родители тобой очень гордятся! 🌟
         </p>
-        <button onClick={handleFinish} style={{ padding: '12px 30px', background: 'linear-gradient(135deg, #2e7d32, #1b5e20)', color: 'white', border: 'none', borderRadius: '40px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}>Завершить →</button>
+        <button onClick={handleFinish} style={{
+          padding: '14px 40px', background: 'linear-gradient(135deg, #2e7d32, #1b5e20)',
+          color: 'white', border: 'none', borderRadius: '60px', fontSize: '1.2rem',
+          fontWeight: 'bold', cursor: 'pointer', transition: 'transform 0.2s'
+        }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}>Завершить →</button>
       </div>
       <style>{`
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

@@ -19,7 +19,7 @@ import CatchGame from './components/CatchGame';
 import VictoryDialog from './components/VictoryDialog';
 import LossDialog from './components/LossDialog';
 import ShopGame from './components/ShopGame';
-import ShopVictoryDialog from './components/ShopVictoryDialog';  // ← импорт
+import BadEndingOutro from './components/BadEndingOutro';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState('start');
@@ -47,8 +47,9 @@ function App() {
   // Состояния для 1 истории (магазин)
   const [difficulty, setDifficulty] = useState(null);
   const [showShop, setShowShop] = useState(false);
-  const [showShopVictory, setShowShopVictory] = useState(false);
+  const [showShopOutro, setShowShopOutro] = useState(false); // вместо showShopVictory
   const [lastTotalSpent, setLastTotalSpent] = useState(0);
+  const [lastEndingType, setLastEndingType] = useState('good'); // 'good' или 'bad'
 
   const [stats, setStats] = useState({
     money: 0,
@@ -119,7 +120,7 @@ function App() {
     setGameConfig(null);
     setDifficulty(null);
     setShowShop(false);
-    setShowShopVictory(false);
+    setShowShopOutro(false);
   };
 
   const handleIntroComplete = () => {
@@ -204,7 +205,7 @@ function App() {
     setGameConfig(null);
     setDifficulty(null);
     setShowShop(false);
-    setShowShopVictory(false);
+    setShowShopOutro(false);
   };
 
   const handleExit = (targetScreen) => {
@@ -225,7 +226,7 @@ function App() {
       setGameConfig(null);
       setDifficulty(null);
       setShowShop(false);
-      setShowShopVictory(false);
+      setShowShopOutro(false);
     }
   };
 
@@ -247,7 +248,7 @@ function App() {
     setGameConfig(null);
     setDifficulty(null);
     setShowShop(false);
-    setShowShopVictory(false);
+    setShowShopOutro(false);
   };
 
   const cancelExit = () => {
@@ -294,7 +295,7 @@ function App() {
             <span>✉ info@center-invest.ru</span>
           </div>
         </footer>
-        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} />
+        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} />
         
         {showIntro && pendingStory === 'story1' && (
           <StoryIntro 
@@ -333,22 +334,24 @@ function App() {
               setStats(prev => ({ ...prev, money: newBalance }));
             }}
           />
+          <BotHelper tips={story1Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} />
         </>
       );
     }
     
-    // Победа
-    if (showShopVictory) {
-      return (
-        <ShopVictoryDialog
-          onComplete={() => {
-            setShowShopVictory(false);
-            handleOutroComplete();
-          }}
-          totalSpent={lastTotalSpent}
-          balance={balance || stats.money}
-        />
-      );
+    // Показываем аутро после магазина
+    if (showShopOutro) {
+      if (lastEndingType === 'bad') {
+        return <BadEndingOutro onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} />;
+      } else {
+        return (
+          <StoryOutro
+            title="Отличная работа!"
+            text="Ты купил все качественные продукты. Родители гордятся тобой!"
+            onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }}
+          />
+        );
+      }
     }
     
     // Выбор сложности и магазин
@@ -397,19 +400,20 @@ function App() {
         {difficulty && !showShop && (
           <ShopGame
             difficulty={difficulty}
-            onFinish={(totalSpent) => {
+            onFinish={(totalSpent, cheapDairy) => {
               setShowShop(true);
               const remaining = (balance || stats.money) - totalSpent;
               setBalance(remaining);
               setStats(prev => ({ ...prev, money: remaining }));
               setProgress(prev => ({ ...prev, story1: 100 }));
               setLastTotalSpent(totalSpent);
+              setLastEndingType(cheapDairy ? 'bad' : 'good');
               fetch('http://localhost:3001/api/game/earn', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ amount: totalSpent })
               }).catch(err => console.warn('API error:', err));
-              setShowShopVictory(true);
+              setShowShopOutro(true);
             }}
             onBack={() => setDifficulty(null)}
             onEncouragement={(phrase) => {
@@ -425,7 +429,7 @@ function App() {
     );
   }
   
-  // ИСТОРИЯ 2 (без изменений, всё работает)
+  // ИСТОРИЯ 2
   if (currentScreen === 'story2') {
     // Семейный диалог
     if (showFamilyDialog) {
@@ -438,7 +442,7 @@ function App() {
             dialogs={familyDialogs}
             onBotHint={(isHighlight) => setBotHighlight(isHighlight)}
           />
-          <BotHelper tips={story2Tips} highlight={botHighlight} />
+          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} />
         </>
       );
     }
@@ -449,7 +453,7 @@ function App() {
         <>
           <InteractiveBackground />
           <ChoiceDialog2 onChoice={handleChoiceComplete} />
-          <BotHelper tips={story2Tips} highlight={botHighlight} />
+          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} />
         </>
       );
     }
@@ -506,7 +510,7 @@ function App() {
               speak(phrase);
             }}
           />
-          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} />
+          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} />
         </div>
       );
     }

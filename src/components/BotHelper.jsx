@@ -6,7 +6,7 @@ import botSleeping from '../assets/images/bot_sleeping.png'
 import botWaking from '../assets/images/bot_waking.png'
 import botHappy from '../assets/images/bot_happy.png'
 
-function BotHelper({ tips, highlight = false, isHappy = false }) {
+function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', disableAutoTips = false }) {
   const [showTip, setShowTip] = useState(false)
   const [currentTip, setCurrentTip] = useState('')
   const [isHovered, setIsHovered] = useState(false)
@@ -18,55 +18,58 @@ function BotHelper({ tips, highlight = false, isHappy = false }) {
   const autoTipTimer = useRef(null)
   const tipTimer = useRef(null)
 
-  // Показать случайный совет (без эмодзи)
-  const showRandomTip = () => {
-    // Не показываем советы если бот не в нормальном состоянии
-    if (botState !== 'normal') {
-      /*console.log('Бот не в normal, совет не показываем. Состояние:', botState)*/
-      return
+  // Показываем подсказку из игры (customTip)
+  useEffect(() => {
+    if (customTip && customTip !== '') {
+      // Останавливаем предыдущую речь
+      window.speechSynthesis.cancel()
+      
+      setCurrentTip(customTip)
+      setShowTip(true)
+      
+      if (tipTimer.current) clearTimeout(tipTimer.current)
+      // Длительность показа = длина текста * 60мс, но не более 8 сек
+      const duration = Math.min(8000, Math.max(3000, customTip.length * 60))
+      tipTimer.current = setTimeout(() => {
+        setShowTip(false)
+      }, duration)
     }
+  }, [customTip])
+
+  const showRandomTip = () => {
+    if (disableAutoTips) return
+    if (botState !== 'normal') return
     if (!tips || tips.length === 0) return
     
     if (tipTimer.current) clearTimeout(tipTimer.current)
-    
     const randomIndex = Math.floor(Math.random() * tips.length)
-    setCurrentTip(tips[randomIndex])
+    const tipText = tips[randomIndex]
+    setCurrentTip(tipText)
     setShowTip(true)
-    
+    const duration = Math.min(8000, Math.max(3000, tipText.length * 60))
     tipTimer.current = setTimeout(() => {
       setShowTip(false)
-    }, 5000)
+    }, duration)
   }
 
-  // Запуск автоматических подсказок (только если бот в normal)
   const startAutoTips = () => {
+    if (disableAutoTips) return
     if (autoTipTimer.current) clearInterval(autoTipTimer.current)
     autoTipTimer.current = setInterval(() => {
-      // Проверяем ещё раз внутри интервала
       if (botState === 'normal' && !showTip) {
         showRandomTip()
       }
     }, 10000)
   }
 
-  // Функция пробуждения
   const wakeUp = () => {
-    /*console.log('wakeUp вызван, текущее состояние:', botState)*/
-    
-    // Очищаем старые таймеры
     if (inactivityTimer.current) clearTimeout(inactivityTimer.current)
     if (sleepTimer.current) clearTimeout(sleepTimer.current)
-    
-    // Если бот спит - показываем пробуждение
     if (botState === 'sleeping') {
       setBotState('waking')
-      /*console.log('Состояние изменено на waking')*/
-      
       if (wakingTimer.current) clearTimeout(wakingTimer.current)
       wakingTimer.current = setTimeout(() => {
-        /*console.log('Возврат в normal из waking')*/
         setBotState('normal')
-        // Запускаем новый цикл бездействия
         startInactivityTimer()
       }, 1500)
     } else if (botState === 'sleepy') {
@@ -78,37 +81,25 @@ function BotHelper({ tips, highlight = false, isHappy = false }) {
     }
   }
 
-  // Запуск таймера бездействия (12 секунд до sleepy)
   const startInactivityTimer = () => {
     if (inactivityTimer.current) clearTimeout(inactivityTimer.current)
     if (sleepTimer.current) clearTimeout(sleepTimer.current)
-    
     inactivityTimer.current = setTimeout(() => {
-      /*console.log('Таймер бездействия: переводим в sleepy')*/
       setBotState('sleepy')
-      
       sleepTimer.current = setTimeout(() => {
-        /*console.log('Таймер сна: переводим в sleeping')*/
         setBotState('sleeping')
       }, 1500)
-    }, 12000) // 12 секунд бездействия
+    }, 12000)
   }
 
-  // Сброс бездействия при активности
-  const resetInactivity = () => {
-    /*console.log('resetInactivity вызван')*/
-    wakeUp()
-  }
+  const resetInactivity = () => wakeUp()
 
-  // Следим за активностью пользователя
   useEffect(() => {
     const events = ['click', 'mousemove', 'keydown', 'touchstart']
     const handleActivity = () => resetInactivity()
-    
     events.forEach(event => window.addEventListener(event, handleActivity))
     startInactivityTimer()
-    startAutoTips()
-    
+    if (!disableAutoTips) startAutoTips()
     return () => {
       events.forEach(event => window.removeEventListener(event, handleActivity))
       if (inactivityTimer.current) clearTimeout(inactivityTimer.current)
@@ -117,36 +108,23 @@ function BotHelper({ tips, highlight = false, isHappy = false }) {
       if (autoTipTimer.current) clearInterval(autoTipTimer.current)
       if (tipTimer.current) clearTimeout(tipTimer.current)
     }
-  }, [])
+  }, [disableAutoTips])
 
-  // Следим за изменением botState для перезапуска авто-подсказок
   useEffect(() => {
-    if (botState === 'normal') {
-      // Если вернулись в normal, убеждаемся что таймер подсказок работает
-      startAutoTips()
-    }
-  }, [botState])
+    if (botState === 'normal' && !disableAutoTips) startAutoTips()
+  }, [botState, disableAutoTips])
 
-  // При наведении на бота
   useEffect(() => {
-    if (isHovered) {
-      resetInactivity()
-    }
+    if (isHovered) resetInactivity()
   }, [isHovered])
 
-  // Клик по боту
   const handleBotClick = () => {
     resetInactivity()
-    setTimeout(() => {
-      showRandomTip()
-    }, 100)
+    setTimeout(() => showRandomTip(), 100)
   }
 
-  // Выбор картинки (ДОБАВЛЕНА ПРОВЕРКА НА isHappy)
   const getBotImage = () => {
-    // Если бот счастливый - показываем счастливую картинку
     if (isHappy) return botHappy
-    
     switch (botState) {
       case 'sleepy': return botSleepy
       case 'sleeping': return botSleeping
@@ -195,16 +173,36 @@ function BotHelper({ tips, highlight = false, isHappy = false }) {
           position: 'fixed',
           bottom: '180px',
           right: '30px',
-          maxWidth: '320px',
-          minWidth: '240px',
-          backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          borderRadius: '24px',
-          padding: '16px 22px',
-          boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
-          zIndex: 999,
-          animation: 'fadeInUp 0.2s ease'
+          maxWidth: '350px',
+          minWidth: '260px',
+          backgroundColor: 'rgba(255, 255, 255, 0.98)',
+          borderRadius: '28px',
+          padding: '18px 24px',
+          boxShadow: '0 12px 28px rgba(0,0,0,0.2)',
+          zIndex: 1001,
+          animation: 'bubblePop 0.25s ease-out',
+          border: '1px solid #ffd966',
+          backdropFilter: 'blur(2px)'
         }}>
-          <p style={{ margin: 0, fontSize: '1rem', color: '#333', lineHeight: '1.45' }}>
+          <div style={{
+            position: 'absolute',
+            bottom: '-10px',
+            right: '20px',
+            width: 0,
+            height: 0,
+            borderLeft: '12px solid transparent',
+            borderRight: '12px solid transparent',
+            borderTop: '12px solid rgba(255,255,255,0.98)',
+            filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.1))'
+          }} />
+          <p style={{ 
+            margin: 0, 
+            fontSize: '1.1rem', 
+            color: '#2d3e2b', 
+            lineHeight: '1.5',
+            fontWeight: 500,
+            textShadow: '0 1px 0 white'
+          }}>
             {currentTip}
           </p>
         </div>
@@ -212,14 +210,14 @@ function BotHelper({ tips, highlight = false, isHappy = false }) {
 
       <style>
         {`
-          @keyframes fadeInUp {
-            from {
+          @keyframes bubblePop {
+            0% {
               opacity: 0;
-              transform: translateY(10px);
+              transform: translateY(15px) scale(0.9);
             }
-            to {
+            100% {
               opacity: 1;
-              transform: translateY(0);
+              transform: translateY(0) scale(1);
             }
           }
         `}

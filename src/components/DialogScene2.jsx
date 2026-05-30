@@ -120,54 +120,54 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs }) {
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.5s ease'
     }} onClick={handleScreenClick}>
       
-      {/* Девочка слева (8%) */}
+      {/* Девочка слева */}
       <div style={{ position: 'absolute', bottom: 0, left: '8%', width: '35%', maxWidth: '350px', animation: 'slideInLeft 0.5s ease', zIndex: 5 }}>
         <img src={foxGirl} alt="Лисёнок" style={{ width: '100%', height: 'auto' }} />
       </div>
 
-      {/* Мама (60%) */}
+      {/* Мама */}
       <div style={{ position: 'absolute', bottom: 0, left: '60%', width: '38%', maxWidth: '380px', animation: 'slideInRight 0.5s ease', zIndex: 5 }}>
         <img src={foxMother} alt="Мама" style={{ width: '100%', height: 'auto' }} />
       </div>
 
-      {/* Папа (70%, чуть выше) */}
+      {/* Папа */}
       <div style={{ position: 'absolute', bottom: '2%', left: '70%', width: '38%', maxWidth: '380px', animation: 'slideInRight 0.5s ease', zIndex: 4 }}>
         <img src={foxFather} alt="Папа" style={{ width: '100%', height: 'auto' }} />
       </div>
 
-      {/* Облачко девочки — слева, ближе к ней */}
+      {/* Облачко девочки - увеличенное */}
       {isGirl && dialogText && (
         <div style={{
-          position: 'absolute', bottom: '50%', left: '15%', width: '35%', maxWidth: '350px',
-          backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: '28px', padding: '18px 24px',
-          animation: 'bubbleAppearLeft 0.3s ease', zIndex: 10
+          position: 'absolute', bottom: '50%', left: '12%', width: '38%', maxWidth: '420px',
+          backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '22px 30px',
+          animation: 'bubbleAppearLeft 0.3s ease', zIndex: 10, boxShadow: '0 12px 28px rgba(0,0,0,0.2)', border: '1px solid #ffd966'
         }}>
-          <div style={{ position: 'absolute', bottom: '-12px', left: '20px', width: 0, height: 0, borderLeft: '12px solid transparent', borderRight: '12px solid transparent', borderTop: '12px solid rgba(255,255,255,0.95)' }} />
-          <p style={{ fontSize: '1.2rem', lineHeight: '1.45', color: '#333' }}>{dialogText}</p>
+          <div style={{ position: 'absolute', bottom: '-12px', left: '25px', width: 0, height: 0, borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '14px solid rgba(255,255,255,0.96)' }} />
+          <p style={{ fontSize: '1.3rem', lineHeight: '1.45', color: '#333' }}>{dialogText}</p>
         </div>
       )}
 
-      {/* Облачко мамы — справа, над мамой */}
+      {/* Облачко мамы - увеличенное */}
       {isMother && dialogText && (
         <div style={{
-          position: 'absolute', bottom: '55%', left: '55%', width: '35%', maxWidth: '350px',
-          backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: '28px', padding: '18px 24px',
-          animation: 'bubbleAppearRight 0.3s ease', zIndex: 10
+          position: 'absolute', bottom: '55%', left: '52%', width: '38%', maxWidth: '420px',
+          backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '22px 30px',
+          animation: 'bubbleAppearRight 0.3s ease', zIndex: 10, boxShadow: '0 12px 28px rgba(0,0,0,0.2)', border: '1px solid #ffd966'
         }}>
-          <div style={{ position: 'absolute', bottom: '-12px', right: '20px', width: 0, height: 0, borderLeft: '12px solid transparent', borderRight: '12px solid transparent', borderTop: '12px solid rgba(255,255,255,0.95)' }} />
-          <p style={{ fontSize: '1.2rem', lineHeight: '1.45', color: '#333' }}>{dialogText}</p>
+          <div style={{ position: 'absolute', bottom: '-12px', right: '25px', width: 0, height: 0, borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '14px solid rgba(255,255,255,0.96)' }} />
+          <p style={{ fontSize: '1.3rem', lineHeight: '1.45', color: '#333' }}>{dialogText}</p>
         </div>
       )}
 
-      {/* Облачко папы — справа, над папой */}
+      {/* Облачко папы - увеличенное */}
       {isFather && dialogText && (
         <div style={{
-          position: 'absolute', bottom: '55%', left: '65%', width: '35%', maxWidth: '350px',
-          backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: '28px', padding: '18px 24px',
-          animation: 'bubbleAppearRight 0.3s ease', zIndex: 10
+          position: 'absolute', bottom: '55%', left: '62%', width: '38%', maxWidth: '420px',
+          backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '22px 30px',
+          animation: 'bubbleAppearRight 0.3s ease', zIndex: 10, boxShadow: '0 12px 28px rgba(0,0,0,0.2)', border: '1px solid #ffd966'
         }}>
-          <div style={{ position: 'absolute', bottom: '-12px', right: '20px', width: 0, height: 0, borderLeft: '12px solid transparent', borderRight: '12px solid transparent', borderTop: '12px solid rgba(255,255,255,0.95)' }} />
-          <p style={{ fontSize: '1.2rem', lineHeight: '1.45', color: '#333' }}>{dialogText}</p>
+          <div style={{ position: 'absolute', bottom: '-12px', right: '25px', width: 0, height: 0, borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '14px solid rgba(255,255,255,0.96)' }} />
+          <p style={{ fontSize: '1.3rem', lineHeight: '1.45', color: '#333' }}>{dialogText}</p>
         </div>
       )}
 

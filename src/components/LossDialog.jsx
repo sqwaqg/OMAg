@@ -95,41 +95,42 @@ function LossDialog({ onComplete, type }) {
         <img src={foxFather} alt="Папа" style={{ width: '100%', height: 'auto' }} />
       </div>
 
-      {/* Облачко диалога */}
+      {/* Увеличенное облачко диалога */}
       <div style={{
         position: 'absolute',
         bottom: '40%',
         left: '50%',
         transform: 'translateX(-50%)',
-        width: '60%',
-        maxWidth: '500px',
-        backgroundColor: 'rgba(255,255,255,0.95)',
-        borderRadius: '30px',
-        padding: '25px 30px',
+        width: '65%',
+        maxWidth: '600px',
+        backgroundColor: 'rgba(255, 255, 255, 0.96)',
+        borderRadius: '48px',
+        padding: '35px 40px',
         textAlign: 'center',
-        boxShadow: '0 15px 35px rgba(0,0,0,0.2)',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
         animation: 'bubbleAppear 0.4s ease'
       }}>
-        <div style={{ fontSize: '3rem', marginBottom: '10px' }}>😔💔</div>
-        <h2 style={{ color: '#c62828', marginBottom: '15px', fontSize: '1.8rem' }}>
+        <div style={{ fontSize: '4rem', marginBottom: '15px' }}>😔💔</div>
+        <h2 style={{ color: '#c62828', marginBottom: '20px', fontSize: '2rem', fontWeight: 'bold' }}>
           Неудача...
         </h2>
-        <p style={{ fontSize: '1.2rem', lineHeight: '1.5', color: '#333', marginBottom: '25px' }}>
+        <p style={{ fontSize: '1.3rem', lineHeight: '1.5', color: '#333', marginBottom: '30px' }}>
           За год ты не накопила нужную сумму.<br />
           Папа продал твои бантики. Планшет остался, но бантиков больше нет.
         </p>
         <button
           onClick={handleFinish}
           style={{
-            padding: '12px 30px',
+            padding: '14px 40px',
             background: 'linear-gradient(135deg, #c62828, #b71c1c)',
             color: 'white',
             border: 'none',
-            borderRadius: '40px',
-            fontSize: '1rem',
+            borderRadius: '60px',
+            fontSize: '1.2rem',
             fontWeight: 'bold',
             cursor: 'pointer',
-            transition: 'transform 0.2s'
+            transition: 'transform 0.2s, box-shadow 0.2s',
+            boxShadow: '0 6px 14px rgba(0,0,0,0.2)'
           }}
           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}

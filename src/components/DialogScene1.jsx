@@ -58,13 +58,11 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
     }
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
 
-    // Шаг 0 (первая реплика мамы) — показываем список продуктов
     if (step === 0) {
       setShowListModal(true)
       return
     }
 
-    // Шаг 2 (мама даёт деньги)
     if (step === 2) {
       setShowMoneyEffect(true)
       setHasMoney(true)
@@ -144,7 +142,7 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
         <img src={hasMoney ? foxChildWithMoney : foxChildNoMoney} alt="Лисёнок" style={{ width: '100%', height: 'auto' }} />
       </div>
 
-      {/* Мама справа – с анимацией ухода (отзеркаливание и медленный уход) */}
+      {/* Мама справа */}
       <div style={{ 
         position: 'absolute', bottom: 0, right: motherLeaving ? '-30%' : '12%', 
         width: '36%', maxWidth: '360px', transition: 'right 0.6s ease',
@@ -157,16 +155,15 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
       {showMoneyEffect && (
         <div style={{
           position: 'absolute', bottom: '45%', left: '25%',
-          backgroundColor: 'white', borderRadius: '30px', padding: '15px 25px',
-          boxShadow: '0 10px 25px rgba(0,0,0,0.2)', animation: 'moneyCloud 1s ease-out forwards',
-          pointerEvents: 'none', zIndex: 20, display: 'flex', alignItems: 'center', gap: '10px',
-          fontSize: '1.3rem', fontWeight: 'bold', color: '#2e7d32', whiteSpace: 'nowrap'
+          backgroundColor: 'white', borderRadius: '40px', padding: '18px 30px',
+          boxShadow: '0 12px 28px rgba(0,0,0,0.2)', animation: 'moneyCloud 1s ease-out forwards',
+          pointerEvents: 'none', zIndex: 20, display: 'flex', alignItems: 'center', gap: '12px',
+          fontSize: '1.5rem', fontWeight: 'bold', color: '#2e7d32', whiteSpace: 'nowrap'
         }}>
           <span>💰</span> +{balance} ₽<span>✨</span>
         </div>
       )}
 
-      {/* Модальное окно со списком продуктов */}
       {showListModal && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -175,35 +172,37 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
           animation: 'fadeIn 0.2s ease'
         }} onClick={handleListModalClose}>
           <div style={{
-            background: '#fff9ef', borderRadius: '32px', padding: '35px 30px',
-            maxWidth: '420px', width: '85%', textAlign: 'center',
-            boxShadow: '0 25px 50px rgba(0,0,0,0.3)', position: 'relative'
+            background: '#fff9ef', borderRadius: '48px', padding: '40px 35px',
+            maxWidth: '480px', width: '85%', textAlign: 'center',
+            boxShadow: '0 30px 50px rgba(0,0,0,0.3)', position: 'relative',
+            border: '2px solid #ffd966'
           }}>
-            <div style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', width: '50px', height: '6px', background: '#d4b87a', borderRadius: '3px' }} />
-            <h2 style={{ color: '#3e2723', marginBottom: '25px', fontSize: '1.8rem' }}>📋 Список продуктов</h2>
-            <ul style={{ textAlign: 'left', fontSize: '1.2rem', lineHeight: '2.2', marginBottom: '30px', paddingLeft: '20px', listStyleType: 'none', color: '#4a3b2c' }}>
-              <li><span style={{ fontSize: '1.5rem' }}>🥛</span> Молоко</li>
-              <li><span style={{ fontSize: '1.5rem' }}>🍞</span> Хлеб</li>
-              <li><span style={{ fontSize: '1.5rem' }}>🧀</span> Сыр</li>
-              <li><span style={{ fontSize: '1.5rem' }}>🍎</span> Яблоки</li>
-              <li><span style={{ fontSize: '1.5rem' }}>🍪</span> Печенье</li>
+            <div style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', width: '60px', height: '8px', background: '#d4b87a', borderRadius: '4px' }} />
+            <h2 style={{ color: '#3e2723', marginBottom: '30px', fontSize: '2rem' }}>📋 Список продуктов</h2>
+            <ul style={{ textAlign: 'left', fontSize: '1.3rem', lineHeight: '2', marginBottom: '35px', paddingLeft: '25px', listStyleType: 'none', color: '#4a3b2c' }}>
+              <li>🥛 Молоко</li>
+              <li>🍞 Хлеб</li>
+              <li>🥚 Яйца</li>
+              <li>🥕 Морковка</li>
+              <li style={{ marginTop: '15px', color: '#ff9800' }}>🍬 На сдачу купи себе вкусняшку!</li>
             </ul>
-            <button onClick={handleListModalClose} style={{ padding: '12px 30px', background: 'linear-gradient(135deg, #2e7d32, #1b5e20)', color: 'white', border: 'none', borderRadius: '40px', fontSize: '1rem', cursor: 'pointer' }}>Понятно →</button>
+            <button onClick={handleListModalClose} style={{ padding: '14px 35px', background: 'linear-gradient(135deg, #2e7d32, #1b5e20)', color: 'white', border: 'none', borderRadius: '50px', fontSize: '1.1rem', cursor: 'pointer' }}>Понятно →</button>
           </div>
         </div>
       )}
 
-      {/* Облачка */}
+      {/* Облачко ребёнка - увеличенное */}
       {isChild && dialogText && (
-        <div style={{ position: 'absolute', bottom: '45%', left: '25%', width: '40%', maxWidth: '380px', backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: '28px', padding: '20px 28px', animation: 'bubbleAppearLeft 0.3s ease' }}>
-          <div style={{ position: 'absolute', bottom: '-12px', left: '25px', width: 0, height: 0, borderLeft: '12px solid transparent', borderRight: '12px solid transparent', borderTop: '12px solid rgba(255,255,255,0.95)' }} />
-          <p style={{ fontSize: '1.2rem', lineHeight: '1.5', color: '#333' }}>{dialogText}</p>
+        <div style={{ position: 'absolute', bottom: '45%', left: '22%', width: '42%', maxWidth: '450px', backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '24px 32px', animation: 'bubbleAppearLeft 0.3s ease', boxShadow: '0 12px 28px rgba(0,0,0,0.2)', border: '1px solid #ffd966' }}>
+          <div style={{ position: 'absolute', bottom: '-12px', left: '30px', width: 0, height: 0, borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '14px solid rgba(255,255,255,0.96)' }} />
+          <p style={{ fontSize: '1.3rem', lineHeight: '1.5', color: '#333' }}>{dialogText}</p>
         </div>
       )}
+      {/* Облачко мамы - увеличенное */}
       {isMother && dialogText && !motherLeaving && (
-        <div style={{ position: 'absolute', bottom: '45%', right: '25%', width: '40%', maxWidth: '380px', backgroundColor: 'rgba(255,255,255,0.95)', borderRadius: '28px', padding: '20px 28px', animation: 'bubbleAppearRight 0.3s ease' }}>
-          <div style={{ position: 'absolute', bottom: '-12px', right: '25px', width: 0, height: 0, borderLeft: '12px solid transparent', borderRight: '12px solid transparent', borderTop: '12px solid rgba(255,255,255,0.95)' }} />
-          <p style={{ fontSize: '1.2rem', lineHeight: '1.5', color: '#333' }}>{dialogText}</p>
+        <div style={{ position: 'absolute', bottom: '45%', right: '22%', width: '42%', maxWidth: '450px', backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '24px 32px', animation: 'bubbleAppearRight 0.3s ease', boxShadow: '0 12px 28px rgba(0,0,0,0.2)', border: '1px solid #ffd966' }}>
+          <div style={{ position: 'absolute', bottom: '-12px', right: '30px', width: 0, height: 0, borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '14px solid rgba(255,255,255,0.96)' }} />
+          <p style={{ fontSize: '1.3rem', lineHeight: '1.5', color: '#333' }}>{dialogText}</p>
         </div>
       )}
 

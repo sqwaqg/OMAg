@@ -5,19 +5,18 @@ function StoryIntro({ title, text, onComplete }) {
   const [isFadingOut, setIsFadingOut] = useState(false)
   const { speak, stop } = useSpeech()
 
-  // Автоматическая озвучка при появлении
   useEffect(() => {
     speak(text, { rate: 0.95 })
-    return () => stop() // ← очистка при размонтировании
+    return () => stop()
   }, [text, speak, stop])
 
   const handleContinue = () => {
-    stop(); // ← обязательно
-    setIsFadingOut(true);
+    stop()
+    setIsFadingOut(true)
     setTimeout(() => {
-      onComplete();
-    }, 400);
-  };
+      onComplete()
+    }, 400)
+  }
 
   return (
     <div style={{
@@ -34,31 +33,36 @@ function StoryIntro({ title, text, onComplete }) {
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.4s ease'
     }}>
       <div style={{
-        maxWidth: '600px',
-        width: '90%',
-        padding: '40px',
+        maxWidth: '750px',
+        width: '85%',
+        padding: '50px 40px',
         textAlign: 'center',
-        background: 'transparent',
+        background: 'rgba(255, 255, 240, 0.95)',
+        borderRadius: '60px',
+        boxShadow: '0 25px 50px rgba(0,0,0,0.2)',
+        border: '2px solid #ffd966',
         animation: isFadingOut ? 'slideOut 0.4s ease forwards' : 'slideIn 0.4s ease'
       }}>
-        <div style={{ fontSize: '4rem', marginBottom: '20px', animation: 'bounce 0.5s ease' }}>📖</div>
-        <h2 style={{ color: '#2e7d32', marginBottom: '20px', fontSize: '2rem', fontWeight: '600' }}>
+        <div style={{ fontSize: '5rem', marginBottom: '20px', animation: 'bounce 0.5s ease' }}>📖</div>
+        <h2 style={{ color: '#2e7d32', marginBottom: '25px', fontSize: '2.4rem', fontWeight: '700' }}>
           {title}
         </h2>
-        <p style={{ fontSize: '1.2rem', lineHeight: '1.5', color: '#333', marginBottom: '40px' }}>
+        <p style={{ fontSize: '1.3rem', lineHeight: '1.5', color: '#333', marginBottom: '40px' }}>
           {text}
         </p>
         <button
           onClick={handleContinue}
           style={{
-            padding: '12px 30px',
-            background: '#2e7d32',
+            padding: '16px 48px',
+            background: 'linear-gradient(135deg, #2e7d32, #1b5e20)',
             color: 'white',
             border: 'none',
-            borderRadius: '50px',
-            fontSize: '1rem',
+            borderRadius: '60px',
+            fontSize: '1.3rem',
+            fontWeight: 'bold',
             cursor: 'pointer',
-            transition: 'transform 0.2s'
+            transition: 'transform 0.2s, box-shadow 0.2s',
+            boxShadow: '0 8px 20px rgba(0,0,0,0.2)'
           }}
           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
