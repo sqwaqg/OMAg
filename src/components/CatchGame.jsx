@@ -6,7 +6,7 @@ import coinMinus50 from '../assets/images/coin_minus50.png';
 import coinMinus150 from '../assets/images/coin_minus150.png';
 import pigImage from '../assets/images/pig.png';
 
-const CatchGame = ({ config, onFinish, onBack }) => {
+const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
   const target = config?.target ?? 500;
   const positiveValues = config?.positiveValues ?? [100, 150];
   const negativeValues = config?.negativeValues ?? [-50, -150];
@@ -21,29 +21,47 @@ const CatchGame = ({ config, onFinish, onBack }) => {
   const [missed, setMissed] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [result, setResult] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(60);
   const catcherRef = useRef(null);
   const gameAreaRef = useRef(null);
   const animationRef = useRef(null);
   const lastSpawnRef = useRef(Date.now());
   const spawnedCountRef = useRef(0);
   const targetReachedRef = useRef(false);
+  const encouragementTimer = useRef(null);
 
+  const encouragementPhrases = [
+    'Так держать!',
+    'Ты круто ловишь!',
+    'Ещё немного!',
+    'Почти у цели!',
+    'Ты справишься!',
+    'Верю в тебя!',
+    'Отличная работа!',
+    'Продолжай в том же духе!',
+    'Ты молодец!',
+    'У тебя отлично получается!',
+    'Не сдавайся!',
+    'Ты на верном пути!'
+  ];
+
+  // Автоматические подсказки каждые 5 секунд
   useEffect(() => {
     if (gameOver) return;
-    const timer = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setGameOver(true);
-          setResult('lose');
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [gameOver]);
+    
+    const startEncouragementTimer = () => {
+      if (encouragementTimer.current) clearInterval(encouragementTimer.current);
+      encouragementTimer.current = setInterval(() => {
+        const randomPhrase = encouragementPhrases[Math.floor(Math.random() * encouragementPhrases.length)];
+        if (onEncouragement) onEncouragement(randomPhrase);
+      }, 5000);
+    };
+    
+    startEncouragementTimer();
+    
+    return () => {
+      if (encouragementTimer.current) clearInterval(encouragementTimer.current);
+    };
+  }, [gameOver, onEncouragement]);
 
   const generateItems = () => {
     const itemsList = [];
@@ -187,6 +205,7 @@ const CatchGame = ({ config, onFinish, onBack }) => {
 
   useEffect(() => {
     if (gameOver && result) {
+      if (encouragementTimer.current) clearInterval(encouragementTimer.current);
       onFinish(result, score);
     }
   }, [gameOver, result, onFinish, score]);
@@ -227,7 +246,7 @@ const CatchGame = ({ config, onFinish, onBack }) => {
           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
-          ← Назад
+          Назад
         </button>
         
         <div style={{ 
@@ -245,49 +264,25 @@ const CatchGame = ({ config, onFinish, onBack }) => {
         </div>
         
         <div style={{ 
+          fontSize: '1.5rem', 
+          fontWeight: 'bold', 
+          color: '#1b5e20',
+          background: 'rgba(46,125,50,0.15)',
+          padding: '8px 20px',
+          borderRadius: '40px',
           display: 'flex',
-          gap: '15px',
-          alignItems: 'center'
+          alignItems: 'center',
+          gap: '8px',
+          minWidth: '150px',
+          justifyContent: 'center'
         }}>
-          <div style={{ 
-            fontSize: '1.2rem', 
-            fontWeight: 'bold', 
-            color: timeLeft < 10 ? '#c62828' : '#2e7d32',
-            background: 'rgba(46,125,50,0.15)',
-            padding: '8px 16px',
-            borderRadius: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}>
-            <span>⏱️</span> {timeLeft} сек
-          </div>
-          <div style={{ 
-            fontSize: '1.5rem', 
-            fontWeight: 'bold', 
-            color: '#1b5e20',
-            background: 'rgba(46,125,50,0.15)',
-            padding: '8px 20px',
-            borderRadius: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            minWidth: '150px',
-            justifyContent: 'center'
-          }}>
-            <span>💰</span> <span style={{ minWidth: '70px', textAlign: 'center' }}>{score}</span> ₽
-          </div>
+          <span>💰</span> <span style={{ minWidth: '70px', textAlign: 'center' }}>{score}</span> ₽
         </div>
       </div>
 
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        gap: '30px',
-        marginBottom: '15px'
-      }}>
-        <div style={{ fontSize: '1rem', color: '#2e7d32' }}>✅ Поймано: {caught}</div>
-        <div style={{ fontSize: '1rem', color: '#c62828' }}>❌ Промахи: {missed}</div>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '30px', marginBottom: '15px' }}>
+        <div style={{ fontSize: '1rem', color: '#2e7d32' }}>Поймано: {caught}</div>
+        <div style={{ fontSize: '1rem', color: '#c62828' }}>Промахи: {missed}</div>
       </div>
 
       <div
@@ -338,7 +333,7 @@ const CatchGame = ({ config, onFinish, onBack }) => {
                 zIndex: 10
               }}
             >
-              <img src={itemImage} alt="монета" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              <img src={itemImage} alt="coin" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             </div>
           );
         })}
@@ -358,7 +353,7 @@ const CatchGame = ({ config, onFinish, onBack }) => {
         >
           <img 
             src={pigImage} 
-            alt="Копилка"
+            alt="piggy bank"
             style={{
               width: '100%',
               height: '100%',

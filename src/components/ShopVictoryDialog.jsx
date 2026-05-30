@@ -1,22 +1,16 @@
 import { useState, useEffect } from 'react';
 import useSpeech from '../hooks/useSpeech';
-import foxGirl from '../assets/images/fox_girl.png';
-import foxGirlHappy from '../assets/images/fox_girl_happy.png';
+import foxChildHappy from '../assets/images/fox_child_happy.png';
 import foxMother from '../assets/images/fox_mother.png';
 import foxFather from '../assets/images/fox_father.png';
-import tablet from '../assets/images/tablet.png';
 
-function VictoryDialog({ onComplete, score, type }) {
+function ShopVictoryDialog({ onComplete, totalSpent, balance }) {
   const [isVisible, setIsVisible] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
-  const [showTablet, setShowTablet] = useState(false);
-  const [isHappy, setIsHappy] = useState(false);
   const { speak, stop } = useSpeech();
 
   useEffect(() => {
-    speak('Ура! Ты справилась! Родители тобой гордятся!', { rate: 1.0 });
-    setTimeout(() => setShowTablet(true), 1000);
-    setTimeout(() => setIsHappy(true), 2500);
+    speak('Молодец! Ты купил всё нужное! Родители тобой гордятся!', { rate: 1.0 });
     return () => stop();
   }, []);
 
@@ -38,29 +32,15 @@ function VictoryDialog({ onComplete, score, type }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000,
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.5s ease'
     }}>
-      {/* Девочка слева — меняется на счастливую */}
-      <div style={{ position: 'absolute', bottom: 0, left: '10%', width: '30%', maxWidth: '300px', animation: 'slideInLeft 0.5s ease', transition: 'all 0.5s' }}>
-        <img src={isHappy ? foxGirlHappy : foxGirl} alt="Лисичка" style={{ width: '100%', height: 'auto' }} />
+      {/* Ребёнок слева (счастливый) */}
+      <div style={{ position: 'absolute', bottom: 0, left: '10%', width: '30%', maxWidth: '300px', animation: 'slideInLeft 0.5s ease' }}>
+        <img src={foxChildHappy} alt="Лисёнок" style={{ width: '100%', height: 'auto' }} />
       </div>
-      {/* Планшет (большой, летит к девочке) */}
-      {showTablet && (
-        <div style={{
-          position: 'absolute',
-          bottom: isHappy ? '25%' : '35%',
-          left: isHappy ? '22%' : '50%',
-          transform: 'translateX(-50%)',
-          width: isHappy ? '100px' : '120px',
-          transition: 'all 1s ease-in-out',
-          animation: 'tabletGlow 1s ease-in-out',
-          zIndex: 15
-        }}>
-          <img src={tablet} alt="Планшет" style={{ width: '100%', height: 'auto', filter: 'drop-shadow(0 0 15px gold)' }} />
-        </div>
-      )}
-      {/* Мама и папа */}
+      {/* Мама справа */}
       <div style={{ position: 'absolute', bottom: 0, right: '15%', width: '32%', maxWidth: '320px', animation: 'slideInRight 0.5s ease' }}>
         <img src={foxMother} alt="Мама" style={{ width: '100%', height: 'auto' }} />
       </div>
+      {/* Папа справа выше */}
       <div style={{ position: 'absolute', bottom: '5%', right: '3%', width: '34%', maxWidth: '340px', animation: 'slideInRight 0.5s ease' }}>
         <img src={foxFather} alt="Папа" style={{ width: '100%', height: 'auto' }} />
       </div>
@@ -71,11 +51,11 @@ function VictoryDialog({ onComplete, score, type }) {
         borderRadius: '30px', padding: '25px 30px', textAlign: 'center',
         boxShadow: '0 15px 35px rgba(0,0,0,0.2)', animation: 'bubbleAppear 0.4s ease'
       }}>
-        <div style={{ fontSize: '3rem', marginBottom: '10px' }}>🎉🏆🎉</div>
+        <div style={{ fontSize: '3rem', marginBottom: '10px' }}>🎉🛒🎉</div>
         <h2 style={{ color: '#2e7d32', marginBottom: '15px', fontSize: '1.8rem' }}>Поздравляем!</h2>
         <p style={{ fontSize: '1.2rem', lineHeight: '1.5', color: '#333', marginBottom: '25px' }}>
-          Ты накопила {score} ₽ и получила планшет!<br />
-          Родители тобой очень гордятся! 🌟
+          Ты потратил {totalSpent} ₽ из {balance} ₽ и купил всё необходимое!<br />
+          Родители тобой гордятся!
         </p>
         <button onClick={handleFinish} style={{ padding: '12px 30px', background: 'linear-gradient(135deg, #2e7d32, #1b5e20)', color: 'white', border: 'none', borderRadius: '40px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}>Завершить →</button>
       </div>
@@ -85,10 +65,9 @@ function VictoryDialog({ onComplete, score, type }) {
         @keyframes slideInLeft { from { opacity: 0; transform: translateX(-150px); } to { opacity: 1; transform: translateX(0); } }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(150px); } to { opacity: 1; transform: translateX(0); } }
         @keyframes bubbleAppear { from { opacity: 0; transform: translateX(-50%) scale(0.9); } to { opacity: 1; transform: translateX(-50%) scale(1); } }
-        @keyframes tabletGlow { 0% { filter: drop-shadow(0 0 5px gold); } 50% { filter: drop-shadow(0 0 25px gold); } 100% { filter: drop-shadow(0 0 10px gold); } }
       `}</style>
     </div>
   );
 }
 
-export default VictoryDialog;
+export default ShopVictoryDialog;

@@ -12,12 +12,12 @@ function StoryIntro({ title, text, onComplete }) {
   }, [text, speak, stop])
 
   const handleContinue = () => {
-    stop() // ← останавливаем озвучку перед закрытием
-    setIsFadingOut(true)
+    stop(); // ← обязательно
+    setIsFadingOut(true);
     setTimeout(() => {
-      onComplete()
-    }, 400)
-  }
+      onComplete();
+    }, 400);
+  };
 
   return (
     <div style={{

@@ -11,13 +11,15 @@ import ChoiceDialog2 from './components/ChoiceDialog2';
 import InteractiveBackground from './components/InteractiveBackground';
 import useSpeech from './hooks/useSpeech';
 import { story1Dialogs, story1IntroText, story1OutroText, story1Tips } from './data/story1Data';
-import { story2IntroText, story2OutroText, story2Tips, depositDialogs, creditDialogs, endingSuccess, endingFail, depositSuccess, familyDialogs } from './data/story2Data';
+import { story2IntroText, story2OutroText, story2Tips, depositDialogs, creditDialogs, endingSuccess, endingFail, depositSuccess, depositFail, familyDialogs } from './data/story2Data';
 import './index.css';
 import story1Image from './assets/images/story1.png';
 import story2Image from './assets/images/story2.png';
 import CatchGame from './components/CatchGame';
 import VictoryDialog from './components/VictoryDialog';
 import LossDialog from './components/LossDialog';
+import ShopGame from './components/ShopGame';
+import ShopVictoryDialog from './components/ShopVictoryDialog';  // ← импорт
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState('start');
@@ -28,6 +30,7 @@ function App() {
   const [pendingScreen, setPendingScreen] = useState(null);
   const [gameStarted, setGameStarted] = useState(false);
   const [botHighlight, setBotHighlight] = useState(false);
+  const [botCustomTip, setBotCustomTip] = useState('');
   const { speak, stop } = useSpeech();
   
   const [story2Choice, setStory2Choice] = useState(null);
@@ -40,6 +43,12 @@ function App() {
   
   const [balance, setBalance] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Состояния для 1 истории (магазин)
+  const [difficulty, setDifficulty] = useState(null);
+  const [showShop, setShowShop] = useState(false);
+  const [showShopVictory, setShowShopVictory] = useState(false);
+  const [lastTotalSpent, setLastTotalSpent] = useState(0);
 
   const [stats, setStats] = useState({
     money: 0,
@@ -108,10 +117,14 @@ function App() {
     setGameResult(null);
     setShowGame(false);
     setGameConfig(null);
+    setDifficulty(null);
+    setShowShop(false);
+    setShowShopVictory(false);
   };
 
   const handleIntroComplete = () => {
     console.log('handleIntroComplete called, pendingStory:', pendingStory);
+    stop();
     setShowIntro(false);
     if (pendingStory === 'story2') {
       console.log('Переход на story2');
@@ -180,7 +193,6 @@ function App() {
   };
 
   const handleOutroComplete = () => {
-    stop();
     setShowOutro(false);
     setCurrentScreen('start');
     setGameStarted(false);
@@ -188,14 +200,17 @@ function App() {
     setStory2Choice(null);
     setShowChoice(false);
     setShowFamilyDialog(false);
+    setShowGame(false);
+    setGameConfig(null);
+    setDifficulty(null);
+    setShowShop(false);
+    setShowShopVictory(false);
   };
 
   const handleExit = (targetScreen) => {
     const currentProgress = currentScreen === 'story1' ? progress.story1 : progress.story2;
-    
-    stop();
-    
     if (currentProgress > 0) {
+      stop();
       speak('Точно хочешь выйти? Весь прогресс будет потерян!');
       setPendingScreen(targetScreen);
       setShowExitModal(true);
@@ -206,12 +221,15 @@ function App() {
       setStory2Choice(null);
       setShowChoice(false);
       setShowFamilyDialog(false);
+      setShowGame(false);
+      setGameConfig(null);
+      setDifficulty(null);
+      setShowShop(false);
+      setShowShopVictory(false);
     }
   };
 
   const confirmExit = () => {
-    stop();
-    
     if (currentScreen === 'story1') {
       setProgress({...progress, story1: 0});
     } else if (currentScreen === 'story2') {
@@ -225,6 +243,11 @@ function App() {
     setStory2Choice(null);
     setShowChoice(false);
     setShowFamilyDialog(false);
+    setShowGame(false);
+    setGameConfig(null);
+    setDifficulty(null);
+    setShowShop(false);
+    setShowShopVictory(false);
   };
 
   const cancelExit = () => {
@@ -271,7 +294,7 @@ function App() {
             <span>✉ info@center-invest.ru</span>
           </div>
         </footer>
-        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} isHappy={false} />
+        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} />
         
         {showIntro && pendingStory === 'story1' && (
           <StoryIntro 
@@ -293,14 +316,15 @@ function App() {
   
   // ИСТОРИЯ 1
   if (currentScreen === 'story1') {
-    console.log('Story1 block, gameStarted =', gameStarted);
+    // Диалог с мамой
     if (!gameStarted) {
-      console.log('Запускаем DialogScene1');
       return (
         <>
           <InteractiveBackground />
           <DialogScene1 
-            onComplete={handleDialogComplete} 
+            onComplete={() => {
+              setGameStarted(true);
+            }} 
             balance={balance || stats.money}
             onBotHint={(isHighlight) => setBotHighlight(isHighlight)}
             dialogs={story1Dialogs}
@@ -313,60 +337,95 @@ function App() {
       );
     }
     
-    console.log('Запускаем игру (бюджет 500 ₽)');
+    // Победа
+    if (showShopVictory) {
+      return (
+        <ShopVictoryDialog
+          onComplete={() => {
+            setShowShopVictory(false);
+            handleOutroComplete();
+          }}
+          totalSpent={lastTotalSpent}
+          balance={balance || stats.money}
+        />
+      );
+    }
+    
+    // Выбор сложности и магазин
     return (
-      <div className="app-container">
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, overflow: 'hidden' }}>
         <InteractiveBackground />
-        <HeaderWithLogo title="Покупка продуктов" />
-        <TopNavBar onBack={() => handleExit('start')} progress={progress.story1} stats={{ ...stats, money: balance }} />
-        <main className="main-content" style={{ paddingTop: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ maxWidth: '800px', width: '100%', margin: '0 auto' }}>
-            <div style={{ 
-              background: 'rgba(255, 255, 255, 0.9)',
+          {!difficulty && !showShop && (
+            <div style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              background: 'rgba(255,255,255,0.95)',
               backdropFilter: 'blur(12px)',
-              borderRadius: '40px', 
-              padding: '50px 40px',
-              boxShadow: '0 15px 35px rgba(0, 0, 0, 0.15)',
+              borderRadius: '40px',
+              padding: '40px',
               textAlign: 'center',
-              border: '1px solid rgba(255, 255, 255, 0.4)'
+              zIndex: 1001,
+              minWidth: '350px'
             }}>
-              <h3 style={{ marginBottom: '25px', color: '#1a5c1a', fontSize: '1.8rem' }}>
-                🛒 Твой бюджет: {balance} ₽
-              </h3>
-              <p style={{ color: '#3a5a3a', fontSize: '1.2rem', marginBottom: '35px' }}>
-                Здесь будет игра с продуктами!
-              </p>
-              <button onClick={() => {
-                const newProgress = Math.min(progress.story1 + 20, 100);
-                setProgress({...progress, story1: newProgress});
-                if (newProgress === 100) {
-                  speak('Поздравляю! Ты успешно справился с покупками!');
-                  completeStory();
-                }
-              }} style={{ 
-                padding: '16px 35px', 
-                background: 'linear-gradient(135deg, #2e7d32, #1b5e20)', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '40px', 
-                cursor: 'pointer', 
-                fontSize: '1.2rem',
-                boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
-              }}>
-                +20% прогресса (демо)
-              </button>
+              <button
+                onClick={() => handleExit('start')}
+                style={{
+                  position: 'absolute',
+                  top: '15px',
+                  left: '15px',
+                  background: 'rgba(0,0,0,0.1)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '36px',
+                  height: '36px',
+                  fontSize: '1.2rem',
+                  cursor: 'pointer',
+                  color: '#666'
+                }}
+              >✕</button>
+              <h2 style={{ color: '#2e7d32', marginBottom: '20px' }}>🛒 Выбери уровень сложности</h2>
+              <p style={{ marginBottom: '25px', color: '#666' }}>Чем выше сложность, тем дороже продукты!</p>
+              <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <button onClick={() => setDifficulty('easy')} style={{ padding: '15px 35px', background: 'linear-gradient(135deg, #4caf50, #2e7d32)', color: 'white', border: 'none', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold', cursor: 'pointer' }}>🟢 Лёгкий уровень</button>
+                <button onClick={() => setDifficulty('hard')} style={{ padding: '15px 35px', background: 'linear-gradient(135deg, #ff9800, #f57c00)', color: 'white', border: 'none', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold', cursor: 'pointer' }}>🔴 Сложный уровень</button>
+              </div>
             </div>
-          </div>
-        </main>
-        <footer className="footer"><span>Банк Центр-Инвест • Учимся финансовой грамотности</span></footer>
-        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} isHappy={false} />
+          )}
+        
+        {difficulty && !showShop && (
+          <ShopGame
+            difficulty={difficulty}
+            onFinish={(totalSpent) => {
+              setShowShop(true);
+              const remaining = (balance || stats.money) - totalSpent;
+              setBalance(remaining);
+              setStats(prev => ({ ...prev, money: remaining }));
+              setProgress(prev => ({ ...prev, story1: 100 }));
+              setLastTotalSpent(totalSpent);
+              fetch('http://localhost:3001/api/game/earn', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: totalSpent })
+              }).catch(err => console.warn('API error:', err));
+              setShowShopVictory(true);
+            }}
+            onBack={() => setDifficulty(null)}
+            onEncouragement={(phrase) => {
+              setBotCustomTip(phrase);
+              speak(phrase);
+            }}
+          />
+        )}
+        
+        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} customTip={botCustomTip} />
         {showExitModal && <ExitModal onConfirm={confirmExit} onCancel={cancelExit} />}
-        {showOutro && <StoryOutro title={story1OutroText.title} text={story1OutroText.text} onComplete={handleOutroComplete} />}
       </div>
     );
   }
   
-  // ИСТОРИЯ 2
+  // ИСТОРИЯ 2 (без изменений, всё работает)
   if (currentScreen === 'story2') {
     // Семейный диалог
     if (showFamilyDialog) {
@@ -379,7 +438,7 @@ function App() {
             dialogs={familyDialogs}
             onBotHint={(isHighlight) => setBotHighlight(isHighlight)}
           />
-          <BotHelper tips={story2Tips} highlight={botHighlight} isHappy={false} />
+          <BotHelper tips={story2Tips} highlight={botHighlight} />
         </>
       );
     }
@@ -390,7 +449,7 @@ function App() {
         <>
           <InteractiveBackground />
           <ChoiceDialog2 onChoice={handleChoiceComplete} />
-          <BotHelper tips={story2Tips} highlight={botHighlight} isHappy={false} />
+          <BotHelper tips={story2Tips} highlight={botHighlight} />
         </>
       );
     }
@@ -433,7 +492,7 @@ function App() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ amount: moneyChange })
               }).catch(err => console.warn('API error:', err));
-              
+            
               setStats(prev => ({ ...prev, money: prev.money + moneyChange }));
               setProgress(prev => ({ ...prev, story2: 100 }));
               speak(message);
@@ -442,14 +501,19 @@ function App() {
               setShowGame(false);
               setShowChoice(true);
             }}
+            onEncouragement={(phrase) => {
+              setBotCustomTip(phrase);
+              speak(phrase);
+            }}
           />
+          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} />
         </div>
       );
     }
     
-    // Финальный диалог
+    // Финальные диалоги после игры
     if (gameResult) {
-      // Победа в кредите или вкладе — показываем счастливый диалог с планшетом
+      // Победа в кредите или вкладе
       if ((story2Choice === 'credit' && gameResult === 'credit_success') ||
           (story2Choice === 'deposit' && gameResult === 'deposit_success')) {
         return (
@@ -467,7 +531,7 @@ function App() {
         );
       }
       
-      // Поражение в кредите — показываем диалог с потерей бантиков
+      // Поражение в кредите
       if (story2Choice === 'credit' && gameResult === 'credit_fail') {
         return (
           <LossDialog 
@@ -483,26 +547,24 @@ function App() {
         );
       }
       
-      // Поражение во вкладе — оставляем старый текст (или можно сделать отдельный диалог)
-      // Пока оставим как было
+      // Остальные случаи (deposit_fail)
       let endingTitle = '';
       let endingText = '';
       if (story2Choice === 'deposit' && gameResult === 'deposit_fail') {
-        endingTitle = 'История с вкладом';
-        endingText = 'Доченька, со дня твоего рождения и вклада прошёл ровно год. У тебя накопилось 11500 рублей. Ты накопила 500 рублей, как мы договаривались? Смотри, у тебя сегодня было день рождения, тебе подарили деньги, плюс остались деньги с прошлого дня рождения, плюс 1500 рублей благодаря вкладу. Ты можешь сложить свои деньги и купить ноутбук вместо планшета, либо купить планшет и какой-нибудь чехол к нему.';
+        endingTitle = depositFail.title || 'История с вкладом';
+        endingText = depositFail.text || 'Доченька, со дня твоего рождения и вклада прошёл ровно год...';
+      } else if (story2Choice === 'credit' && gameResult === 'credit_success') {
+        endingTitle = endingSuccess.title;
+        endingText = endingSuccess.text;
+      } else if (story2Choice === 'credit' && gameResult === 'credit_fail') {
+        endingTitle = endingFail.title;
+        endingText = endingFail.text;
       }
-      
       return (
         <StoryOutro 
           title={endingTitle}
           text={endingText}
-          onComplete={() => {
-            setGameResult(null);
-            setStory2Choice(null);
-            setShowChoice(false);
-            setGameStarted(false);
-            setCurrentScreen('start');
-          }}
+          onComplete={handleOutroComplete}
         />
       );
     }
