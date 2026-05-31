@@ -156,8 +156,8 @@ function App() {
         target: 500,
         positiveValues: [100, 150],
         negativeValues: [-50],
-        positiveCount: 48,
-        negativeCount: 2,
+        positiveCount: 40,
+        negativeCount: 10,
         totalItems: 50,
         stopOnTarget: true
       });
