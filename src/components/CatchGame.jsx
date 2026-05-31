@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import InfoModal from './InfoModal';
+import CountdownOverlay from './CountdownOverlay';
 
 import coinPlus100 from '../assets/images/coin_plus100.png';
 import coinPlus150 from '../assets/images/coin_plus150.png';
@@ -21,6 +23,11 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
   const [missed, setMissed] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [result, setResult] = useState(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
+  const [showCountdown, setShowCountdown] = useState(false);
+  const [infoContent, setInfoContent] = useState({ title: '', text: '' });
+  
   const catcherRef = useRef(null);
   const gameAreaRef = useRef(null);
   const animationRef = useRef(null);
@@ -30,38 +37,27 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
   const encouragementTimer = useRef(null);
 
   const encouragementPhrases = [
-    'Так держать!',
-    'Ты круто ловишь!',
-    'Ещё немного!',
-    'Почти у цели!',
-    'Ты справишься!',
-    'Верю в тебя!',
-    'Отличная работа!',
-    'Продолжай в том же духе!',
-    'Ты молодец!',
-    'У тебя отлично получается!',
-    'Не сдавайся!',
-    'Ты на верном пути!'
+    'Так держать!', 'Ты круто ловишь!', 'Ещё немного!', 'Почти у цели!',
+    'Ты справишься!', 'Верю в тебя!', 'Отличная работа!', 'Продолжай в том же духе!',
+    'Ты молодец!', 'У тебя отлично получается!', 'Не сдавайся!', 'Ты на верном пути!'
   ];
 
-  // Автоматические подсказки каждые 5 секунд
   useEffect(() => {
     if (gameOver) return;
-    
     const startEncouragementTimer = () => {
       if (encouragementTimer.current) clearInterval(encouragementTimer.current);
       encouragementTimer.current = setInterval(() => {
-        const randomPhrase = encouragementPhrases[Math.floor(Math.random() * encouragementPhrases.length)];
-        if (onEncouragement) onEncouragement(randomPhrase);
+        if (!isPaused && !gameOver && onEncouragement) {
+          const randomPhrase = encouragementPhrases[Math.floor(Math.random() * encouragementPhrases.length)];
+          onEncouragement(randomPhrase);
+        }
       }, 5000);
     };
-    
     startEncouragementTimer();
-    
     return () => {
       if (encouragementTimer.current) clearInterval(encouragementTimer.current);
     };
-  }, [gameOver, onEncouragement]);
+  }, [gameOver, isPaused, onEncouragement]);
 
   const generateItems = () => {
     const itemsList = [];
@@ -96,6 +92,7 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
     if (!gameArea || !catcher) return;
 
     const handleMouseMove = (e) => {
+      if (isPaused) return;
       const rect = gameArea.getBoundingClientRect();
       let x = e.clientX - rect.left - catcher.offsetWidth / 2;
       x = Math.max(0, Math.min(x, rect.width - catcher.offsetWidth));
@@ -103,6 +100,7 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
     };
 
     const handleTouchMove = (e) => {
+      if (isPaused) return;
       e.preventDefault();
       const rect = gameArea.getBoundingClientRect();
       let x = e.touches[0].clientX - rect.left - catcher.offsetWidth / 2;
@@ -118,12 +116,17 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
       gameArea.removeEventListener('mousemove', handleMouseMove);
       gameArea.removeEventListener('touchmove', handleTouchMove);
     };
-  }, []);
+  }, [isPaused]);
 
   useEffect(() => {
     if (gameOver) return;
 
     const update = () => {
+      if (isPaused) {
+        animationRef.current = requestAnimationFrame(update);
+        return;
+      }
+
       const now = Date.now();
 
       if (spawnedCountRef.current < totalItems && now - lastSpawnRef.current > 800) {
@@ -150,7 +153,7 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
         let newMissed = missed;
 
         for (const item of prev) {
-          const newY = item.y + 5;
+          const newY = item.y + 3.2;
           let caughtFlag = false;
 
           if (catcherRect && gameRect &&
@@ -189,16 +192,12 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
 
     animationRef.current = requestAnimationFrame(update);
     return () => cancelAnimationFrame(animationRef.current);
-  }, [gameOver, allItems, target, stopOnTarget, score, caught, missed]);
+  }, [gameOver, allItems, target, stopOnTarget, score, caught, missed, isPaused]);
 
   useEffect(() => {
     if (gameOver) return;
     if (spawnedCountRef.current >= totalItems && items.length === 0 && !targetReachedRef.current) {
-      if (score >= target) {
-        setResult('win');
-      } else {
-        setResult('lose');
-      }
+      setResult(score >= target ? 'win' : 'lose');
       setGameOver(true);
     }
   }, [items, gameOver, target, score]);
@@ -209,6 +208,32 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
       onFinish(result, score);
     }
   }, [gameOver, result, onFinish, score]);
+
+  const openInfo = () => {
+    setInfoContent({
+      title: 'Полезные советы',
+      text: 'Вклад – надёжный способ сохранить деньги. Кредит помогает купить вещь сейчас, но потом нужно возвращать больше. Какой путь выберешь ты? Будь внимателен при выборе!',
+      facts: [
+        '💰 Вклады обычно имеют процентную ставку – твои деньги работают на тебя.',
+        '📉 Кредит может быть полезен для крупных покупок, но переплата может быть значительной.',
+        '📊 Если вовремя не вернуть кредит, могут быть штрафы и испорченная кредитная история.',
+        '🐷 Копить маленькими суммами каждый месяц – отличная привычка для финансовой свободы.',
+        '📈 Даже 50 рублей, отложенные сегодня, через год с процентами станут больше.'
+      ]
+    });
+    setIsPaused(true);
+    setShowInfo(true);
+  };
+
+  const handleInfoClose = () => {
+    setShowInfo(false);
+    setShowCountdown(true);
+  };
+
+  const handleCountdownComplete = () => {
+    setShowCountdown(false);
+    setIsPaused(false);
+  };
 
   return (
     <div style={{ 
@@ -228,10 +253,12 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
         backdropFilter: 'blur(10px)',
         borderRadius: '60px',
         boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
-        border: '1px solid rgba(255,255,255,0.5)'
+        border: '1px solid rgba(255,255,255,0.5)',
+        position: 'relative'
       }}>
         <button 
           onClick={onBack}
+          disabled={isPaused}
           style={{
             background: 'rgba(46,125,50,0.9)',
             border: 'none',
@@ -239,12 +266,10 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
             borderRadius: '40px',
             fontSize: '1rem',
             fontWeight: 'bold',
-            cursor: 'pointer',
+            cursor: isPaused ? 'not-allowed' : 'pointer',
             color: 'white',
-            transition: 'transform 0.2s'
+            opacity: isPaused ? 0.5 : 1
           }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
           Назад
         </button>
@@ -278,6 +303,33 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
         }}>
           <span>💰</span> <span style={{ minWidth: '70px', textAlign: 'center' }}>{score}</span> ₽
         </div>
+
+        <button
+          onClick={openInfo}
+          disabled={isPaused}
+          style={{
+            position: 'absolute',
+            right: '20px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            background: '#ff9800',
+            border: 'none',
+            fontSize: '1.3rem',
+            fontWeight: 'bold',
+            color: 'white',
+            cursor: isPaused ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+            opacity: isPaused ? 0.5 : 1
+          }}
+        >
+          i
+        </button>
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'center', gap: '30px', marginBottom: '15px' }}>
@@ -297,9 +349,11 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
           overflow: 'hidden',
           border: '3px solid rgba(255,255,255,0.4)',
           borderRadius: '40px',
-          cursor: 'none',
+          cursor: isPaused ? 'default' : 'none',
           touchAction: 'none',
-          boxShadow: '0 25px 50px rgba(0,0,0,0.25)'
+          boxShadow: '0 25px 50px rgba(0,0,0,0.25)',
+          opacity: isPaused ? 0.7 : 1,
+          transition: 'opacity 0.2s'
         }}
       >
         <div style={{
@@ -348,21 +402,23 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
             left: '350px',
             zIndex: 20,
             transition: 'left 0.05s linear',
-            cursor: 'grab'
+            cursor: isPaused ? 'default' : 'grab'
           }}
         >
-          <img 
-            src={pigImage} 
-            alt="piggy bank"
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              filter: 'drop-shadow(0 8px 15px rgba(0,0,0,0.2))'
-            }}
-          />
+          <img src={pigImage} alt="piggy bank" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 8px 15px rgba(0,0,0,0.2))' }} />
         </div>
       </div>
+
+      {showInfo && (
+        <InfoModal
+          title={infoContent.title}
+          content={infoContent.text}
+          onClose={handleInfoClose}
+        />
+      )}
+      {showCountdown && (
+        <CountdownOverlay onComplete={handleCountdownComplete} />
+      )}
 
       <style>{`
         @keyframes itemSpawn {

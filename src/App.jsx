@@ -19,6 +19,7 @@ import CatchGame from './components/CatchGame';
 import VictoryDialog from './components/VictoryDialog';
 import LossDialog from './components/LossDialog';
 import ShopGame from './components/ShopGame';
+import BadEndingOutro from './components/BadEndingOutro';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState('start');
@@ -46,6 +47,9 @@ function App() {
   // Состояния для 1 истории (магазин)
   const [difficulty, setDifficulty] = useState(null);
   const [showShop, setShowShop] = useState(false);
+  const [showShopOutro, setShowShopOutro] = useState(false); // вместо showShopVictory
+  const [lastTotalSpent, setLastTotalSpent] = useState(0);
+  const [lastEndingType, setLastEndingType] = useState('good'); // 'good' или 'bad'
 
   const [stats, setStats] = useState({
     money: 0,
@@ -114,9 +118,9 @@ function App() {
     setGameResult(null);
     setShowGame(false);
     setGameConfig(null);
-    // Сброс для 1 истории
     setDifficulty(null);
     setShowShop(false);
+    setShowShopOutro(false);
   };
 
   const handleIntroComplete = () => {
@@ -201,6 +205,7 @@ function App() {
     setGameConfig(null);
     setDifficulty(null);
     setShowShop(false);
+    setShowShopOutro(false);
   };
 
   const handleExit = (targetScreen) => {
@@ -221,6 +226,7 @@ function App() {
       setGameConfig(null);
       setDifficulty(null);
       setShowShop(false);
+      setShowShopOutro(false);
     }
   };
 
@@ -242,6 +248,7 @@ function App() {
     setGameConfig(null);
     setDifficulty(null);
     setShowShop(false);
+    setShowShopOutro(false);
   };
 
   const cancelExit = () => {
@@ -288,7 +295,7 @@ function App() {
             <span>✉ info@center-invest.ru</span>
           </div>
         </footer>
-        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} />
+        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} />
         
         {showIntro && pendingStory === 'story1' && (
           <StoryIntro 
@@ -322,101 +329,102 @@ function App() {
             balance={balance || stats.money}
             onBotHint={(isHighlight) => setBotHighlight(isHighlight)}
             dialogs={story1Dialogs}
+            onUpdateBalance={(newBalance) => {
+              setBalance(newBalance);
+              setStats(prev => ({ ...prev, money: newBalance }));
+            }}
           />
+          <BotHelper tips={story1Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} />
         </>
       );
     }
     
-    // Выбор сложности и магазин (без TopNavBar и прогресса)
+    // Показываем аутро после магазина
+    if (showShopOutro) {
+      if (lastEndingType === 'bad') {
+        return <BadEndingOutro onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} />;
+      } else {
+        return (
+          <StoryOutro
+            title="Отличная работа!"
+            text="Ты купил все качественные продукты. Родители гордятся тобой!"
+            onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }}
+          />
+        );
+      }
+    }
+    
+    // Выбор сложности и магазин
     return (
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, overflow: 'auto' }}>
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, overflow: 'hidden' }}>
         <InteractiveBackground />
-        {!difficulty && !showShop && (
-          <div style={{
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            background: 'rgba(255,255,255,0.95)',
-            backdropFilter: 'blur(12px)',
-            borderRadius: '40px',
-            padding: '40px',
-            textAlign: 'center',
-            zIndex: 1001,
-            minWidth: '300px'
-          }}>
-            <h2 style={{ color: '#2e7d32', marginBottom: '20px' }}>🛒 Выбери уровень сложности</h2>
-            <p style={{ marginBottom: '25px', color: '#666' }}>Чем выше сложность, тем дороже продукты!</p>
-            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          {!difficulty && !showShop && (
+            <div style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              background: 'rgba(255,255,255,0.95)',
+              backdropFilter: 'blur(12px)',
+              borderRadius: '40px',
+              padding: '40px',
+              textAlign: 'center',
+              zIndex: 1001,
+              minWidth: '350px'
+            }}>
               <button
-                onClick={() => setDifficulty('easy')}
+                onClick={() => handleExit('start')}
                 style={{
-                  padding: '15px 35px',
-                  background: 'linear-gradient(135deg, #4caf50, #2e7d32)',
-                  color: 'white',
+                  position: 'absolute',
+                  top: '15px',
+                  left: '15px',
+                  background: 'rgba(0,0,0,0.1)',
                   border: 'none',
-                  borderRadius: '50px',
+                  borderRadius: '50%',
+                  width: '36px',
+                  height: '36px',
                   fontSize: '1.2rem',
-                  fontWeight: 'bold',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  color: '#666'
                 }}
-              >
-                🟢 Лёгкий уровень
-              </button>
-              <button
-                onClick={() => setDifficulty('hard')}
-                style={{
-                  padding: '15px 35px',
-                  background: 'linear-gradient(135deg, #ff9800, #f57c00)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '50px',
-                  fontSize: '1.2rem',
-                  fontWeight: 'bold',
-                  cursor: 'pointer'
-                }}
-              >
-                🔴 Сложный уровень
-              </button>
+              >✕</button>
+              <h2 style={{ color: '#2e7d32', marginBottom: '20px' }}>🛒 Выбери уровень сложности</h2>
+              <p style={{ marginBottom: '25px', color: '#666' }}>Чем выше сложность, тем дороже продукты!</p>
+              <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <button onClick={() => setDifficulty('easy')} style={{ padding: '15px 35px', background: 'linear-gradient(135deg, #4caf50, #2e7d32)', color: 'white', border: 'none', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold', cursor: 'pointer' }}>🟢 Лёгкий уровень</button>
+                <button onClick={() => setDifficulty('hard')} style={{ padding: '15px 35px', background: 'linear-gradient(135deg, #ff9800, #f57c00)', color: 'white', border: 'none', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold', cursor: 'pointer' }}>🔴 Сложный уровень</button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
         
         {difficulty && !showShop && (
           <ShopGame
             difficulty={difficulty}
-            onFinish={(totalSpent) => {
+            onFinish={(totalSpent, cheapDairy) => {
               setShowShop(true);
               const remaining = (balance || stats.money) - totalSpent;
-              const earned = totalSpent;
-              
               setBalance(remaining);
               setStats(prev => ({ ...prev, money: remaining }));
               setProgress(prev => ({ ...prev, story1: 100 }));
-              
+              setLastTotalSpent(totalSpent);
+              setLastEndingType(cheapDairy ? 'bad' : 'good');
               fetch('http://localhost:3001/api/game/earn', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: earned })
+                body: JSON.stringify({ amount: totalSpent })
               }).catch(err => console.warn('API error:', err));
-              
-              if (totalSpent <= (balance || stats.money)) {
-                speak('Поздравляю! Ты успешно справился с покупками!');
-              } else {
-                speak('Ты превысил бюджет! В следующий раз будь внимательнее.');
-              }
-              
-              completeStory();
+              setShowShopOutro(true);
             }}
-            onBack={() => {
-              setDifficulty(null);
+            onBack={() => setDifficulty(null)}
+            onEncouragement={(phrase) => {
+              setBotCustomTip(phrase);
+              speak(phrase);
             }}
           />
         )}
         
-        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} />
+        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} customTip={botCustomTip} />
         {showExitModal && <ExitModal onConfirm={confirmExit} onCancel={cancelExit} />}
-        {showOutro && <StoryOutro title={story1OutroText.title} text={story1OutroText.text} onComplete={handleOutroComplete} />}
       </div>
     );
   }
@@ -434,7 +442,7 @@ function App() {
             dialogs={familyDialogs}
             onBotHint={(isHighlight) => setBotHighlight(isHighlight)}
           />
-          <BotHelper tips={story2Tips} highlight={botHighlight} />
+          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} />
         </>
       );
     }
@@ -445,7 +453,7 @@ function App() {
         <>
           <InteractiveBackground />
           <ChoiceDialog2 onChoice={handleChoiceComplete} />
-          <BotHelper tips={story2Tips} highlight={botHighlight} />
+          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} />
         </>
       );
     }
@@ -502,7 +510,7 @@ function App() {
               speak(phrase);
             }}
           />
-          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} />
+          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} />
         </div>
       );
     }

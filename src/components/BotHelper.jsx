@@ -6,7 +6,7 @@ import botSleeping from '../assets/images/bot_sleeping.png'
 import botWaking from '../assets/images/bot_waking.png'
 import botHappy from '../assets/images/bot_happy.png'
 
-function BotHelper({ tips, highlight = false, isHappy = false, customTip = '' }) {
+function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', disableAutoTips = false }) {
   const [showTip, setShowTip] = useState(false)
   const [currentTip, setCurrentTip] = useState('')
   const [isHovered, setIsHovered] = useState(false)
@@ -18,34 +18,42 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '' })
   const autoTipTimer = useRef(null)
   const tipTimer = useRef(null)
 
-  // Показываем внешнюю подсказку (из игры)
+  // Показываем подсказку из игры (customTip)
   useEffect(() => {
     if (customTip && customTip !== '') {
+      // Останавливаем предыдущую речь
+      window.speechSynthesis.cancel()
+      
       setCurrentTip(customTip)
       setShowTip(true)
+      
       if (tipTimer.current) clearTimeout(tipTimer.current)
+      // Длительность показа = длина текста * 60мс, но не более 8 сек
+      const duration = Math.min(8000, Math.max(3000, customTip.length * 60))
       tipTimer.current = setTimeout(() => {
         setShowTip(false)
-      }, 5000)
+      }, duration)
     }
   }, [customTip])
 
   const showRandomTip = () => {
+    if (disableAutoTips) return
     if (botState !== 'normal') return
     if (!tips || tips.length === 0) return
     
     if (tipTimer.current) clearTimeout(tipTimer.current)
-    
     const randomIndex = Math.floor(Math.random() * tips.length)
-    setCurrentTip(tips[randomIndex])
+    const tipText = tips[randomIndex]
+    setCurrentTip(tipText)
     setShowTip(true)
-    
+    const duration = Math.min(8000, Math.max(3000, tipText.length * 60))
     tipTimer.current = setTimeout(() => {
       setShowTip(false)
-    }, 5000)
+    }, duration)
   }
 
   const startAutoTips = () => {
+    if (disableAutoTips) return
     if (autoTipTimer.current) clearInterval(autoTipTimer.current)
     autoTipTimer.current = setInterval(() => {
       if (botState === 'normal' && !showTip) {
@@ -57,7 +65,6 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '' })
   const wakeUp = () => {
     if (inactivityTimer.current) clearTimeout(inactivityTimer.current)
     if (sleepTimer.current) clearTimeout(sleepTimer.current)
-    
     if (botState === 'sleeping') {
       setBotState('waking')
       if (wakingTimer.current) clearTimeout(wakingTimer.current)
@@ -77,7 +84,6 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '' })
   const startInactivityTimer = () => {
     if (inactivityTimer.current) clearTimeout(inactivityTimer.current)
     if (sleepTimer.current) clearTimeout(sleepTimer.current)
-    
     inactivityTimer.current = setTimeout(() => {
       setBotState('sleepy')
       sleepTimer.current = setTimeout(() => {
@@ -86,18 +92,14 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '' })
     }, 12000)
   }
 
-  const resetInactivity = () => {
-    wakeUp()
-  }
+  const resetInactivity = () => wakeUp()
 
   useEffect(() => {
     const events = ['click', 'mousemove', 'keydown', 'touchstart']
     const handleActivity = () => resetInactivity()
-    
     events.forEach(event => window.addEventListener(event, handleActivity))
     startInactivityTimer()
-    startAutoTips()
-    
+    if (!disableAutoTips) startAutoTips()
     return () => {
       events.forEach(event => window.removeEventListener(event, handleActivity))
       if (inactivityTimer.current) clearTimeout(inactivityTimer.current)
@@ -106,25 +108,19 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '' })
       if (autoTipTimer.current) clearInterval(autoTipTimer.current)
       if (tipTimer.current) clearTimeout(tipTimer.current)
     }
-  }, [])
+  }, [disableAutoTips])
 
   useEffect(() => {
-    if (botState === 'normal') {
-      startAutoTips()
-    }
-  }, [botState])
+    if (botState === 'normal' && !disableAutoTips) startAutoTips()
+  }, [botState, disableAutoTips])
 
   useEffect(() => {
-    if (isHovered) {
-      resetInactivity()
-    }
+    if (isHovered) resetInactivity()
   }, [isHovered])
 
   const handleBotClick = () => {
     resetInactivity()
-    setTimeout(() => {
-      showRandomTip()
-    }, 100)
+    setTimeout(() => showRandomTip(), 100)
   }
 
   const getBotImage = () => {
@@ -154,7 +150,7 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '' })
           transition: 'all 0.2s ease',
           borderRadius: '50%',
           overflow: 'hidden',
-          background: 'linear-gradient(135deg, #c5a3ff, #8b5cf6, #6d28d9, #4c1d95)',
+          background: 'linear-gradient(135deg, #e9d5ff, #c084fc, #a855f7, #7e22ce)',
           border: '3px solid rgba(255, 255, 255, 0.9)',
           boxShadow: isHovered ? '0 8px 30px rgba(0,0,0,0.3)' : '0 6px 20px rgba(0,0,0,0.2)'
         }}
@@ -177,16 +173,36 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '' })
           position: 'fixed',
           bottom: '180px',
           right: '30px',
-          maxWidth: '320px',
-          minWidth: '240px',
-          backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          borderRadius: '24px',
-          padding: '16px 22px',
-          boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
-          zIndex: 999,
-          animation: 'fadeInUp 0.2s ease'
+          maxWidth: '350px',
+          minWidth: '260px',
+          backgroundColor: 'rgba(255, 255, 255, 0.98)',
+          borderRadius: '28px',
+          padding: '18px 24px',
+          boxShadow: '0 12px 28px rgba(0,0,0,0.2)',
+          zIndex: 1001,
+          animation: 'bubblePop 0.25s ease-out',
+          border: '1px solid #ffd966',
+          backdropFilter: 'blur(2px)'
         }}>
-          <p style={{ margin: 0, fontSize: '1rem', color: '#333', lineHeight: '1.45' }}>
+          <div style={{
+            position: 'absolute',
+            bottom: '-10px',
+            right: '20px',
+            width: 0,
+            height: 0,
+            borderLeft: '12px solid transparent',
+            borderRight: '12px solid transparent',
+            borderTop: '12px solid rgba(255,255,255,0.98)',
+            filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.1))'
+          }} />
+          <p style={{ 
+            margin: 0, 
+            fontSize: '1.1rem', 
+            color: '#2d3e2b', 
+            lineHeight: '1.5',
+            fontWeight: 500,
+            textShadow: '0 1px 0 white'
+          }}>
             {currentTip}
           </p>
         </div>
@@ -194,14 +210,14 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '' })
 
       <style>
         {`
-          @keyframes fadeInUp {
-            from {
+          @keyframes bubblePop {
+            0% {
               opacity: 0;
-              transform: translateY(10px);
+              transform: translateY(15px) scale(0.9);
             }
-            to {
+            100% {
               opacity: 1;
-              transform: translateY(0);
+              transform: translateY(0) scale(1);
             }
           }
         `}
