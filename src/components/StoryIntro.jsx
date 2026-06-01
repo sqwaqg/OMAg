@@ -6,8 +6,14 @@ function StoryIntro({ title, text, onComplete }) {
   const { speak, stop } = useSpeech()
 
   useEffect(() => {
-    speak(text, { rate: 0.95 })
-    return () => stop()
+    // Небольшая задержка, чтобы избежать конфликта с предыдущей речью
+    const timer = setTimeout(() => {
+      speak(text, { rate: 0.95 })
+    }, 100)
+    return () => {
+      clearTimeout(timer)
+      stop()
+    }
   }, [text, speak, stop])
 
   const handleContinue = () => {

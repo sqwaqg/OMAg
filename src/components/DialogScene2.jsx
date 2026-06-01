@@ -135,39 +135,39 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs }) {
         <img src={foxFather} alt="Папа" style={{ width: '100%', height: 'auto' }} />
       </div>
 
-      {/* Облачко девочки - увеличенное */}
+      {/* Облачко девочки – чуть правее, чтобы не закрывать лицо */}
       {isGirl && dialogText && (
         <div style={{
-          position: 'absolute', bottom: '50%', left: '12%', width: '38%', maxWidth: '420px',
-          backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '22px 30px',
+          position: 'absolute', bottom: '50%', left: '18%', width: '35%', maxWidth: '400px',
+          backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '20px 28px',
           animation: 'bubbleAppearLeft 0.3s ease', zIndex: 10, boxShadow: '0 12px 28px rgba(0,0,0,0.2)', border: '1px solid #ffd966'
         }}>
           <div style={{ position: 'absolute', bottom: '-12px', left: '25px', width: 0, height: 0, borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '14px solid rgba(255,255,255,0.96)' }} />
-          <p style={{ fontSize: '1.3rem', lineHeight: '1.45', color: '#333' }}>{dialogText}</p>
+          <p style={{ fontSize: '1.2rem', lineHeight: '1.45', color: '#333' }}>{dialogText}</p>
         </div>
       )}
 
-      {/* Облачко мамы - увеличенное */}
+      {/* Облачко мамы – левее, чтобы не перекрывать лицо */}
       {isMother && dialogText && (
         <div style={{
-          position: 'absolute', bottom: '55%', left: '52%', width: '38%', maxWidth: '420px',
-          backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '22px 30px',
+          position: 'absolute', bottom: '55%', left: '48%', width: '35%', maxWidth: '400px',
+          backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '20px 28px',
           animation: 'bubbleAppearRight 0.3s ease', zIndex: 10, boxShadow: '0 12px 28px rgba(0,0,0,0.2)', border: '1px solid #ffd966'
         }}>
           <div style={{ position: 'absolute', bottom: '-12px', right: '25px', width: 0, height: 0, borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '14px solid rgba(255,255,255,0.96)' }} />
-          <p style={{ fontSize: '1.3rem', lineHeight: '1.45', color: '#333' }}>{dialogText}</p>
+          <p style={{ fontSize: '1.2rem', lineHeight: '1.45', color: '#333' }}>{dialogText}</p>
         </div>
       )}
 
-      {/* Облачко папы - увеличенное */}
+      {/* Облачко папы – левее */}
       {isFather && dialogText && (
         <div style={{
-          position: 'absolute', bottom: '55%', left: '62%', width: '38%', maxWidth: '420px',
-          backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '22px 30px',
+          position: 'absolute', bottom: '55%', left: '58%', width: '35%', maxWidth: '400px',
+          backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '20px 28px',
           animation: 'bubbleAppearRight 0.3s ease', zIndex: 10, boxShadow: '0 12px 28px rgba(0,0,0,0.2)', border: '1px solid #ffd966'
         }}>
           <div style={{ position: 'absolute', bottom: '-12px', right: '25px', width: 0, height: 0, borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '14px solid rgba(255,255,255,0.96)' }} />
-          <p style={{ fontSize: '1.3rem', lineHeight: '1.45', color: '#333' }}>{dialogText}</p>
+          <p style={{ fontSize: '1.2rem', lineHeight: '1.45', color: '#333' }}>{dialogText}</p>
         </div>
       )}
 

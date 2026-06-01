@@ -1,137 +1,137 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react';
+import useSpeech from '../hooks/useSpeech';
 
-import botNormal from '../assets/images/bot_normal.png'
-import botSleepy from '../assets/images/bot_sleepy.png'
-import botSleeping from '../assets/images/bot_sleeping.png'
-import botWaking from '../assets/images/bot_waking.png'
-import botHappy from '../assets/images/bot_happy.png'
+import botNormal from '../assets/images/bot_normal.png';
+import botSleepy from '../assets/images/bot_sleepy.png';
+import botSleeping from '../assets/images/bot_sleeping.png';
+import botWaking from '../assets/images/bot_waking.png';
+import botHappy from '../assets/images/bot_happy.png';
 
-function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', disableAutoTips = false }) {
-  const [showTip, setShowTip] = useState(false)
-  const [currentTip, setCurrentTip] = useState('')
-  const [isHovered, setIsHovered] = useState(false)
-  const [botState, setBotState] = useState('normal')
-  
-  const inactivityTimer = useRef(null)
-  const sleepTimer = useRef(null)
-  const wakingTimer = useRef(null)
-  const autoTipTimer = useRef(null)
-  const tipTimer = useRef(null)
+function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', disableAutoTips = false, isMuted = false }) {
+  const [showTip, setShowTip] = useState(false);
+  const [currentTip, setCurrentTip] = useState('');
+  const [isHovered, setIsHovered] = useState(false);
+  const [botState, setBotState] = useState('normal');
+  const { speak, stop } = useSpeech();
 
-  // Показываем подсказку из игры (customTip)
+  const inactivityTimer = useRef(null);
+  const sleepTimer = useRef(null);
+  const wakingTimer = useRef(null);
+  const autoTipTimer = useRef(null);
+  const tipTimer = useRef(null);
+
+  // Показываем внешнюю подсказку (из игры) – только облачко, без озвучки (озвучивает родитель)
   useEffect(() => {
     if (customTip && customTip !== '') {
-      // Останавливаем предыдущую речь
-      window.speechSynthesis.cancel()
-      
-      setCurrentTip(customTip)
-      setShowTip(true)
-      
-      if (tipTimer.current) clearTimeout(tipTimer.current)
-      // Длительность показа = длина текста * 60мс, но не более 8 сек
-      const duration = Math.min(8000, Math.max(3000, customTip.length * 60))
-      tipTimer.current = setTimeout(() => {
-        setShowTip(false)
-      }, duration)
+      window.speechSynthesis.cancel();
+      setCurrentTip(customTip);
+      setShowTip(true);
+      if (tipTimer.current) clearTimeout(tipTimer.current);
+      const duration = Math.min(8000, Math.max(3000, customTip.length * 60));
+      tipTimer.current = setTimeout(() => setShowTip(false), duration);
     }
-  }, [customTip])
+  }, [customTip]);
 
+  // Показ случайной подсказки (автоматической или по клику)
   const showRandomTip = () => {
-    if (disableAutoTips) return
-    if (botState !== 'normal') return
-    if (!tips || tips.length === 0) return
-    
-    if (tipTimer.current) clearTimeout(tipTimer.current)
-    const randomIndex = Math.floor(Math.random() * tips.length)
-    const tipText = tips[randomIndex]
-    setCurrentTip(tipText)
-    setShowTip(true)
-    const duration = Math.min(8000, Math.max(3000, tipText.length * 60))
-    tipTimer.current = setTimeout(() => {
-      setShowTip(false)
-    }, duration)
-  }
+    if (disableAutoTips) return;
+    if (botState !== 'normal') return;
+    if (!tips || tips.length === 0) return;
+
+    if (tipTimer.current) clearTimeout(tipTimer.current);
+    const randomIndex = Math.floor(Math.random() * tips.length);
+    const tipText = tips[randomIndex];
+    setCurrentTip(tipText);
+    setShowTip(true);
+    const duration = Math.min(8000, Math.max(3000, tipText.length * 60));
+    tipTimer.current = setTimeout(() => setShowTip(false), duration);
+
+    // Озвучиваем только если звук не отключён
+    if (!isMuted) {
+      stop();
+      speak(tipText, { pitch: 1.15, rate: 0.95 });
+    }
+  };
 
   const startAutoTips = () => {
-    if (disableAutoTips) return
-    if (autoTipTimer.current) clearInterval(autoTipTimer.current)
+    if (disableAutoTips) return;
+    if (autoTipTimer.current) clearInterval(autoTipTimer.current);
     autoTipTimer.current = setInterval(() => {
       if (botState === 'normal' && !showTip) {
-        showRandomTip()
+        showRandomTip();
       }
-    }, 10000)
-  }
+    }, 10000);
+  };
 
   const wakeUp = () => {
-    if (inactivityTimer.current) clearTimeout(inactivityTimer.current)
-    if (sleepTimer.current) clearTimeout(sleepTimer.current)
+    if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+    if (sleepTimer.current) clearTimeout(sleepTimer.current);
     if (botState === 'sleeping') {
-      setBotState('waking')
-      if (wakingTimer.current) clearTimeout(wakingTimer.current)
+      setBotState('waking');
+      if (wakingTimer.current) clearTimeout(wakingTimer.current);
       wakingTimer.current = setTimeout(() => {
-        setBotState('normal')
-        startInactivityTimer()
-      }, 1500)
+        setBotState('normal');
+        startInactivityTimer();
+      }, 1500);
     } else if (botState === 'sleepy') {
-      setBotState('normal')
-      startInactivityTimer()
+      setBotState('normal');
+      startInactivityTimer();
     } else {
-      setBotState('normal')
-      startInactivityTimer()
+      setBotState('normal');
+      startInactivityTimer();
     }
-  }
+  };
 
   const startInactivityTimer = () => {
-    if (inactivityTimer.current) clearTimeout(inactivityTimer.current)
-    if (sleepTimer.current) clearTimeout(sleepTimer.current)
+    if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+    if (sleepTimer.current) clearTimeout(sleepTimer.current);
     inactivityTimer.current = setTimeout(() => {
-      setBotState('sleepy')
-      sleepTimer.current = setTimeout(() => {
-        setBotState('sleeping')
-      }, 1500)
-    }, 12000)
-  }
+      setBotState('sleepy');
+      sleepTimer.current = setTimeout(() => setBotState('sleeping'), 1500);
+    }, 12000);
+  };
 
-  const resetInactivity = () => wakeUp()
+  const resetInactivity = () => wakeUp();
 
   useEffect(() => {
-    const events = ['click', 'mousemove', 'keydown', 'touchstart']
-    const handleActivity = () => resetInactivity()
-    events.forEach(event => window.addEventListener(event, handleActivity))
-    startInactivityTimer()
-    if (!disableAutoTips) startAutoTips()
+    const events = ['click', 'mousemove', 'keydown', 'touchstart'];
+    const handleActivity = () => resetInactivity();
+    events.forEach(event => window.addEventListener(event, handleActivity));
+    startInactivityTimer();
+    if (!disableAutoTips) startAutoTips();
     return () => {
-      events.forEach(event => window.removeEventListener(event, handleActivity))
-      if (inactivityTimer.current) clearTimeout(inactivityTimer.current)
-      if (sleepTimer.current) clearTimeout(sleepTimer.current)
-      if (wakingTimer.current) clearTimeout(wakingTimer.current)
-      if (autoTipTimer.current) clearInterval(autoTipTimer.current)
-      if (tipTimer.current) clearTimeout(tipTimer.current)
-    }
-  }, [disableAutoTips])
+      events.forEach(event => window.removeEventListener(event, handleActivity));
+      if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+      if (sleepTimer.current) clearTimeout(sleepTimer.current);
+      if (wakingTimer.current) clearTimeout(wakingTimer.current);
+      if (autoTipTimer.current) clearInterval(autoTipTimer.current);
+      if (tipTimer.current) clearTimeout(tipTimer.current);
+      stop();
+    };
+  }, [disableAutoTips, stop]);
 
   useEffect(() => {
-    if (botState === 'normal' && !disableAutoTips) startAutoTips()
-  }, [botState, disableAutoTips])
+    if (botState === 'normal' && !disableAutoTips) startAutoTips();
+  }, [botState, disableAutoTips]);
 
   useEffect(() => {
-    if (isHovered) resetInactivity()
-  }, [isHovered])
+    if (isHovered) resetInactivity();
+  }, [isHovered]);
 
   const handleBotClick = () => {
-    resetInactivity()
-    setTimeout(() => showRandomTip(), 100)
-  }
+    resetInactivity();
+    setTimeout(() => showRandomTip(), 100);
+  };
 
   const getBotImage = () => {
-    if (isHappy) return botHappy
+    if (isHappy) return botHappy;
     switch (botState) {
-      case 'sleepy': return botSleepy
-      case 'sleeping': return botSleeping
-      case 'waking': return botWaking
-      default: return botNormal
+      case 'sleepy': return botSleepy;
+      case 'sleeping': return botSleeping;
+      case 'waking': return botWaking;
+      default: return botNormal;
     }
-  }
+  };
 
   return (
     <>
@@ -155,75 +155,58 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', d
           boxShadow: isHovered ? '0 8px 30px rgba(0,0,0,0.3)' : '0 6px 20px rgba(0,0,0,0.2)'
         }}
       >
-        <img 
-          src={getBotImage()} 
+        <img
+          src={getBotImage()}
           alt="Помощник"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-            display: 'block',
-            padding: '12px'
-          }}
+          style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', padding: '12px' }}
         />
       </div>
 
       {showTip && (
-        <div style={{
-          position: 'fixed',
-          bottom: '180px',
-          right: '30px',
-          maxWidth: '350px',
-          minWidth: '260px',
-          backgroundColor: 'rgba(255, 255, 255, 0.98)',
-          borderRadius: '28px',
-          padding: '18px 24px',
-          boxShadow: '0 12px 28px rgba(0,0,0,0.2)',
-          zIndex: 1001,
-          animation: 'bubblePop 0.25s ease-out',
-          border: '1px solid #ffd966',
-          backdropFilter: 'blur(2px)'
-        }}>
-          <div style={{
-            position: 'absolute',
-            bottom: '-10px',
-            right: '20px',
-            width: 0,
-            height: 0,
-            borderLeft: '12px solid transparent',
-            borderRight: '12px solid transparent',
-            borderTop: '12px solid rgba(255,255,255,0.98)',
-            filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.1))'
-          }} />
-          <p style={{ 
-            margin: 0, 
-            fontSize: '1.1rem', 
-            color: '#2d3e2b', 
-            lineHeight: '1.5',
-            fontWeight: 500,
-            textShadow: '0 1px 0 white'
-          }}>
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '180px',
+            right: '30px',
+            maxWidth: '350px',
+            minWidth: '260px',
+            backgroundColor: 'rgba(255, 255, 255, 0.98)',
+            borderRadius: '28px',
+            padding: '18px 24px',
+            boxShadow: '0 12px 28px rgba(0,0,0,0.2)',
+            zIndex: 1001,
+            animation: 'bubblePop 0.25s ease-out',
+            border: '1px solid #ffd966',
+            backdropFilter: 'blur(2px)'
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '-10px',
+              right: '20px',
+              width: 0,
+              height: 0,
+              borderLeft: '12px solid transparent',
+              borderRight: '12px solid transparent',
+              borderTop: '12px solid rgba(255,255,255,0.98)',
+              filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.1))'
+            }}
+          />
+          <p style={{ margin: 0, fontSize: '1.1rem', color: '#2d3e2b', lineHeight: '1.5', fontWeight: 500, textShadow: '0 1px 0 white' }}>
             {currentTip}
           </p>
         </div>
       )}
 
-      <style>
-        {`
-          @keyframes bubblePop {
-            0% {
-              opacity: 0;
-              transform: translateY(15px) scale(0.9);
-            }
-            100% {
-              opacity: 1;
-              transform: translateY(0) scale(1);
-            }
-          }
-        `}
-      </style>
+      <style>{`
+        @keyframes bubblePop {
+          0% { opacity: 0; transform: translateY(15px) scale(0.9); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+      `}</style>
     </>
-  )
+  );
 }
 
-export default BotHelper
+export default BotHelper;

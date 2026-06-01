@@ -20,6 +20,9 @@ import VictoryDialog from './components/VictoryDialog';
 import LossDialog from './components/LossDialog';
 import ShopGame from './components/ShopGame';
 import BadEndingOutro from './components/BadEndingOutro';
+import GlobalInfoModal from './components/GlobalInfoModal';
+import GameInfoModal from './components/GameInfoModal';
+import DepositFailDialog from './components/DepositFailDialog';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState('start');
@@ -44,23 +47,25 @@ function App() {
   const [balance, setBalance] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Состояния для 1 истории (магазин)
   const [difficulty, setDifficulty] = useState(null);
   const [showShop, setShowShop] = useState(false);
-  const [showShopOutro, setShowShopOutro] = useState(false); // вместо showShopVictory
+  const [showShopOutro, setShowShopOutro] = useState(false);
   const [lastTotalSpent, setLastTotalSpent] = useState(0);
-  const [lastEndingType, setLastEndingType] = useState('good'); // 'good' или 'bad'
+  const [lastEndingType, setLastEndingType] = useState('good');
 
-  const [stats, setStats] = useState({
-    money: 0,
-    score: 0,
-    level: 1
-  });
+  const [showGlobalInfo, setShowGlobalInfo] = useState(false);
+  const openGlobalInfo = () => setShowGlobalInfo(true);
 
-  const [progress, setProgress] = useState({
-    story1: 0,
-    story2: 0
-  });
+  const [isBotMuted, setIsBotMuted] = useState(false);
+  const toggleBotMute = () => setIsBotMuted(!isBotMuted);
+
+  // Флаги показа информационных окон перед играми
+  const [showGameInfo1, setShowGameInfo1] = useState(false);
+  const [showGameInfo2, setShowGameInfo2] = useState(false);   // правила перед игрой 2
+  const [game2PendingConfig, setGame2PendingConfig] = useState(null); // сохраняем config до показа правил
+
+  const [stats, setStats] = useState({ money: 0, score: 0, level: 1 });
+  const [progress, setProgress] = useState({ story1: 0, story2: 0 });
 
   useEffect(() => {
     fetch('http://localhost:3001/api/game/state')
@@ -81,6 +86,25 @@ function App() {
       });
   }, []);
 
+  useEffect(() => {
+    if (currentScreen === 'start') {
+      document.title = 'Финансовая грамотность для детей';
+    } else if (currentScreen === 'story1') {
+      if (showGameInfo1) document.title = 'Правила магазина';
+      else if (difficulty) document.title = 'Выбор сложности';
+      else if (showShop) document.title = 'Магазин — игра';
+      else document.title = 'Диалог с мамой';
+    } else if (currentScreen === 'story2') {
+      if (showFamilyDialog) document.title = 'Семейный разговор';
+      else if (showChoice) document.title = 'Вклад или кредит?';
+      else if (showGameInfo2) document.title = 'Правила игры';
+      else if (showGame) document.title = 'Ловля монеток';
+      else document.title = 'Копим или берём в долг?';
+    } else {
+      document.title = 'Финансовая грамотность';
+    }
+  }, [currentScreen, showGameInfo1, difficulty, showShop, showFamilyDialog, showChoice, showGameInfo2, showGame]);
+
   const getTipsForScreen = () => {
     if (currentScreen === 'start') {
       return [
@@ -96,19 +120,14 @@ function App() {
         'Я всегда рядом, если нужен совет!'
       ];
     }
-    if (currentScreen === 'story1') {
-      return story1Tips;
-    }
-    if (currentScreen === 'story2') {
-      return story2Tips;
-    }
+    if (currentScreen === 'story1') return story1Tips;
+    if (currentScreen === 'story2') return story2Tips;
     return ['Нажми на меня, если нужен совет!', 'Я всегда готов помочь тебе!', 'Спроси меня о чём угодно!'];
   };
 
   const openStory = (storyId, storyTitle, storyDesc) => {
     console.log('openStory called for', storyId);
     stop();
-    speak(`Вы выбрали историю: ${storyTitle}. ${storyDesc}`);
     setPendingStory(storyId);
     setShowIntro(true);
     setGameStarted(false);
@@ -121,6 +140,9 @@ function App() {
     setDifficulty(null);
     setShowShop(false);
     setShowShopOutro(false);
+    setShowGameInfo1(false);
+    setShowGameInfo2(false);
+    setGame2PendingConfig(null);
   };
 
   const handleIntroComplete = () => {
@@ -128,30 +150,28 @@ function App() {
     stop();
     setShowIntro(false);
     if (pendingStory === 'story2') {
-      console.log('Переход на story2');
       setCurrentScreen('story2');
       setShowFamilyDialog(true);
     } else if (pendingStory === 'story1') {
-      console.log('Переход на story1 для диалога');
       setCurrentScreen('story1');
       setGameStarted(false);
+      setShowGameInfo1(true);
     }
     setPendingStory(null);
   };
 
   const handleFamilyDialogComplete = () => {
-    console.log('Семейный диалог завершён, переходим к выбору');
     setShowFamilyDialog(false);
     setShowChoice(true);
   };
 
   const handleChoiceComplete = (choice) => {
-    console.log('Выбор сделан:', choice);
     setStory2Choice(choice);
     setShowChoice(false);
-    
+    // Создаём конфиг для игры
+    let config = null;
     if (choice === 'deposit') {
-      setGameConfig({
+      config = {
         mode: 'deposit',
         target: 500,
         positiveValues: [100, 150],
@@ -160,9 +180,9 @@ function App() {
         negativeCount: 10,
         totalItems: 50,
         stopOnTarget: true
-      });
+      };
     } else {
-      setGameConfig({
+      config = {
         mode: 'credit',
         target: 2300,
         positiveValues: [100, 150],
@@ -171,26 +191,27 @@ function App() {
         negativeCount: 18,
         totalItems: 50,
         stopOnTarget: true
-      });
+      };
     }
+    // Сохраняем конфиг и показываем правила перед игрой
+    setGame2PendingConfig(config);
+    setShowGameInfo2(true);
+  };
+
+  const handleGameInfo2Play = () => {
+    // Запускаем игру с сохранённым конфигом
+    setGameConfig(game2PendingConfig);
     setShowGame(true);
+    setShowGameInfo2(false);
   };
 
   const handleDialogComplete = () => {
-    console.log('Диалог завершён, currentScreen:', currentScreen);
     if (currentScreen === 'story1') {
       setGameStarted(true);
     } else if (currentScreen === 'story2') {
-      if (story2Choice === 'deposit') {
-        setGameResult('deposit_success');
-      } else {
-        setGameResult('credit_success');
-      }
+      if (story2Choice === 'deposit') setGameResult('deposit_success');
+      else setGameResult('credit_success');
     }
-  };
-
-  const completeStory = () => {
-    setShowOutro(true);
   };
 
   const handleOutroComplete = () => {
@@ -206,6 +227,9 @@ function App() {
     setDifficulty(null);
     setShowShop(false);
     setShowShopOutro(false);
+    setShowGameInfo1(false);
+    setShowGameInfo2(false);
+    setGame2PendingConfig(null);
   };
 
   const handleExit = (targetScreen) => {
@@ -227,15 +251,15 @@ function App() {
       setDifficulty(null);
       setShowShop(false);
       setShowShopOutro(false);
+      setShowGameInfo1(false);
+      setShowGameInfo2(false);
+      setGame2PendingConfig(null);
     }
   };
 
   const confirmExit = () => {
-    if (currentScreen === 'story1') {
-      setProgress({...progress, story1: 0});
-    } else if (currentScreen === 'story2') {
-      setProgress({...progress, story2: 0});
-    }
+    if (currentScreen === 'story1') setProgress({...progress, story1: 0});
+    else if (currentScreen === 'story2') setProgress({...progress, story2: 0});
     setCurrentScreen(pendingScreen);
     setShowExitModal(false);
     setPendingScreen(null);
@@ -249,6 +273,9 @@ function App() {
     setDifficulty(null);
     setShowShop(false);
     setShowShopOutro(false);
+    setShowGameInfo1(false);
+    setShowGameInfo2(false);
+    setGame2PendingConfig(null);
   };
 
   const cancelExit = () => {
@@ -257,11 +284,7 @@ function App() {
   };
 
   if (loading) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontSize: '1.2rem', color: '#666' }}>
-        Загрузка...
-      </div>
-    );
+    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontSize: '1.2rem', color: '#666' }}>Загрузка...</div>;
   }
 
   // СТАРТОВЫЙ ЭКРАН
@@ -269,20 +292,16 @@ function App() {
     return (
       <div className="app-container">
         <InteractiveBackground />
-        <HeaderWithLogo title="Финансовая грамотность для детей" subtitle="Учись управлять деньгами весело и интересно!" />
+        <HeaderWithLogo title="Финансы с лисятами" subtitle="Учись управлять деньгами весело и интересно с лисятами!" />
         <main className="main-content">
           <div className="stories-grid">
             <div className="story-card" onClick={() => openStory('story1', 'Покупка продуктов', 'Тебе нужно купить хлеб, молоко и что-то вкусное')}>
-              <div className="story-image">
-                <img src={story1Image} alt="Покупка продуктов" />
-              </div>
+              <div className="story-image"><img src={story1Image} alt="Покупка продуктов" /></div>
               <h2>Покупка продуктов</h2>
               <p>У тебя есть {balance} рублей. Сможешь купить всё необходимое?</p>
             </div>
             <div className="story-card" onClick={() => openStory('story2', 'Копим или берём в долг?', 'Узнай, что выгоднее: копить или взять кредит')}>
-              <div className="story-image">
-                <img src={story2Image} alt="Копим или берём в долг?" />
-              </div>
+              <div className="story-image"><img src={story2Image} alt="Копим или берём в долг?" /></div>
               <h2>Копим или берём в долг?</h2>
               <p>Хочешь новую игрушку? Что выгоднее: копить или взять кредит?</p>
             </div>
@@ -290,27 +309,18 @@ function App() {
         </main>
         <footer className="footer">
           <div>© 2026 Банк Центр-Инвест</div>
-          <div className="contact-info">
-            <span>📞 8-800-XXX-XX-XX</span>
-            <span>✉ info@center-invest.ru</span>
-          </div>
+          <div className="contact-info"><span>📞 8-800-XXX-XX-XX</span><span>✉ info@center-invest.ru</span></div>
         </footer>
-        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} />
-        
-        {showIntro && pendingStory === 'story1' && (
-          <StoryIntro 
-            title={story1IntroText.title}
-            text={story1IntroText.text}
-            onComplete={handleIntroComplete}
-          />
-        )}
-        {showIntro && pendingStory === 'story2' && (
-          <StoryIntro 
-            title={story2IntroText.title}
-            text={story2IntroText.text}
-            onComplete={handleIntroComplete}
-          />
-        )}
+        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} customTip={botCustomTip} isMuted={isBotMuted} />
+        <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
+          <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', fontWeight: 'bold', color: 'white', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>{isBotMuted ? '🔇' : '🔊'}</button>
+        </div>
+        <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 2000 }}>
+          <button onClick={openGlobalInfo} style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#ff9800', border: 'none', fontSize: '1.8rem', fontWeight: 'bold', color: 'white', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>i</button>
+        </div>
+        {showGlobalInfo && <GlobalInfoModal onClose={() => setShowGlobalInfo(false)} />}
+        {showIntro && pendingStory === 'story1' && <StoryIntro title={story1IntroText.title} text={story1IntroText.text} onComplete={handleIntroComplete} />}
+        {showIntro && pendingStory === 'story2' && <StoryIntro title={story2IntroText.title} text={story2IntroText.text} onComplete={handleIntroComplete} />}
       </div>
     );
   }
@@ -323,80 +333,148 @@ function App() {
         <>
           <InteractiveBackground />
           <DialogScene1 
-            onComplete={() => {
-              setGameStarted(true);
-            }} 
+            onComplete={() => setGameStarted(true)} 
             balance={balance || stats.money}
             onBotHint={(isHighlight) => setBotHighlight(isHighlight)}
             dialogs={story1Dialogs}
-            onUpdateBalance={(newBalance) => {
-              setBalance(newBalance);
-              setStats(prev => ({ ...prev, money: newBalance }));
-            }}
+            onUpdateBalance={(newBalance) => { setBalance(newBalance); setStats(prev => ({ ...prev, money: newBalance })); }}
           />
-          <BotHelper tips={story1Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} />
+          <BotHelper tips={story1Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />
+          <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
+            <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
+          </div>
+          <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 2000 }}>
+            <button onClick={openGlobalInfo} style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#ff9800', border: 'none', fontSize: '1.8rem', color: 'white', cursor: 'pointer' }}>i</button>
+          </div>
+          {showGlobalInfo && <GlobalInfoModal onClose={() => setShowGlobalInfo(false)} />}
         </>
       );
     }
     
-    // Показываем аутро после магазина
+    // Аутро после магазина
     if (showShopOutro) {
       if (lastEndingType === 'bad') {
         return <BadEndingOutro onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} />;
       } else {
-        return (
-          <StoryOutro
-            title="Отличная работа!"
-            text="Ты купил все качественные продукты. Родители гордятся тобой!"
-            onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }}
-          />
-        );
+        return <StoryOutro title="Отличная работа!" text="Ты купил все качественные продукты. Родители гордятся тобой!" onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} />;
       }
     }
     
-    // Выбор сложности и магазин
+    // Показываем информационное окно перед игрой (правила)
+    if (showGameInfo1 && !difficulty && !showShop) {
+      return (
+        <>
+          <InteractiveBackground />
+          <GameInfoModal
+            title="Правила игры в магазин"
+            content="Перед тобой магазин. Нужно купить обязательные продукты: хлеб, молоко, яйца, морковку. У тебя 500 рублей. Также можно добавить другие товары, но не выходи за бюджет. Дешёвые молочные продукты могут быстро испортиться – будь внимателен! Нажми 'Начать игру', чтобы выбрать сложность."
+            onPlay={() => setShowGameInfo1(false)}
+            onExit={() => handleExit('start')}
+          />
+          <BotHelper tips={story1Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />
+          <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
+            <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
+          </div>
+          <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 2000 }}>
+            <button onClick={openGlobalInfo} style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#ff9800', border: 'none', fontSize: '1.8rem', color: 'white', cursor: 'pointer' }}>i</button>
+          </div>
+          {showGlobalInfo && <GlobalInfoModal onClose={() => setShowGlobalInfo(false)} />}
+        </>
+      );
+    }
+    
+    // Выбор сложности (центрированное модальное окно с крестиком)
+    if (!difficulty && !showShop) {
+      return (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000 }}>
+          <InteractiveBackground />
+          <div style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: 'rgba(255,255,255,0.96)',
+            backdropFilter: 'blur(12px)',
+            borderRadius: '60px',
+            padding: '40px',
+            textAlign: 'center',
+            zIndex: 1001,
+            minWidth: '380px',
+            boxShadow: '0 30px 50px rgba(0,0,0,0.3)',
+            border: '2px solid #ffd966'
+          }}>
+            <button
+              onClick={() => handleExit('start')}
+              style={{
+                position: 'absolute',
+                top: '15px',
+                left: '15px',
+                background: 'rgba(0,0,0,0.1)',
+                border: 'none',
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+                fontSize: '1.2rem',
+                cursor: 'pointer',
+                color: '#666',
+                transition: 'color 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = '#000'}
+              onMouseLeave={(e) => e.currentTarget.style.color = '#666'}
+            >✕</button>
+            <h2 style={{ color: '#2e7d32', marginBottom: '20px', fontSize: '2rem' }}>🛒 Выбери уровень сложности</h2>
+            <p style={{ marginBottom: '30px', color: '#666', fontSize: '1rem' }}>Чем выше сложность, тем дороже продукты!</p>
+            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setDifficulty('easy')}
+                style={{
+                  padding: '14px 30px',
+                  background: 'linear-gradient(135deg, #4caf50, #2e7d32)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50px',
+                  fontSize: '1.1rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              >🟢 Лёгкий уровень</button>
+              <button
+                onClick={() => setDifficulty('hard')}
+                style={{
+                  padding: '14px 30px',
+                  background: 'linear-gradient(135deg, #ff9800, #f57c00)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50px',
+                  fontSize: '1.1rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              >🔴 Сложный уровень</button>
+            </div>
+          </div>
+          <BotHelper tips={getTipsForScreen()} highlight={botHighlight} customTip={botCustomTip} isMuted={isBotMuted} />
+          <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
+            <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
+          </div>
+          <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 2000 }}>
+            <button onClick={openGlobalInfo} style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#ff9800', border: 'none', fontSize: '1.8rem', color: 'white', cursor: 'pointer' }}>i</button>
+          </div>
+          {showGlobalInfo && <GlobalInfoModal onClose={() => setShowGlobalInfo(false)} />}
+        </div>
+      );
+    }
+    
+    // Магазин (после выбора сложности)
     return (
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000, overflow: 'hidden' }}>
         <InteractiveBackground />
-          {!difficulty && !showShop && (
-            <div style={{
-              position: 'fixed',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              background: 'rgba(255,255,255,0.95)',
-              backdropFilter: 'blur(12px)',
-              borderRadius: '40px',
-              padding: '40px',
-              textAlign: 'center',
-              zIndex: 1001,
-              minWidth: '350px'
-            }}>
-              <button
-                onClick={() => handleExit('start')}
-                style={{
-                  position: 'absolute',
-                  top: '15px',
-                  left: '15px',
-                  background: 'rgba(0,0,0,0.1)',
-                  border: 'none',
-                  borderRadius: '50%',
-                  width: '36px',
-                  height: '36px',
-                  fontSize: '1.2rem',
-                  cursor: 'pointer',
-                  color: '#666'
-                }}
-              >✕</button>
-              <h2 style={{ color: '#2e7d32', marginBottom: '20px' }}>🛒 Выбери уровень сложности</h2>
-              <p style={{ marginBottom: '25px', color: '#666' }}>Чем выше сложность, тем дороже продукты!</p>
-              <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <button onClick={() => setDifficulty('easy')} style={{ padding: '15px 35px', background: 'linear-gradient(135deg, #4caf50, #2e7d32)', color: 'white', border: 'none', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold', cursor: 'pointer' }}>🟢 Лёгкий уровень</button>
-                <button onClick={() => setDifficulty('hard')} style={{ padding: '15px 35px', background: 'linear-gradient(135deg, #ff9800, #f57c00)', color: 'white', border: 'none', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold', cursor: 'pointer' }}>🔴 Сложный уровень</button>
-              </div>
-            </div>
-          )}
-        
         {difficulty && !showShop && (
           <ShopGame
             difficulty={difficulty}
@@ -408,23 +486,22 @@ function App() {
               setProgress(prev => ({ ...prev, story1: 100 }));
               setLastTotalSpent(totalSpent);
               setLastEndingType(cheapDairy ? 'bad' : 'good');
-              fetch('http://localhost:3001/api/game/earn', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: totalSpent })
-              }).catch(err => console.warn('API error:', err));
+              fetch('http://localhost:3001/api/game/earn', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount: totalSpent }) }).catch(err => console.warn('API error:', err));
               setShowShopOutro(true);
             }}
             onBack={() => setDifficulty(null)}
-            onEncouragement={(phrase) => {
-              setBotCustomTip(phrase);
-              speak(phrase);
-            }}
+            onEncouragement={(phrase) => { setBotCustomTip(phrase); speak(phrase); }}
           />
         )}
-        
-        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} customTip={botCustomTip} />
+        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} customTip={botCustomTip} isMuted={isBotMuted} />
+        <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
+          <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
+        </div>
         {showExitModal && <ExitModal onConfirm={confirmExit} onCancel={cancelExit} />}
+        <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 2000 }}>
+          <button onClick={openGlobalInfo} style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#ff9800', border: 'none', fontSize: '1.8rem', color: 'white', cursor: 'pointer' }}>i</button>
+        </div>
+        {showGlobalInfo && <GlobalInfoModal onClose={() => setShowGlobalInfo(false)} />}
       </div>
     );
   }
@@ -436,13 +513,15 @@ function App() {
       return (
         <>
           <InteractiveBackground />
-          <DialogScene2 
-            onComplete={handleFamilyDialogComplete}
-            balance={balance || stats.money}
-            dialogs={familyDialogs}
-            onBotHint={(isHighlight) => setBotHighlight(isHighlight)}
-          />
-          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} />
+          <DialogScene2 onComplete={handleFamilyDialogComplete} balance={balance || stats.money} dialogs={familyDialogs} onBotHint={(isHighlight) => setBotHighlight(isHighlight)} />
+          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />
+          <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
+            <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
+          </div>
+          <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 2000 }}>
+            <button onClick={openGlobalInfo} style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#ff9800', border: 'none', fontSize: '1.8rem', color: 'white', cursor: 'pointer' }}>i</button>
+          </div>
+          {showGlobalInfo && <GlobalInfoModal onClose={() => setShowGlobalInfo(false)} />}
         </>
       );
     }
@@ -453,12 +532,42 @@ function App() {
         <>
           <InteractiveBackground />
           <ChoiceDialog2 onChoice={handleChoiceComplete} />
-          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} />
+          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />
+          <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
+            <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
+          </div>
+          <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 2000 }}>
+            <button onClick={openGlobalInfo} style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#ff9800', border: 'none', fontSize: '1.8rem', color: 'white', cursor: 'pointer' }}>i</button>
+          </div>
+          {showGlobalInfo && <GlobalInfoModal onClose={() => setShowGlobalInfo(false)} />}
         </>
       );
     }
     
-    // Игра (ловля монет)
+    // Показываем правила игры перед самой игрой (после выбора мамы/папы)
+    if (showGameInfo2 && game2PendingConfig) {
+      return (
+        <>
+          <InteractiveBackground />
+          <GameInfoModal
+            title="Правила игры"
+            content="Помоги лисичке накопить на планшет! Лови падающие монетки. Положительные монеты (100 и 150 ₽) увеличивают сумму, отрицательные (-50 и -150 ₽) – уменьшают. Нужно набрать целевую сумму. Будь внимателен! Нажми 'Начать игру', чтобы продолжить."
+            onPlay={handleGameInfo2Play}
+            onExit={() => handleExit('start')}
+          />
+          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />
+          <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
+            <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
+          </div>
+          <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 2000 }}>
+            <button onClick={openGlobalInfo} style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#ff9800', border: 'none', fontSize: '1.8rem', color: 'white', cursor: 'pointer' }}>i</button>
+          </div>
+          {showGlobalInfo && <GlobalInfoModal onClose={() => setShowGlobalInfo(false)} />}
+        </>
+      );
+    }
+    
+    // Сама игра
     if (showGame && gameConfig) {
       return (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'white', zIndex: 1000, overflow: 'auto' }}>
@@ -468,7 +577,6 @@ function App() {
               setShowGame(false);
               let message = '';
               let moneyChange = 0;
-              
               if (gameConfig.mode === 'deposit') {
                 if (finalScore >= 500) {
                   message = 'Ты накопила 500 рублей. Вместе с процентами по вкладу и подарками на день рождения ты можешь купить ноутбук или планшет с чехлом.';
@@ -490,89 +598,48 @@ function App() {
                   setGameResult('credit_fail');
                 }
               }
-              
-              fetch('http://localhost:3001/api/game/earn', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: moneyChange })
-              }).catch(err => console.warn('API error:', err));
-            
+              fetch('http://localhost:3001/api/game/earn', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount: moneyChange }) }).catch(err => console.warn('API error:', err));
               setStats(prev => ({ ...prev, money: prev.money + moneyChange }));
               setProgress(prev => ({ ...prev, story2: 100 }));
               speak(message);
             }}
-            onBack={() => {
-              setShowGame(false);
-              setShowChoice(true);
-            }}
-            onEncouragement={(phrase) => {
-              setBotCustomTip(phrase);
-              speak(phrase);
-            }}
+            onBack={() => { setShowGame(false); setShowChoice(true); }}
+            onEncouragement={(phrase) => { setBotCustomTip(phrase); speak(phrase); }}
           />
-          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} />
+          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />
+          <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
+            <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
+          </div>
+          <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 2000 }}>
+            <button onClick={openGlobalInfo} style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#ff9800', border: 'none', fontSize: '1.8rem', color: 'white', cursor: 'pointer' }}>i</button>
+          </div>
+          {showGlobalInfo && <GlobalInfoModal onClose={() => setShowGlobalInfo(false)} />}
         </div>
       );
     }
     
     // Финальные диалоги после игры
     if (gameResult) {
-      // Победа в кредите или вкладе
-      if ((story2Choice === 'credit' && gameResult === 'credit_success') ||
-          (story2Choice === 'deposit' && gameResult === 'deposit_success')) {
-        return (
-          <VictoryDialog 
-            onComplete={() => {
-              setGameResult(null);
-              setStory2Choice(null);
-              setShowChoice(false);
-              setGameStarted(false);
-              setCurrentScreen('start');
-            }}
-            score={stats.money}
-            type={story2Choice}
-          />
-        );
+      if ((story2Choice === 'credit' && gameResult === 'credit_success') || (story2Choice === 'deposit' && gameResult === 'deposit_success')) {
+        return <VictoryDialog onComplete={() => { setGameResult(null); setStory2Choice(null); setShowChoice(false); setGameStarted(false); setCurrentScreen('start'); }} score={stats.money} type={story2Choice} />;
       }
-      
-      // Поражение в кредите
       if (story2Choice === 'credit' && gameResult === 'credit_fail') {
-        return (
-          <LossDialog 
-            onComplete={() => {
-              setGameResult(null);
-              setStory2Choice(null);
-              setShowChoice(false);
-              setGameStarted(false);
-              setCurrentScreen('start');
-            }}
-            type="credit"
-          />
-        );
+        return <LossDialog onComplete={() => { setGameResult(null); setStory2Choice(null); setShowChoice(false); setGameStarted(false); setCurrentScreen('start'); }} type="credit" />;
       }
-      
-      // Остальные случаи (deposit_fail)
+      if (story2Choice === 'deposit' && gameResult === 'deposit_fail') {
+        return <DepositFailDialog onComplete={() => { setGameResult(null); setStory2Choice(null); setShowChoice(false); setGameStarted(false); setCurrentScreen('start'); }} score={stats.money} />;
+      }
       let endingTitle = '';
       let endingText = '';
-      if (story2Choice === 'deposit' && gameResult === 'deposit_fail') {
-        endingTitle = depositFail.title || 'История с вкладом';
-        endingText = depositFail.text || 'Доченька, со дня твоего рождения и вклада прошёл ровно год...';
-      } else if (story2Choice === 'credit' && gameResult === 'credit_success') {
+      if (story2Choice === 'credit' && gameResult === 'credit_success') {
         endingTitle = endingSuccess.title;
         endingText = endingSuccess.text;
       } else if (story2Choice === 'credit' && gameResult === 'credit_fail') {
         endingTitle = endingFail.title;
         endingText = endingFail.text;
       }
-      return (
-        <StoryOutro 
-          title={endingTitle}
-          text={endingText}
-          onComplete={handleOutroComplete}
-        />
-      );
+      return <StoryOutro title={endingTitle} text={endingText} onComplete={handleOutroComplete} />;
     }
-    
     return null;
   }
 

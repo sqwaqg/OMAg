@@ -34,23 +34,23 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
 
   const getPrices = (cat) => (difficulty === 'easy' ? cat.priceEasy : cat.priceHard);
 
-  const getAccusative = (name) => {
-    const exceptions = {
-      'Морковка': 'Морковку',
-      'Колбаса': 'Колбасу',
-      'Яйца': 'Яйца',
-      'Молоко': 'Молоко',
-      'Хлеб': 'Хлеб',
-      'Йогурт': 'Йогурт',
-      'Банан': 'Банан',
-      'Конфеты': 'Конфеты',
-      'Леденец': 'Леденец',
-      'Кола': 'Колу',
-      'Мячик': 'Мячик',
-      'Яблоки': 'Яблоки'
+    const getAccusative = (name) => {
+      const exceptions = {
+        'Морковка': 'морковку',
+        'Колбаса': 'колбасу',
+        'Яйца': 'яйца',
+        'Молоко': 'молоко',
+        'Хлеб': 'хлеб',
+        'Йогурт': 'йогурт',
+        'Банан': 'банан',
+        'Конфеты': 'конфеты',
+        'Леденец': 'леденец',
+        'Кола': 'колу',
+        'Мячик': 'мячик',
+        'Яблоки': 'яблоки'
+      };
+      return exceptions[name] || name.toLowerCase();
     };
-    return exceptions[name] || name;
-  };
 
   const [selectedItems, setSelectedItems] = useState({});
   const [total, setTotal] = useState(0);
@@ -138,7 +138,7 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
     }
     if (current) removeItem(category.id, false);
     if (total + price > balance) {
-      if (onEncouragement) onEncouragement(`Не хватает денег на ${category.name}!`);
+      if (onEncouragement) onEncouragement(`Не хватает денег на ${getAccusative(category.name)}!`);
       return;
     }
     setSelectedItems(prev => ({ ...prev, [category.id]: { variant, price, name: category.name, required: category.required } }));
@@ -196,7 +196,7 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
   const finish = () => {
     if (isPaused) return;
     if (canFinish()) {
-      const productList = Object.values(selectedItems).map(item => item.name).join(', ');
+      const productList = Object.values(selectedItems).map(item => item.name.toLowerCase()).join(', ');
       const remaining = balance - total;
       const checkMessage = `Проверь чек: ты купил ${productList} на сумму ${total} рублей. Остаток ${remaining} рублей. Точно завершаем покупки?`;
       if (onEncouragement) onEncouragement(checkMessage);
