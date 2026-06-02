@@ -17,74 +17,60 @@ function GameInfoModal({ title, content, onPlay, onExit }) {
       <div style={{
         background: 'rgba(255, 255, 255, 0.97)',
         borderRadius: '60px',
-        padding: '50px 45px',
-        maxWidth: '700px',
+        padding: '45px 50px',
+        maxWidth: '750px',
         width: '85%',
         textAlign: 'center',
         boxShadow: '0 30px 60px rgba(0,0,0,0.4)',
         position: 'relative',
-        border: '2px solid #ffd966'
+        border: '3px solid #ffd966'
       }}>
-        <button
-          onClick={onExit}
-          style={{
-            position: 'absolute',
-            top: '20px',
-            right: '25px',
-            background: 'transparent',
-            border: 'none',
-            fontSize: '32px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            color: '#999',
-            transition: 'color 0.2s'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.color = '#333'}
-          onMouseLeave={(e) => e.currentTarget.style.color = '#999'}
-        >
-          ✕
-        </button>
-        <h2 style={{ color: '#2e7d32', marginBottom: '20px', fontSize: '2rem' }}>{title}</h2>
-        <div style={{ fontSize: '1.2rem', lineHeight: '1.6', color: '#333', marginBottom: '30px', whiteSpace: 'pre-wrap', textAlign: 'left' }}>
+        <h2 style={{ color: '#2e7d32', marginBottom: '25px', fontSize: '2rem', fontWeight: 'bold' }}>
+          {title}
+        </h2>
+        <div style={{ fontSize: '1.2rem', lineHeight: '1.6', color: '#333', marginBottom: '40px', whiteSpace: 'pre-wrap', textAlign: 'left' }}>
           {content}
         </div>
-        <button
-          onClick={onPlay}
-          style={{
-            padding: '14px 32px',
-            background: '#2e7d32',
-            color: 'white',
-            border: 'none',
-            borderRadius: '50px',
-            fontSize: '1.2rem',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            transition: 'transform 0.2s',
-            marginRight: '15px'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-        >
-          Начать игру
-        </button>
-        <button
-          onClick={onExit}
-          style={{
-            padding: '14px 32px',
-            background: '#ccc',
-            color: '#333',
-            border: 'none',
-            borderRadius: '50px',
-            fontSize: '1.2rem',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            transition: 'transform 0.2s'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-        >
-          Выйти в меню
-        </button>
+        <div style={{ display: 'flex', gap: '25px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <button
+            onClick={onPlay}
+            style={{
+              padding: '14px 40px',
+              background: 'linear-gradient(135deg, #2e7d32, #1b5e20)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '60px',
+              fontSize: '1.3rem',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'transform 0.2s',
+              boxShadow: '0 6px 14px rgba(0,0,0,0.2)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            Начать игру
+          </button>
+          <button
+            onClick={onExit}
+            style={{
+              padding: '14px 40px',
+              background: '#e0e0e0',
+              color: '#333',
+              border: 'none',
+              borderRadius: '60px',
+              fontSize: '1.3rem',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'transform 0.2s',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            Выйти в меню
+          </button>
+        </div>
       </div>
       <style>{`
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

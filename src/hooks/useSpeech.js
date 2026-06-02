@@ -1,17 +1,7 @@
 import { useCallback } from 'react';
 
-let globalMuted = false;
-
-export const setGlobalMuted = (muted) => {
-  globalMuted = muted;
-  if (globalMuted) {
-    window.speechSynthesis.cancel();
-  }
-};
-
 function useSpeech() {
   const speak = useCallback((text, options = {}) => {
-    if (globalMuted) return;
     if (!text) return;
 
     window.speechSynthesis.cancel();
@@ -21,12 +11,10 @@ function useSpeech() {
     utterance.rate = options.rate ?? 0.95;
     utterance.pitch = options.pitch ?? 1.0;
 
-    // Определяем пол по pitch
     let gender = 'female';
     if (options.pitch !== undefined) {
       if (options.pitch < 0.9) gender = 'male';
       else if (options.pitch > 1.1) gender = 'female';
-      else gender = 'neutral';
     }
 
     const getBestVoice = (gender) => {

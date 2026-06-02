@@ -21,8 +21,8 @@ import LossDialog from './components/LossDialog';
 import ShopGame from './components/ShopGame';
 import BadEndingOutro from './components/BadEndingOutro';
 import GlobalInfoModal from './components/GlobalInfoModal';
-import GameInfoModal from './components/GameInfoModal';
 import DepositFailDialog from './components/DepositFailDialog';
+import RulesWithOwl from './components/RulesWithOwl';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState('start');
@@ -35,7 +35,7 @@ function App() {
   const [botHighlight, setBotHighlight] = useState(false);
   const [botCustomTip, setBotCustomTip] = useState('');
   const { speak, stop } = useSpeech();
-  
+  const [hideGlobalBot, setHideGlobalBot] = useState(false);
   const [story2Choice, setStory2Choice] = useState(null);
   const [showChoice, setShowChoice] = useState(false);
   const [showFamilyDialog, setShowFamilyDialog] = useState(false);
@@ -59,10 +59,9 @@ function App() {
   const [isBotMuted, setIsBotMuted] = useState(false);
   const toggleBotMute = () => setIsBotMuted(!isBotMuted);
 
-  // Флаги показа информационных окон перед играми
   const [showGameInfo1, setShowGameInfo1] = useState(false);
-  const [showGameInfo2, setShowGameInfo2] = useState(false);   // правила перед игрой 2
-  const [game2PendingConfig, setGame2PendingConfig] = useState(null); // сохраняем config до показа правил
+  const [showGameInfo2, setShowGameInfo2] = useState(false);
+  const [game2PendingConfig, setGame2PendingConfig] = useState(null);
 
   const [stats, setStats] = useState({ money: 0, score: 0, level: 1 });
   const [progress, setProgress] = useState({ story1: 0, story2: 0 });
@@ -143,6 +142,7 @@ function App() {
     setShowGameInfo1(false);
     setShowGameInfo2(false);
     setGame2PendingConfig(null);
+    setHideGlobalBot(false);
   };
 
   const handleIntroComplete = () => {
@@ -156,6 +156,7 @@ function App() {
       setCurrentScreen('story1');
       setGameStarted(false);
       setShowGameInfo1(true);
+      setHideGlobalBot(true);
     }
     setPendingStory(null);
   };
@@ -168,7 +169,6 @@ function App() {
   const handleChoiceComplete = (choice) => {
     setStory2Choice(choice);
     setShowChoice(false);
-    // Создаём конфиг для игры
     let config = null;
     if (choice === 'deposit') {
       config = {
@@ -193,13 +193,13 @@ function App() {
         stopOnTarget: true
       };
     }
-    // Сохраняем конфиг и показываем правила перед игрой
     setGame2PendingConfig(config);
     setShowGameInfo2(true);
+    setHideGlobalBot(true);
   };
 
   const handleGameInfo2Play = () => {
-    // Запускаем игру с сохранённым конфигом
+    setHideGlobalBot(false);
     setGameConfig(game2PendingConfig);
     setShowGame(true);
     setShowGameInfo2(false);
@@ -230,6 +230,7 @@ function App() {
     setShowGameInfo1(false);
     setShowGameInfo2(false);
     setGame2PendingConfig(null);
+    setHideGlobalBot(false);
   };
 
   const handleExit = (targetScreen) => {
@@ -254,6 +255,7 @@ function App() {
       setShowGameInfo1(false);
       setShowGameInfo2(false);
       setGame2PendingConfig(null);
+      setHideGlobalBot(false);
     }
   };
 
@@ -276,6 +278,7 @@ function App() {
     setShowGameInfo1(false);
     setShowGameInfo2(false);
     setGame2PendingConfig(null);
+    setHideGlobalBot(false);
   };
 
   const cancelExit = () => {
@@ -309,9 +312,8 @@ function App() {
         </main>
         <footer className="footer">
           <div>© 2026 Банк Центр-Инвест</div>
-          <div className="contact-info"><span>📞 8-800-XXX-XX-XX</span><span>✉ info@center-invest.ru</span></div>
         </footer>
-        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} customTip={botCustomTip} isMuted={isBotMuted} />
+        {!hideGlobalBot && <BotHelper tips={getTipsForScreen()} highlight={botHighlight} customTip={botCustomTip} isMuted={isBotMuted} />}
         <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
           <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', fontWeight: 'bold', color: 'white', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>{isBotMuted ? '🔇' : '🔊'}</button>
         </div>
@@ -339,7 +341,7 @@ function App() {
             dialogs={story1Dialogs}
             onUpdateBalance={(newBalance) => { setBalance(newBalance); setStats(prev => ({ ...prev, money: newBalance })); }}
           />
-          <BotHelper tips={story1Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />
+          {!hideGlobalBot && <BotHelper tips={story1Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />}
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
             <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
           </div>
@@ -360,18 +362,20 @@ function App() {
       }
     }
     
-    // Показываем информационное окно перед игрой (правила)
+    // Показываем информационное окно перед игрой (правила) – теперь с совёнком
     if (showGameInfo1 && !difficulty && !showShop) {
       return (
         <>
           <InteractiveBackground />
-          <GameInfoModal
+          <RulesWithOwl
             title="Правила игры в магазин"
-            content="Перед тобой магазин. Нужно купить обязательные продукты: хлеб, молоко, яйца, морковку. У тебя 500 рублей. Также можно добавить другие товары, но не выходи за бюджет. Дешёвые молочные продукты могут быстро испортиться – будь внимателен! Нажми 'Начать игру', чтобы выбрать сложность."
-            onPlay={() => setShowGameInfo1(false)}
-            onExit={() => handleExit('start')}
+            text="Перед тобой магазин. Нужно купить обязательные продукты: хлеб, молоко, яйца, морковку. У тебя 500 рублей. Также можно добавить другие товары, но не выходи за бюджет. Дешёвые молочные продукты могут быстро испортиться – будь внимателен!"
+            onPlay={() => {
+              setShowGameInfo1(false);
+              setHideGlobalBot(false);
+            }}
           />
-          <BotHelper tips={story1Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />
+          {/* Бот скрыт через hideGlobalBot, кнопки mute и i оставляем видимыми */}
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
             <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
           </div>
@@ -459,7 +463,7 @@ function App() {
               >🔴 Сложный уровень</button>
             </div>
           </div>
-          <BotHelper tips={getTipsForScreen()} highlight={botHighlight} customTip={botCustomTip} isMuted={isBotMuted} />
+          {!hideGlobalBot && <BotHelper tips={getTipsForScreen()} highlight={botHighlight} customTip={botCustomTip} isMuted={isBotMuted} />}
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
             <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
           </div>
@@ -493,7 +497,7 @@ function App() {
             onEncouragement={(phrase) => { setBotCustomTip(phrase); speak(phrase); }}
           />
         )}
-        <BotHelper tips={getTipsForScreen()} highlight={botHighlight} customTip={botCustomTip} isMuted={isBotMuted} />
+        {!hideGlobalBot && <BotHelper tips={getTipsForScreen()} highlight={botHighlight} customTip={botCustomTip} isMuted={isBotMuted} />}
         <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
           <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
         </div>
@@ -514,7 +518,7 @@ function App() {
         <>
           <InteractiveBackground />
           <DialogScene2 onComplete={handleFamilyDialogComplete} balance={balance || stats.money} dialogs={familyDialogs} onBotHint={(isHighlight) => setBotHighlight(isHighlight)} />
-          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />
+          {!hideGlobalBot && <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />}
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
             <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
           </div>
@@ -532,7 +536,7 @@ function App() {
         <>
           <InteractiveBackground />
           <ChoiceDialog2 onChoice={handleChoiceComplete} />
-          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />
+          {!hideGlobalBot && <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />}
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
             <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
           </div>
@@ -544,18 +548,16 @@ function App() {
       );
     }
     
-    // Показываем правила игры перед самой игрой (после выбора мамы/папы)
+    // Показываем правила игры перед самой игрой (после выбора мамы/папы) – с совёнком
     if (showGameInfo2 && game2PendingConfig) {
       return (
         <>
           <InteractiveBackground />
-          <GameInfoModal
+          <RulesWithOwl
             title="Правила игры"
-            content="Помоги лисичке накопить на планшет! Лови падающие монетки. Положительные монеты (100 и 150 ₽) увеличивают сумму, отрицательные (-50 и -150 ₽) – уменьшают. Нужно набрать целевую сумму. Будь внимателен! Нажми 'Начать игру', чтобы продолжить."
+            text="Помоги лисичке накопить на планшет! Лови падающие монетки. Положительные монеты (100 и 150 ₽) увеличивают сумму, отрицательные (-50 и -150 ₽) – уменьшают. Нужно набрать целевую сумму. Будь внимателен!"
             onPlay={handleGameInfo2Play}
-            onExit={() => handleExit('start')}
           />
-          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
             <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
           </div>
@@ -606,7 +608,7 @@ function App() {
             onBack={() => { setShowGame(false); setShowChoice(true); }}
             onEncouragement={(phrase) => { setBotCustomTip(phrase); speak(phrase); }}
           />
-          <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />
+          {!hideGlobalBot && <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />}
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
             <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
           </div>

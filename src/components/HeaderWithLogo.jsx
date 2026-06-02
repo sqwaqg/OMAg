@@ -1,4 +1,4 @@
-import logo from '../assets/images/CI.png'
+import logo from '../assets/images/CI.png';
 
 function HeaderWithLogo({ title, subtitle, isSmall = false }) {
   return (
@@ -7,16 +7,18 @@ function HeaderWithLogo({ title, subtitle, isSmall = false }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '20px',
         flexWrap: 'wrap',
-        padding: '0 20px',
-        position: 'relative'
+        padding: '25px 30px',
+        position: 'relative',
+        backgroundColor: '#1a4d2a',
+        borderRadius: '80px',
+        margin: '20px 30px 0 30px',
+        boxShadow: '0 6px 20px rgba(0,0,0,0.25)'
       }}>
-        {/* Логотип - без фона, с лёгкой тенью и свечением */}
         <div style={{
           position: 'absolute',
-          left: '20px',
-          height: isSmall ? '55px' : '65px',
+          left: '40px',
+          height: isSmall ? '75px' : '95px',
           display: 'flex',
           alignItems: 'center'
         }}>
@@ -32,27 +34,26 @@ function HeaderWithLogo({ title, subtitle, isSmall = false }) {
           />
         </div>
         
-        {/* Заголовок */}
         <div style={{
           textAlign: 'center',
-          marginLeft: '100px'
+          marginLeft: '150px'
         }}>
           <h1 style={{ 
             margin: 0, 
             color: '#ffffff', 
-            fontSize: isSmall ? '1.5rem' : '2.2rem',
-            fontWeight: '700',
+            fontSize: isSmall ? '2.2rem' : '3rem',
+            fontWeight: '800',
             fontFamily: "'Segoe UI', 'Arial', 'Comfortaa', sans-serif",
             letterSpacing: '-0.5px',
-            textShadow: '2px 2px 6px rgba(0,0,0,0.25)'
+            textShadow: '2px 2px 6px rgba(0,0,0,0.3)'
           }}>
             {title}
           </h1>
           {subtitle && !isSmall && (
             <p style={{ 
-              color: 'rgba(255,255,255,0.9)', 
-              margin: '8px 0 0 0', 
-              fontSize: '1rem',
+              color: 'rgba(255,255,255,0.95)', 
+              margin: '12px 0 0 0', 
+              fontSize: '1.3rem',
               fontWeight: '500',
               textShadow: '1px 1px 4px rgba(0,0,0,0.2)'
             }}>
@@ -62,7 +63,7 @@ function HeaderWithLogo({ title, subtitle, isSmall = false }) {
         </div>
       </div>
     </header>
-  )
+  );
 }
 
-export default HeaderWithLogo
+export default HeaderWithLogo;
