@@ -148,7 +148,7 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
         let newMissed = missed;
 
         for (const item of prev) {
-          const newY = item.y + 5;
+          const newY = item.y + 3.5;
           let caughtFlag = false;
 
           if (catcherRect && gameRect &&

@@ -4,6 +4,10 @@ import background1 from '../assets/images/background1.png'
 import foxChildNoMoney from '../assets/images/fox_child_no_money.png'
 import foxChildWithMoney from '../assets/images/fox_child_with_money.png'
 import foxMother from '../assets/images/fox_mother.png'
+import breadImg from '../assets/images/bread.png'
+import milkImg from '../assets/images/milk.png'
+import eggsImg from '../assets/images/eggs.png'
+import carrotImg from '../assets/images/carrot.png'
 
 function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance }) {
   const [step, setStep] = useState(0)
@@ -57,12 +61,10 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
       await new Promise(r => setTimeout(r, 50))
     }
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
-
     if (step === 0) {
       setShowListModal(true)
       return
     }
-
     if (step === 2) {
       setShowMoneyEffect(true)
       setHasMoney(true)
@@ -71,7 +73,6 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
       }
       setTimeout(() => setShowMoneyEffect(false), 2000)
     }
-
     if (step === 8) {
       setMotherLeaving(true)
       setTimeout(() => setStep(step + 1), 500)
@@ -109,7 +110,6 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
       }, 500)
       return
     }
-
     const currentDialog = dialogs[step]
     const dialogText = getDialogText(currentDialog)
     if (currentDialog.hasBotHint && onBotHint) {
@@ -117,7 +117,6 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
       timeoutRef.current = setTimeout(() => onBotHint(false), 3000)
     }
     speakFull(dialogText, currentDialog.speaker, step)
-
     return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current) }
   }, [step])
 
@@ -137,21 +136,20 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.5s ease'
     }} onClick={handleScreenClick}>
       
-      {/* Лисёнок слева */}
-      <div style={{ position: 'absolute', bottom: 0, left: '12%', width: '30%', maxWidth: '300px', animation: 'slideInLeft 0.5s ease' }}>
-        <img src={hasMoney ? foxChildWithMoney : foxChildNoMoney} alt="Лисёнок" style={{ width: '100%', height: 'auto' }} />
+      {/* Лисёнок – уменьшен до 1.15 */}
+      <div style={{ position: 'absolute', bottom: 0, left: '8%', width: '32%', maxWidth: '320px', animation: 'slideInLeft 0.5s ease' }}>
+        <img src={hasMoney ? foxChildWithMoney : foxChildNoMoney} alt="Лисёнок" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
       </div>
 
-      {/* Мама справа */}
+      {/* Мама */}
       <div style={{ 
-        position: 'absolute', bottom: 0, right: motherLeaving ? '-30%' : '12%', 
+        position: 'absolute', bottom: 0, right: motherLeaving ? '-30%' : '8%', 
         width: '36%', maxWidth: '360px', transition: 'right 0.6s ease',
-        animation: motherLeaving ? 'slideOutRightSlow 1.5s ease forwards' : 'slideInRight 0.5s ease' 
+        animation: motherLeaving ? 'slideOutRightSlow 2.5s ease forwards' : 'slideInRight 0.5s ease' 
       }}>
-        <img src={foxMother} alt="Мама" style={{ width: '100%', height: 'auto' }} />
+        <img src={foxMother} alt="Мама" style={{ width: '100%', height: 'auto', transform: 'scale(1.3)', transformOrigin: 'bottom center' }} />
       </div>
 
-      {/* Эффект получения денег */}
       {showMoneyEffect && (
         <div style={{
           position: 'absolute', bottom: '45%', left: '25%',
@@ -160,7 +158,7 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
           pointerEvents: 'none', zIndex: 20, display: 'flex', alignItems: 'center', gap: '12px',
           fontSize: '1.5rem', fontWeight: 'bold', color: '#2e7d32', whiteSpace: 'nowrap'
         }}>
-          <span>💰</span> +{balance} ₽<span>✨</span>
+          {balance} ₽
         </div>
       )}
 
@@ -180,10 +178,10 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
             <div style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', width: '60px', height: '8px', background: '#d4b87a', borderRadius: '4px' }} />
             <h2 style={{ color: '#3e2723', marginBottom: '30px', fontSize: '2rem' }}>📋 Список продуктов</h2>
             <ul style={{ textAlign: 'left', fontSize: '1.3rem', lineHeight: '2', marginBottom: '35px', paddingLeft: '25px', listStyleType: 'none', color: '#4a3b2c' }}>
-              <li>🥛 Молоко</li>
-              <li>🍞 Хлеб</li>
-              <li>🥚 Яйца</li>
-              <li>🥕 Морковка</li>
+              <li><img src={milkImg} alt="Молоко" style={{ width: '30px', height: '30px', marginRight: '10px', verticalAlign: 'middle' }} /> Молоко</li>
+              <li><img src={breadImg} alt="Хлеб" style={{ width: '30px', height: '30px', marginRight: '10px', verticalAlign: 'middle' }} /> Хлеб</li>
+              <li><img src={eggsImg} alt="Яйца" style={{ width: '30px', height: '30px', marginRight: '10px', verticalAlign: 'middle' }} /> Яйца</li>
+              <li><img src={carrotImg} alt="Морковка" style={{ width: '30px', height: '30px', marginRight: '10px', verticalAlign: 'middle' }} /> Морковка</li>
               <li style={{ marginTop: '15px', color: '#ff9800' }}>🍬 На сдачу купи себе вкусняшку!</li>
             </ul>
             <button onClick={handleListModalClose} style={{ padding: '14px 35px', background: 'linear-gradient(135deg, #2e7d32, #1b5e20)', color: 'white', border: 'none', borderRadius: '50px', fontSize: '1.1rem', cursor: 'pointer' }}>Понятно →</button>
@@ -191,16 +189,16 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
         </div>
       )}
 
-      {/* Облачко ребёнка - увеличенное */}
+      {/* Облачко ребёнка */}
       {isChild && dialogText && (
-        <div style={{ position: 'absolute', bottom: '45%', left: '22%', width: '42%', maxWidth: '450px', backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '24px 32px', animation: 'bubbleAppearLeft 0.3s ease', boxShadow: '0 12px 28px rgba(0,0,0,0.2)', border: '1px solid #ffd966' }}>
+        <div style={{ position: 'absolute', bottom: '55%', left: '18%', width: '45%', maxWidth: '500px', backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '24px 32px', animation: 'bubbleAppearLeft 0.3s ease', boxShadow: '0 12px 28px rgba(0,0,0,0.2)', border: '1px solid #ffd966' }}>
           <div style={{ position: 'absolute', bottom: '-12px', left: '30px', width: 0, height: 0, borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '14px solid rgba(255,255,255,0.96)' }} />
           <p style={{ fontSize: '1.3rem', lineHeight: '1.5', color: '#333' }}>{dialogText}</p>
         </div>
       )}
-      {/* Облачко мамы - увеличенное */}
+      {/* Облачко мамы */}
       {isMother && dialogText && !motherLeaving && (
-        <div style={{ position: 'absolute', bottom: '45%', right: '22%', width: '42%', maxWidth: '450px', backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '24px 32px', animation: 'bubbleAppearRight 0.3s ease', boxShadow: '0 12px 28px rgba(0,0,0,0.2)', border: '1px solid #ffd966' }}>
+        <div style={{ position: 'absolute', bottom: '55%', right: '18%', width: '45%', maxWidth: '500px', backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '24px 32px', animation: 'bubbleAppearRight 0.3s ease', boxShadow: '0 12px 28px rgba(0,0,0,0.2)', border: '1px solid #ffd966' }}>
           <div style={{ position: 'absolute', bottom: '-12px', right: '30px', width: 0, height: 0, borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '14px solid rgba(255,255,255,0.96)' }} />
           <p style={{ fontSize: '1.3rem', lineHeight: '1.5', color: '#333' }}>{dialogText}</p>
         </div>

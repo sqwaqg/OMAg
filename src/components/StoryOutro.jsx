@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import useSpeech from '../hooks/useSpeech'
+import background2 from '../assets/images/background2.png';
 
 function StoryOutro({ title, text, onComplete }) {
   const [isFadingOut, setIsFadingOut] = useState(false)
@@ -25,7 +26,9 @@ function StoryOutro({ title, text, onComplete }) {
       left: 0,
       right: 0,
       bottom: 0,
-      background: 'linear-gradient(135deg, #e8f5e9 0%, #ffffff 100%)',
+      backgroundImage: `url(${background2})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center 30%',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',

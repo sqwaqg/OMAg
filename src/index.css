@@ -2,6 +2,18 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input, textarea {
+  user-select: text;
+}
+
+img {
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: auto;
 }
 
 body {
@@ -83,17 +95,16 @@ body {
 .stories-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-  gap: 50px;
+  gap: 60px;
   margin: 0 auto;
   width: 100%;
-  max-width: 1000px;
+  max-width: 1200px;
 }
 
-/* СТИЛЬ КАРТОЧКИ С УСИЛЕННОЙ ОБВОДКОЙ */
 .story-card {
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
-  border-radius: 40px;
+  border-radius: 48px;
   padding: 50px 40px;
   text-align: center;
   cursor: pointer;
@@ -102,9 +113,13 @@ body {
   animation: cardFadeIn 0.5s ease-out;
   transform: scale(1);
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 500px;
 }
 
-/* УСИЛЕННАЯ СТАТИЧНАЯ ОБВОДКА ТЁПЛЫМ ЖЁЛТЫМ СВЕТОМ */
 .story-card::before {
   content: '';
   position: absolute;
@@ -112,14 +127,14 @@ body {
   left: -10px;
   right: -10px;
   bottom: -10px;
-  background: #ffd700;
+  background: #dbd29e;
   border-radius: 50px;
   z-index: -2;
   opacity: 0.7;
-  filter: blur(16px);
+  filter: blur(20px);
 }
 
-/* Дополнительный слой для усиления свечения */
+
 .story-card::after {
   content: '';
   position: absolute;
@@ -146,17 +161,13 @@ body {
   transform: scale(0.98);
 }
 
-/* Картинка в карточке */
 .story-image {
-  width: 160px;
-  height: 160px;
+  width: 200px;
+  height: 200px;
   margin: 0 auto 25px auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
-  border-radius: 0;
-  padding: 0;
 }
 
 .story-image img {
@@ -167,16 +178,17 @@ body {
 
 .story-card h2 {
   color: #1a5c1a;
-  font-size: 1.8rem;
-  margin-bottom: 15px;
+  font-size: 2.2rem;
+  margin-bottom: 20px;
   font-weight: 700;
 }
 
 .story-card p {
   color: #3a5a3a;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   line-height: 1.5;
   font-weight: 500;
+  margin-top: 10px;
 }
 
 button {
@@ -219,8 +231,8 @@ button:active {
     padding: 35px 25px;
   }
   .story-image {
-    width: 120px;
-    height: 120px;
+    width: 200px;
+    height: 200px;
   }
   .story-card h2 {
     font-size: 1.4rem;
