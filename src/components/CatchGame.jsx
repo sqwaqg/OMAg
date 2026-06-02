@@ -222,8 +222,7 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
         backdropFilter: 'blur(10px)',
         borderRadius: '60px',
         boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
-        border: '1px solid rgba(255,255,255,0.5)',
-        position: 'relative'
+        border: '1px solid rgba(255,255,255,0.5)'
       }}>
         <button 
           onClick={onBack}
@@ -280,17 +279,17 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
           position: 'relative',
           width: '100%',
           maxWidth: '1100px',
-          height: '650px',
+          height: '750px',
           margin: '0 auto',
-          background: 'linear-gradient(135deg, #2e7d32 0%, #4caf50 50%, #81c784 100%)',
+          background: 'radial-gradient(circle at 30% 20%, #2e7d32, #1b5e20)',
+          borderRadius: '50px',
+          border: '4px solid #ffd966',
+          boxShadow: '0 30px 40px rgba(0,0,0,0.3), inset 0 0 20px rgba(255,215,0,0.3)',
           overflow: 'hidden',
-          border: '3px solid rgba(255,255,255,0.4)',
-          borderRadius: '40px',
           cursor: isPaused ? 'default' : 'none',
           touchAction: 'none',
-          boxShadow: '0 25px 50px rgba(0,0,0,0.25)',
-          opacity: isPaused ? 0.7 : 1,
-          transition: 'opacity 0.2s'
+          transition: 'opacity 0.2s',
+          opacity: isPaused ? 0.7 : 1
         }}
       >
         <div style={{
@@ -298,10 +297,10 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
           bottom: 0,
           left: 0,
           right: 0,
-          height: '70px',
-          background: 'linear-gradient(180deg, #4caf50, #2e7d32)',
-          borderTop: '3px solid rgba(255,255,255,0.3)',
-          borderRadius: '0 0 40px 40px',
+          height: '80px',
+          background: 'linear-gradient(0deg, #2e7d32 0%, #4caf50 100%)',
+          borderTop: '3px solid #ffd966',
+          borderRadius: '0 0 50px 50px',
           pointerEvents: 'none',
           zIndex: 2
         }} />

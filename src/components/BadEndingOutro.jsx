@@ -32,23 +32,24 @@ function BadEndingOutro({ onComplete }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000,
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.4s ease'
     }}>
-      {/* Отец – scale 1.4, отзеркален */}
-      <div style={{ position: 'absolute', bottom: 0, left: '2%', width: '30%', maxWidth: '300px', animation: 'slideInLeft 0.5s ease', transform: 'scaleX(-1)' }}>
+      {/* Отец – левый край */}
+      <div style={{ position: 'absolute', bottom: 0, left: '2%', width: '30%', maxWidth: '300px', animation: 'slideInLeft 0.5s ease' }}>
         <img src={foxFather} alt="Папа" style={{ width: '100%', height: 'auto', transform: 'scale(1.4)', transformOrigin: 'bottom center' }} />
       </div>
-      {/* Дочь – scale 1.1 */}
-      <div style={{ position: 'absolute', bottom: 0, left: '22%', width: '22%', maxWidth: '220px', animation: 'slideInLeft 0.5s ease 0.1s' }}>
-        <img src={foxGirl} alt="Дочь" style={{ width: '100%', height: 'auto', transform: 'scale(1.1)', transformOrigin: 'bottom center' }} />
+      {/* Дочь – рядом с отцом */}
+      <div style={{ position: 'absolute', bottom: 0, left: '8%', width: '30%', maxWidth: '300px', animation: 'slideInLeft 0.5s ease 0.1s' }}>
+        <img src={foxGirl} alt="Дочь" style={{ width: '100%', height: 'auto', transform: 'scale(1.5)', transformOrigin: 'bottom center' }} />
       </div>
-      {/* Мать – scale 1.3 */}
-      <div style={{ position: 'absolute', bottom: 0, right: '2%', width: '30%', maxWidth: '300px', animation: 'slideInRight 0.5s ease' }}>
+      {/* Мать – правый край */}
+      <div style={{ position: 'absolute', bottom: 0, right: '2%', width: '32%', maxWidth: '320px', animation: 'slideInRight 0.5s ease' }}>
         <img src={foxMother} alt="Мама" style={{ width: '100%', height: 'auto', transform: 'scale(1.3)', transformOrigin: 'bottom center' }} />
       </div>
-      {/* Сын – scale 1.15 */}
-      <div style={{ position: 'absolute', bottom: 0, right: '22%', width: '22%', maxWidth: '220px', animation: 'slideInRight 0.5s ease 0.1s' }}>
-        <img src={foxChild} alt="Сын" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
+      {/* Сын – рядом с матерью */}
+      <div style={{ position: 'absolute', bottom: 0, right: '8%', width: '30%', maxWidth: '300px', animation: 'slideInRight 0.5s ease 0.1s' }}>
+        <img src={foxChild} alt="Сын" style={{ width: '100%', height: 'auto', transform: 'scale(1.5)', transformOrigin: 'bottom center' }} />
       </div>
 
+      {/* Центральное окно */}
       <div style={{
         position: 'relative', zIndex: 20,
         maxWidth: '700px', width: '85%', padding: '40px 35px',

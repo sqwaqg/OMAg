@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import InfoModal from './InfoModal';
 
 // Импорт картинок продуктов
 import breadImg from '../assets/images/bread.png';
@@ -57,8 +56,6 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [showInfo, setShowInfo] = useState(false);
-  const [infoContent, setInfoContent] = useState({ title: '', text: '' });
   const balance = 500;
   const itemsPerSlide = 6;
   const totalSlides = Math.ceil(categories.length / itemsPerSlide);
@@ -215,28 +212,7 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
     setShowConfirm(false);
   };
 
-  const openInfo = () => {
-    setInfoContent({
-      title: 'Полезные советы',
-      text: 'Выбирай качественные продукты! Дешёвые молочные продукты могут быстро испортиться. Обрати внимание на срок годности. Всегда проверяй упаковку. Не бери просрочку!',
-      facts: [
-        '🍼 Молоко с коротким сроком годности обычно натуральнее, чем "долгоиграющее".',
-        '🥛 Просроченные молочные продукты могут вызвать серьёзное отравление.',
-        '💡 Иногда чуть более дорогой продукт оказывается выгоднее – он дольше хранится и вкуснее.',
-        '🧀 Творог и сыр лучше покупать в прозрачной упаковке – так видна консистенция.',
-        '📅 Всегда проверяй дату производства и срок годности!'
-      ]
-    });
-    setShowInfo(true);
-  };
-
-  const handleInfoClose = () => {
-    setShowInfo(false);
-  };
-
-  useEffect(() => {
-    return () => {};
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <div style={{
@@ -353,8 +329,8 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
                           <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#5c3d2e' }}>{cat.name}</div>
                           {cat.required && <div style={{ fontSize: '0.7rem', color: '#c62828' }}>обязательно</div>}
                           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '10px', width: '100%' }}>
-                            <button onClick={() => selectItem(cat, 0)} style={{ flex: 1, padding: '6px 8px', background: selectedItems[cat.id]?.variant === 0 ? '#5c3d2e' : '#f5a623', border: 'none', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 'bold', color: 'white', cursor: 'pointer' }}>🟢 {getPrices(cat)[0]} ₽</button>
-                            <button onClick={() => selectItem(cat, 1)} style={{ flex: 1, padding: '6px 8px', background: selectedItems[cat.id]?.variant === 1 ? '#5c3d2e' : '#ff9800', border: 'none', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 'bold', color: 'white', cursor: 'pointer' }}>⭐ {getPrices(cat)[1]} ₽</button>
+                            <button onClick={() => selectItem(cat, 0)} style={{ flex: 1, padding: '6px 8px', background: selectedItems[cat.id]?.variant === 0 ? '#5c3d2e' : '#f5a623', border: 'none', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 'bold', color: 'white', cursor: 'pointer' }}>{getPrices(cat)[0]} ₽</button>
+                            <button onClick={() => selectItem(cat, 1)} style={{ flex: 1, padding: '6px 8px', background: selectedItems[cat.id]?.variant === 1 ? '#5c3d2e' : '#ff9800', border: 'none', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 'bold', color: 'white', cursor: 'pointer' }}>{getPrices(cat)[1]} ₽</button>
                           </div>
                         </div>
                       ) : (
@@ -408,30 +384,8 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
           backdropFilter: 'blur(8px)',
           height: 'calc(100vh - 120px)',
           overflowY: 'auto',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-          position: 'relative'
+          boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
         }}>
-          <button
-            onClick={openInfo}
-            style={{
-              position: 'absolute',
-              top: '15px',
-              right: '15px',
-              width: '36px',
-              height: '36px',
-              borderRadius: '50%',
-              background: '#ff9800',
-              border: 'none',
-              fontSize: '1.3rem',
-              fontWeight: 'bold',
-              color: 'white',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
-            }}
-          >i</button>
           <div style={{ fontSize: '1.6rem', fontWeight: 'bold', marginBottom: '15px', textAlign: 'center', color: '#5c3d2e' }}>🛒 Баланс: {balance} ₽</div>
           <div style={{ fontSize: '1.4rem', fontWeight: 'bold', marginBottom: '20px', textAlign: 'center', color: '#5c3d2e' }}>💰 Итого: {total} ₽</div>
           <h3 style={{ color: '#5c3d2e', marginBottom: '15px', fontSize: '1.3rem', borderBottom: '2px solid #d4a373', paddingBottom: '5px' }}>📝 Список покупок</h3>
@@ -485,16 +439,6 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
           </div>
         </div>
       )}
-
-      {showInfo && (
-        <InfoModal
-          title={infoContent.title}
-          content={infoContent.text}
-          facts={infoContent.facts}
-          onClose={handleInfoClose}
-        />
-      )}
-      
 
       <style>{`
         .shelf-container { transition: opacity 0.4s ease; }

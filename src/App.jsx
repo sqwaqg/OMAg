@@ -20,7 +20,6 @@ import VictoryDialog from './components/VictoryDialog';
 import LossDialog from './components/LossDialog';
 import ShopGame from './components/ShopGame';
 import BadEndingOutro from './components/BadEndingOutro';
-import GlobalInfoModal from './components/GlobalInfoModal';
 import DepositFailDialog from './components/DepositFailDialog';
 import RulesWithOwl from './components/RulesWithOwl';
 import GoodEndingStory1 from './components/GoodEndingStory1';
@@ -53,9 +52,6 @@ function App() {
   const [showShopOutro, setShowShopOutro] = useState(false);
   const [lastTotalSpent, setLastTotalSpent] = useState(0);
   const [lastEndingType, setLastEndingType] = useState('good');
-
-  const [showGlobalInfo, setShowGlobalInfo] = useState(false);
-  const openGlobalInfo = () => setShowGlobalInfo(true);
 
   const [isBotMuted, setIsBotMuted] = useState(false);
   const toggleBotMute = () => setIsBotMuted(!isBotMuted);
@@ -310,10 +306,6 @@ function App() {
         <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
           <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', fontWeight: 'bold', color: 'white', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>{isBotMuted ? '🔇' : '🔊'}</button>
         </div>
-        <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 2000 }}>
-          <button onClick={openGlobalInfo} style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#ff9800', border: 'none', fontSize: '1.8rem', fontWeight: 'bold', color: 'white', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>i</button>
-        </div>
-        {showGlobalInfo && <GlobalInfoModal onClose={() => setShowGlobalInfo(false)} />}
         {showIntro && pendingStory === 'story1' && <StoryIntro title={story1IntroText.title} text={story1IntroText.text} onComplete={handleIntroComplete} />}
         {showIntro && pendingStory === 'story2' && <StoryIntro title={story2IntroText.title} text={story2IntroText.text} onComplete={handleIntroComplete} />}
       </div>
@@ -338,10 +330,6 @@ function App() {
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
             <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
           </div>
-          <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 2000 }}>
-            <button onClick={openGlobalInfo} style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#ff9800', border: 'none', fontSize: '1.8rem', color: 'white', cursor: 'pointer' }}>i</button>
-          </div>
-          {showGlobalInfo && <GlobalInfoModal onClose={() => setShowGlobalInfo(false)} />}
         </>
       );
     }
@@ -371,10 +359,6 @@ function App() {
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
             <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
           </div>
-          <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 2000 }}>
-            <button onClick={openGlobalInfo} style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#ff9800', border: 'none', fontSize: '1.8rem', color: 'white', cursor: 'pointer' }}>i</button>
-          </div>
-          {showGlobalInfo && <GlobalInfoModal onClose={() => setShowGlobalInfo(false)} />}
         </>
       );
     }
@@ -440,10 +424,6 @@ function App() {
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
             <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
           </div>
-          <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 2000 }}>
-            <button onClick={openGlobalInfo} style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#ff9800', border: 'none', fontSize: '1.8rem', color: 'white', cursor: 'pointer' }}>i</button>
-          </div>
-          {showGlobalInfo && <GlobalInfoModal onClose={() => setShowGlobalInfo(false)} />}
         </div>
       );
     }
@@ -475,10 +455,6 @@ function App() {
           <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
         </div>
         {showExitModal && <ExitModal onConfirm={confirmExit} onCancel={cancelExit} />}
-        <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 2000 }}>
-          <button onClick={openGlobalInfo} style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#ff9800', border: 'none', fontSize: '1.8rem', color: 'white', cursor: 'pointer' }}>i</button>
-        </div>
-        {showGlobalInfo && <GlobalInfoModal onClose={() => setShowGlobalInfo(false)} />}
       </div>
     );
   }
@@ -495,10 +471,6 @@ function App() {
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
             <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
           </div>
-          <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 2000 }}>
-            <button onClick={openGlobalInfo} style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#ff9800', border: 'none', fontSize: '1.8rem', color: 'white', cursor: 'pointer' }}>i</button>
-          </div>
-          {showGlobalInfo && <GlobalInfoModal onClose={() => setShowGlobalInfo(false)} />}
         </>
       );
     }
@@ -513,10 +485,6 @@ function App() {
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
             <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
           </div>
-          <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 2000 }}>
-            <button onClick={openGlobalInfo} style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#ff9800', border: 'none', fontSize: '1.8rem', color: 'white', cursor: 'pointer' }}>i</button>
-          </div>
-          {showGlobalInfo && <GlobalInfoModal onClose={() => setShowGlobalInfo(false)} />}
         </>
       );
     }
@@ -534,10 +502,6 @@ function App() {
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
             <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
           </div>
-          <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 2000 }}>
-            <button onClick={openGlobalInfo} style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#ff9800', border: 'none', fontSize: '1.8rem', color: 'white', cursor: 'pointer' }}>i</button>
-          </div>
-          {showGlobalInfo && <GlobalInfoModal onClose={() => setShowGlobalInfo(false)} />}
         </>
       );
     }
@@ -585,10 +549,6 @@ function App() {
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
             <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
           </div>
-          <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 2000 }}>
-            <button onClick={openGlobalInfo} style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#ff9800', border: 'none', fontSize: '1.8rem', color: 'white', cursor: 'pointer' }}>i</button>
-          </div>
-          {showGlobalInfo && <GlobalInfoModal onClose={() => setShowGlobalInfo(false)} />}
         </div>
       );
     }
