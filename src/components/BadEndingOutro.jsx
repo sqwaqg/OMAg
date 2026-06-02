@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import useSpeech from '../hooks/useSpeech';
-
-// TODO: заменить на отравленные фреймы персонажей
 import foxFather from '../assets/images/fox_father.png';
-import foxChild from '../assets/images/fox_child.png'; // сын
-import foxGirl from '../assets/images/fox_girl.png'; // дочь
+import foxChild from '../assets/images/fox_child.png';
+import foxGirl from '../assets/images/fox_girl.png';
 import foxMother from '../assets/images/fox_mother.png';
+import botHappy from '../assets/images/bot_happy.png';
+import background2 from '../assets/images/background2.png';
 
 function BadEndingOutro({ onComplete }) {
   const [isFadingOut, setIsFadingOut] = useState(false);
@@ -27,93 +27,42 @@ function BadEndingOutro({ onComplete }) {
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-      background: 'linear-gradient(135deg, #e8f5e9 0%, #ffffff 100%)',
+      backgroundImage: `url(${background2})`,
+      backgroundSize: 'cover', backgroundPosition: 'center 30%',
       display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000,
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.4s ease'
     }}>
-      {/* ===== ЛЕВАЯ СТОРОНА: папа + дочь ===== */}
-      {/* Папа – у края, отзеркален (смотрит направо) */}
-      <div style={{
-        position: 'absolute',
-        bottom: 0,
-        left: '2%',
-        width: '30%',
-        maxWidth: '300px',
-        animation: 'slideInLeft 0.5s ease',
-        transform: 'scaleX(-1)'
-      }}>
-        <img src={foxFather} alt="Папа" style={{ width: '100%', height: 'auto' }} />
+      {/* Отец – scale 1.4, отзеркален */}
+      <div style={{ position: 'absolute', bottom: 0, left: '2%', width: '30%', maxWidth: '300px', animation: 'slideInLeft 0.5s ease', transform: 'scaleX(-1)' }}>
+        <img src={foxFather} alt="Папа" style={{ width: '100%', height: 'auto', transform: 'scale(1.4)', transformOrigin: 'bottom center' }} />
       </div>
-      {/* Дочь – рядом с папой, чуть правее, не отзеркалена */}
-      <div style={{
-        position: 'absolute',
-        bottom: 0,
-        left: '18%',
-        width: '22%',
-        maxWidth: '220px',
-        animation: 'slideInLeft 0.5s ease 0.1s'
-      }}>
-        <img src={foxGirl} alt="Дочь" style={{ width: '100%', height: 'auto' }} />
+      {/* Дочь – scale 1.1 */}
+      <div style={{ position: 'absolute', bottom: 0, left: '22%', width: '22%', maxWidth: '220px', animation: 'slideInLeft 0.5s ease 0.1s' }}>
+        <img src={foxGirl} alt="Дочь" style={{ width: '100%', height: 'auto', transform: 'scale(1.1)', transformOrigin: 'bottom center' }} />
+      </div>
+      {/* Мать – scale 1.3 */}
+      <div style={{ position: 'absolute', bottom: 0, right: '2%', width: '30%', maxWidth: '300px', animation: 'slideInRight 0.5s ease' }}>
+        <img src={foxMother} alt="Мама" style={{ width: '100%', height: 'auto', transform: 'scale(1.3)', transformOrigin: 'bottom center' }} />
+      </div>
+      {/* Сын – scale 1.15 */}
+      <div style={{ position: 'absolute', bottom: 0, right: '22%', width: '22%', maxWidth: '220px', animation: 'slideInRight 0.5s ease 0.1s' }}>
+        <img src={foxChild} alt="Сын" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
       </div>
 
-      {/* ===== ПРАВАЯ СТОРОНА: мама + сын ===== */}
-      {/* Мама – у края, НЕ отзеркалена (оригинальный взгляд влево) */}
       <div style={{
-        position: 'absolute',
-        bottom: 0,
-        right: '2%',
-        width: '30%',
-        maxWidth: '300px',
-        animation: 'slideInRight 0.5s ease'
+        position: 'relative', zIndex: 20,
+        maxWidth: '700px', width: '85%', padding: '40px 35px',
+        textAlign: 'center', background: 'rgba(255,255,240,0.97)',
+        borderRadius: '60px', boxShadow: '0 25px 50px rgba(0,0,0,0.3)',
+        border: '2px solid #ffd966', animation: 'slideIn 0.4s ease'
       }}>
-        <img src={foxMother} alt="Мама" style={{ width: '100%', height: 'auto' }} />
-      </div>
-      {/* Сын – рядом с мамой, чуть левее */}
-      <div style={{
-        position: 'absolute',
-        bottom: 0,
-        right: '18%',
-        width: '22%',
-        maxWidth: '220px',
-        animation: 'slideInRight 0.5s ease 0.1s'
-      }}>
-        <img src={foxChild} alt="Сын" style={{ width: '100%', height: 'auto' }} />
-      </div>
-
-      {/* ЦЕНТРАЛЬНОЕ ОКНО */}
-      <div style={{
-        position: 'relative',
-        zIndex: 20,
-        maxWidth: '650px',
-        width: '85%',
-        padding: '40px 35px',
-        textAlign: 'center',
-        background: 'rgba(255, 255, 240, 0.97)',
-        borderRadius: '60px',
-        boxShadow: '0 25px 50px rgba(0,0,0,0.3)',
-        border: '2px solid #ffd966',
-        animation: 'slideIn 0.4s ease'
-      }}>
-        <div style={{ fontSize: '4.5rem', marginBottom: '15px' }}>😔💔🤢</div>
+        <img src={botHappy} alt="Совёнок" style={{ width: '100px', height: '100px', marginBottom: '15px', objectFit: 'contain' }} />
         <h2 style={{ color: '#c62828', marginBottom: '20px', fontSize: '2.2rem', fontWeight: 'bold' }}>{title}</h2>
         <p style={{ fontSize: '1.3rem', lineHeight: '1.5', color: '#333', marginBottom: '35px' }}>{text}</p>
-        <button
-          onClick={handleFinish}
-          style={{
-            padding: '14px 40px',
-            background: 'linear-gradient(135deg, #c62828, #b71c1c)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '50px',
-            fontSize: '1.2rem',
-            fontWeight: 'bold',
-            cursor: 'pointer'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-        >
-          Завершить →
-        </button>
+        <button onClick={handleFinish} style={{
+          padding: '14px 40px', background: 'linear-gradient(135deg, #c62828, #b71c1c)',
+          color: 'white', border: 'none', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold', cursor: 'pointer'
+        }}>Завершить →</button>
       </div>
 
       <style>{`

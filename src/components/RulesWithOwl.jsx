@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import useSpeech from '../hooks/useSpeech';
-import botNormal from '../assets/images/bot_normal.png';
+import botSmart from '../assets/images/bot_smart.png';
 
 function RulesWithOwl({ title, text, onPlay }) {
   const [isVisible, setIsVisible] = useState(true);
@@ -35,31 +35,39 @@ function RulesWithOwl({ title, text, onPlay }) {
       animation: 'fadeIn 0.3s ease'
     }}>
       <div style={{
+        position: 'relative',
         display: 'flex',
         alignItems: 'center',
-        gap: '40px',
-        background: 'rgba(255, 255, 255, 0.96)',
-        borderRadius: '70px',
-        padding: '40px 50px',
-        maxWidth: '1000px',
+        justifyContent: 'center',
         width: '85%',
-        boxShadow: '0 30px 60px rgba(0,0,0,0.4)',
-        border: '3px solid #ffd966',
-        animation: 'scaleIn 0.3s ease'
+        maxWidth: '1200px'
       }}>
-        {/* Совёнок слева – крупный */}
-        <div style={{ flex: 1, textAlign: 'center' }}>
-          <img 
-            src={botNormal} 
-            alt="Совёнок рассказывает правила" 
-            style={{ width: '160px', height: '160px', objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.2))' }}
-          />
-        </div>
-        {/* Правая часть: текст и кнопка */}
-        <div style={{ flex: 2, textAlign: 'center' }}>
-          <h2 style={{ color: '#2e7d32', marginBottom: '20px', fontSize: '2rem', fontWeight: 'bold' }}>
-            {title}
-          </h2>
+        {/* Облачко – центрировано, фиксированной ширины */}
+        <div style={{
+          position: 'relative',
+          width: '65%',
+          background: 'rgba(255, 255, 255, 0.97)',
+          borderRadius: '60px',
+          padding: '35px 45px',
+          textAlign: 'center',
+          boxShadow: '0 30px 60px rgba(0,0,0,0.4)',
+          border: '3px solid #ffd966',
+          animation: 'scaleIn 0.3s ease'
+        }}>
+          {/* Стрелка вправо – к совёнку */}
+          <div style={{
+            position: 'absolute',
+            right: '-25px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            width: 0,
+            height: 0,
+            borderTop: '20px solid transparent',
+            borderBottom: '20px solid transparent',
+            borderLeft: '25px solid rgba(255,255,255,0.97)',
+            filter: 'drop-shadow(4px 0 4px rgba(0,0,0,0.1))'
+          }} />
+          <h2 style={{ color: '#2e7d32', marginBottom: '20px', fontSize: '2rem', fontWeight: 'bold' }}>{title}</h2>
           <div style={{
             background: '#f9f3e0',
             borderRadius: '48px',
@@ -92,6 +100,28 @@ function RulesWithOwl({ title, text, onPlay }) {
           >
             Начать игру
           </button>
+        </div>
+
+        {/* Совёнок – абсолютно справа от облачка, не влияет на центрирование */}
+        <div style={{
+          position: 'absolute',
+          right: '0',
+          transform: 'translateX(50%)',
+          width: '500px',
+          display: 'flex',
+          justifyContent: 'center',
+          pointerEvents: 'none'
+        }}>
+          <img 
+            src={botSmart} 
+            alt="Совёнок" 
+            style={{ 
+              width: '500px', 
+              height: '500px', 
+              objectFit: 'contain', 
+              filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.2))'
+            }} 
+          />
         </div>
       </div>
       <style>{`
