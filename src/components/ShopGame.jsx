@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import InfoModal from './InfoModal';
-import CountdownOverlay from './CountdownOverlay';
 
 // Импорт картинок продуктов
 import breadImg from '../assets/images/bread.png';
@@ -34,23 +33,23 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
 
   const getPrices = (cat) => (difficulty === 'easy' ? cat.priceEasy : cat.priceHard);
 
-    const getAccusative = (name) => {
-      const exceptions = {
-        'Морковка': 'морковку',
-        'Колбаса': 'колбасу',
-        'Яйца': 'яйца',
-        'Молоко': 'молоко',
-        'Хлеб': 'хлеб',
-        'Йогурт': 'йогурт',
-        'Банан': 'банан',
-        'Конфеты': 'конфеты',
-        'Леденец': 'леденец',
-        'Кола': 'колу',
-        'Мячик': 'мячик',
-        'Яблоки': 'яблоки'
-      };
-      return exceptions[name] || name.toLowerCase();
+  const getAccusative = (name) => {
+    const exceptions = {
+      'Морковка': 'морковку',
+      'Колбаса': 'колбасу',
+      'Яйца': 'яйца',
+      'Молоко': 'молоко',
+      'Хлеб': 'хлеб',
+      'Йогурт': 'йогурт',
+      'Банан': 'банан',
+      'Конфеты': 'конфеты',
+      'Леденец': 'леденец',
+      'Кола': 'колу',
+      'Мячик': 'мячик',
+      'Яблоки': 'яблоки'
     };
+    return exceptions[name] || name.toLowerCase();
+  };
 
   const [selectedItems, setSelectedItems] = useState({});
   const [total, setTotal] = useState(0);
@@ -59,8 +58,6 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
-  const [showCountdown, setShowCountdown] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
   const [infoContent, setInfoContent] = useState({ title: '', text: '' });
   const balance = 500;
   const itemsPerSlide = 6;
@@ -76,7 +73,7 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
   };
 
   const changeSlide = (direction) => {
-    if (isAnimating || isPaused) return;
+    if (isAnimating) return;
     setIsAnimating(true);
     if (direction === 'next' && currentSlide < totalSlides - 1) {
       setCurrentSlide(currentSlide + 1);
@@ -127,7 +124,6 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
   };
 
   const selectItem = (category, variant) => {
-    if (isPaused) return;
     const prices = getPrices(category);
     const price = prices[variant];
     const current = selectedItems[category.id];
@@ -162,7 +158,6 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
   };
 
   const removeItem = (categoryId, addToHistory = true) => {
-    if (isPaused) return;
     const item = selectedItems[categoryId];
     if (!item) return;
     const newSelected = { ...selectedItems };
@@ -176,7 +171,6 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
   };
 
   const undo = () => {
-    if (isPaused) return;
     if (history.length === 0) return;
     const last = history[history.length - 1];
     if (last.action === 'add') {
@@ -194,7 +188,6 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
   const canFinish = () => categories.filter(c => c.required).every(c => selectedItems[c.id]) && total <= balance;
 
   const finish = () => {
-    if (isPaused) return;
     if (canFinish()) {
       const productList = Object.values(selectedItems).map(item => item.name.toLowerCase()).join(', ');
       const remaining = balance - total;
@@ -234,18 +227,11 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
         '📅 Всегда проверяй дату производства и срок годности!'
       ]
     });
-    setIsPaused(true);
     setShowInfo(true);
   };
 
   const handleInfoClose = () => {
     setShowInfo(false);
-    setShowCountdown(true);
-  };
-
-  const handleCountdownComplete = () => {
-    setShowCountdown(false);
-    setIsPaused(false);
   };
 
   useEffect(() => {
@@ -265,7 +251,6 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
     }}>
       <button
         onClick={onBack}
-        disabled={isPaused}
         style={{
           position: 'absolute',
           top: '20px',
@@ -277,11 +262,10 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
           borderRadius: '40px',
           fontSize: '1rem',
           fontWeight: 'bold',
-          cursor: isPaused ? 'not-allowed' : 'pointer',
+          cursor: 'pointer',
           color: '#5c3d2e',
           boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-          transition: 'transform 0.2s',
-          opacity: isPaused ? 0.5 : 1
+          transition: 'transform 0.2s'
         }}
       >
         ← Выйти в меню
@@ -342,10 +326,10 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
                           alignItems: 'center',
                           justifyContent: 'space-between',
                           height: '240px',
-                          cursor: isPaused ? 'not-allowed' : 'pointer',
-                          opacity: isPaused ? 0.6 : 1
+                          cursor: 'pointer',
+                          opacity: 1
                         }}
-                        onMouseEnter={(e) => !isPaused && (e.currentTarget.style.transform = 'scale(1.02)')}
+                        onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
                         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
                           {selectedItems[cat.id] && (
                             <div style={{
@@ -369,8 +353,8 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
                           <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#5c3d2e' }}>{cat.name}</div>
                           {cat.required && <div style={{ fontSize: '0.7rem', color: '#c62828' }}>обязательно</div>}
                           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '10px', width: '100%' }}>
-                            <button onClick={() => selectItem(cat, 0)} disabled={isPaused} style={{ flex: 1, padding: '6px 8px', background: selectedItems[cat.id]?.variant === 0 ? '#5c3d2e' : '#f5a623', border: 'none', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 'bold', color: 'white', cursor: isPaused ? 'not-allowed' : 'pointer' }}>🟢 {getPrices(cat)[0]} ₽</button>
-                            <button onClick={() => selectItem(cat, 1)} disabled={isPaused} style={{ flex: 1, padding: '6px 8px', background: selectedItems[cat.id]?.variant === 1 ? '#5c3d2e' : '#ff9800', border: 'none', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 'bold', color: 'white', cursor: isPaused ? 'not-allowed' : 'pointer' }}>⭐ {getPrices(cat)[1]} ₽</button>
+                            <button onClick={() => selectItem(cat, 0)} style={{ flex: 1, padding: '6px 8px', background: selectedItems[cat.id]?.variant === 0 ? '#5c3d2e' : '#f5a623', border: 'none', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 'bold', color: 'white', cursor: 'pointer' }}>🟢 {getPrices(cat)[0]} ₽</button>
+                            <button onClick={() => selectItem(cat, 1)} style={{ flex: 1, padding: '6px 8px', background: selectedItems[cat.id]?.variant === 1 ? '#5c3d2e' : '#ff9800', border: 'none', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 'bold', color: 'white', cursor: 'pointer' }}>⭐ {getPrices(cat)[1]} ₽</button>
                           </div>
                         </div>
                       ) : (
@@ -388,27 +372,27 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '40px', marginTop: '20px' }}>
               <button
                 onClick={() => changeSlide('prev')}
-                disabled={currentSlide === 0 || isPaused}
-                style={{ padding: '12px 30px', background: (currentSlide === 0 || isPaused) ? '#ccc' : 'linear-gradient(135deg, #5c3d2e, #3d2a1f)', border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: 'bold', color: 'white', cursor: (currentSlide === 0 || isPaused) ? 'not-allowed' : 'pointer' }}
+                disabled={currentSlide === 0}
+                style={{ padding: '12px 30px', background: currentSlide === 0 ? '#ccc' : 'linear-gradient(135deg, #5c3d2e, #3d2a1f)', border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: 'bold', color: 'white', cursor: currentSlide === 0 ? 'not-allowed' : 'pointer' }}
               >← Назад</button>
               <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#5c3d2e' }}>Слайд {currentSlide + 1} из {totalSlides}</span>
               <button
                 onClick={() => changeSlide('next')}
-                disabled={currentSlide === totalSlides - 1 || isPaused}
-                style={{ padding: '12px 30px', background: (currentSlide === totalSlides - 1 || isPaused) ? '#ccc' : 'linear-gradient(135deg, #5c3d2e, #3d2a1f)', border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: 'bold', color: 'white', cursor: (currentSlide === totalSlides - 1 || isPaused) ? 'not-allowed' : 'pointer' }}
+                disabled={currentSlide === totalSlides - 1}
+                style={{ padding: '12px 30px', background: currentSlide === totalSlides - 1 ? '#ccc' : 'linear-gradient(135deg, #5c3d2e, #3d2a1f)', border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: 'bold', color: 'white', cursor: currentSlide === totalSlides - 1 ? 'not-allowed' : 'pointer' }}
               >Далее →</button>
             </div>
 
             <div style={{ display: 'flex', gap: '30px', justifyContent: 'center', marginTop: '20px', marginBottom: '10px' }}>
               <button
                 onClick={undo}
-                disabled={history.length === 0 || isPaused}
-                style={{ padding: '12px 40px', background: (history.length === 0 || isPaused) ? '#ccc' : 'linear-gradient(135deg, #ff9800, #f57c00)', border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: 'bold', color: 'white', cursor: (history.length === 0 || isPaused) ? 'not-allowed' : 'pointer' }}
+                disabled={history.length === 0}
+                style={{ padding: '12px 40px', background: history.length === 0 ? '#ccc' : 'linear-gradient(135deg, #ff9800, #f57c00)', border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: 'bold', color: 'white', cursor: history.length === 0 ? 'not-allowed' : 'pointer' }}
               >🔄 Отменить</button>
               <button
                 onClick={finish}
-                disabled={!canFinish() || isPaused}
-                style={{ padding: '12px 50px', background: (!canFinish() || isPaused) ? '#ccc' : 'linear-gradient(135deg, #5c3d2e, #3d2a1f)', border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: 'bold', color: 'white', cursor: (!canFinish() || isPaused) ? 'not-allowed' : 'pointer' }}
+                disabled={!canFinish()}
+                style={{ padding: '12px 50px', background: !canFinish() ? '#ccc' : 'linear-gradient(135deg, #5c3d2e, #3d2a1f)', border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: 'bold', color: 'white', cursor: !canFinish() ? 'not-allowed' : 'pointer' }}
               >✅ Завершить покупки</button>
             </div>
           </div>
@@ -429,7 +413,6 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
         }}>
           <button
             onClick={openInfo}
-            disabled={isPaused}
             style={{
               position: 'absolute',
               top: '15px',
@@ -442,12 +425,11 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
               fontSize: '1.3rem',
               fontWeight: 'bold',
               color: 'white',
-              cursor: isPaused ? 'not-allowed' : 'pointer',
+              cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-              opacity: isPaused ? 0.5 : 1
+              boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
             }}
           >i</button>
           <div style={{ fontSize: '1.6rem', fontWeight: 'bold', marginBottom: '15px', textAlign: 'center', color: '#5c3d2e' }}>🛒 Баланс: {balance} ₽</div>
@@ -512,9 +494,7 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
           onClose={handleInfoClose}
         />
       )}
-      {showCountdown && (
-        <CountdownOverlay onComplete={handleCountdownComplete} />
-      )}
+      
 
       <style>{`
         .shelf-container { transition: opacity 0.4s ease; }

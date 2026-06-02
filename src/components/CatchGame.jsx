@@ -1,6 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import InfoModal from './InfoModal';
-import CountdownOverlay from './CountdownOverlay';
 
 import coinPlus100 from '../assets/images/coin_plus100.png';
 import coinPlus150 from '../assets/images/coin_plus150.png';
@@ -24,9 +22,6 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
   const [gameOver, setGameOver] = useState(false);
   const [result, setResult] = useState(null);
   const [isPaused, setIsPaused] = useState(false);
-  const [showInfo, setShowInfo] = useState(false);
-  const [showCountdown, setShowCountdown] = useState(false);
-  const [infoContent, setInfoContent] = useState({ title: '', text: '' });
   
   const catcherRef = useRef(null);
   const gameAreaRef = useRef(null);
@@ -153,7 +148,7 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
         let newMissed = missed;
 
         for (const item of prev) {
-          const newY = item.y + 3.5;
+          const newY = item.y + 5;
           let caughtFlag = false;
 
           if (catcherRect && gameRect &&
@@ -208,32 +203,6 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
       onFinish(result, score);
     }
   }, [gameOver, result, onFinish, score]);
-
-  const openInfo = () => {
-    setInfoContent({
-      title: 'Полезные советы',
-      text: 'Вклад – надёжный способ сохранить деньги. Кредит помогает купить вещь сейчас, но потом нужно возвращать больше. Какой путь выберешь ты? Будь внимателен при выборе!',
-      facts: [
-        '💰 Вклады обычно имеют процентную ставку – твои деньги работают на тебя.',
-        '📉 Кредит может быть полезен для крупных покупок, но переплата может быть значительной.',
-        '📊 Если вовремя не вернуть кредит, могут быть штрафы и испорченная кредитная история.',
-        '🐷 Копить маленькими суммами каждый месяц – отличная привычка для финансовой свободы.',
-        '📈 Даже 50 рублей, отложенные сегодня, через год с процентами станут больше.'
-      ]
-    });
-    setIsPaused(true);
-    setShowInfo(true);
-  };
-
-  const handleInfoClose = () => {
-    setShowInfo(false);
-    setShowCountdown(true);
-  };
-
-  const handleCountdownComplete = () => {
-    setShowCountdown(false);
-    setIsPaused(false);
-  };
 
   return (
     <div style={{ 
@@ -303,38 +272,6 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
         }}>
           <span>💰</span> <span style={{ minWidth: '70px', textAlign: 'center' }}>{score}</span> ₽
         </div>
-
-        <button
-          onClick={openInfo}
-          disabled={isPaused}
-          style={{
-            position: 'absolute',
-            right: '20px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            background: '#ff9800',
-            border: 'none',
-            fontSize: '1.3rem',
-            fontWeight: 'bold',
-            color: 'white',
-            cursor: isPaused ? 'not-allowed' : 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-            opacity: isPaused ? 0.5 : 1
-          }}
-        >
-          i
-        </button>
-      </div>
-
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '30px', marginBottom: '15px' }}>
-        <div style={{ fontSize: '1rem', color: '#2e7d32' }}>Поймано: {caught}</div>
-        <div style={{ fontSize: '1rem', color: '#c62828' }}>Промахи: {missed}</div>
       </div>
 
       <div
@@ -378,8 +315,8 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
                 position: 'absolute',
                 left: `${item.x}px`,
                 top: `${item.y}px`,
-                width: '50px',
-                height: '50px',
+                width: '70px',
+                height: '70px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -397,8 +334,8 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
           style={{
             position: 'absolute',
             bottom: '20px',
-            width: '100px',
-            height: '80px',
+            width: '200px',
+            height: '150px',
             left: '350px',
             zIndex: 20,
             transition: 'left 0.05s linear',
@@ -408,17 +345,6 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
           <img src={pigImage} alt="piggy bank" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 8px 15px rgba(0,0,0,0.2))' }} />
         </div>
       </div>
-
-      {showInfo && (
-        <InfoModal
-          title={infoContent.title}
-          content={infoContent.text}
-          onClose={handleInfoClose}
-        />
-      )}
-      {showCountdown && (
-        <CountdownOverlay onComplete={handleCountdownComplete} />
-      )}
 
       <style>{`
         @keyframes itemSpawn {
