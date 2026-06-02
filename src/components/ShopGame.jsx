@@ -15,7 +15,7 @@ import colaImg from '../assets/images/cola.png';
 import ballImg from '../assets/images/ball.png';
 import appleImg from '../assets/images/apples.png';
 
-const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
+const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: balanceProp }) => {
   const categories = [
     { id: 'bread', name: 'Хлеб', required: true, img: breadImg, priceEasy: [40, 60], priceHard: [52, 67] },
     { id: 'milk', name: 'Молоко', required: true, img: milkImg, priceEasy: [70, 90], priceHard: [69, 112] },
@@ -59,7 +59,7 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [infoContent, setInfoContent] = useState({ title: '', text: '' });
-  const balance = 500;
+  const balance = balanceProp ?? 500;
   const itemsPerSlide = 6;
   const totalSlides = Math.ceil(categories.length / itemsPerSlide);
 
