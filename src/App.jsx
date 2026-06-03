@@ -140,7 +140,7 @@ function App() {
     setShowGameInfo2(false);
 
     if (storyId === 'story1') {
-      const newBalance = Math.floor(Math.random() * (800 - 390 + 1)) + 390;
+      const newBalance = Math.floor(Math.random() * (650 - 390 + 1)) + 390;
       setShopBalance(newBalance);
     }
   };
@@ -162,7 +162,7 @@ function App() {
 
   const handleFamilyDialogComplete = () => {
     setShowFamilyDialog(false);
-    setShowGameInfo2(true);   // Показываем правила с совёнком (вместо выбора)
+    setShowGameInfo2(true);
   };
 
   const handleChoiceComplete = (choice) => {
@@ -280,7 +280,7 @@ function App() {
     return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontSize: '1.2rem', color: '#489b4fff' }}>Подожди немного. Сейчас всё появится!</div>;
   }
 
-  // СТАРТОВЫЙ ЭКРАН
+  // СТАРТОВЫЙ
   if (currentScreen === 'start') {
     return (
       <div className="app-container">
@@ -315,7 +315,6 @@ function App() {
   
   // ИСТОРИЯ 1
   if (currentScreen === 'story1') {
-    // Диалог с мамой
     if (!gameStarted) {
       return (
         <>
@@ -339,6 +338,12 @@ function App() {
     if (showShopOutro) {
       if (lastEndingType === 'bad') {
         return <BadEndingOutro onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} />;
+      } else if (lastEndingType === 'noBall') {
+        return <StoryOutro 
+          title="Почти получилось!" 
+          text="Ты купил всё нужное, но на мячик не хватило. В следующий раз планируй бюджет тщательнее." 
+          onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} 
+        />;
       } else {
         return <GoodEndingStory1 onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} />;
       }
@@ -351,7 +356,7 @@ function App() {
           <InteractiveBackground />
           <RulesWithOwl
             title="Правила игры в магазин"
-            text="Перед тобой магазин. Нужно купить обязательные продукты: хлеб, молоко, яйца, морковку. У тебя будет случайный бюджет от 390 до 800 рублей. Также можно добавить другие товары, но не выходи за бюджет. Дешёвые молочные продукты могут быстро испортиться – будь внимателен! Нажми 'Начать игру', чтобы выбрать сложность."
+            text="Перед тобой магазин. Нужно купить обязательные продукты: хлеб, молоко, яйца, морковку. У тебя будет случайный бюджет от 390 до 650 рублей. Также можно добавить другие товары, но не выходи за бюджет. Дешёвые молочные продукты и колбаса могут быть некачественными – будь внимателен! Нажми 'Начать игру', чтобы выбрать сложность."
             onPlay={() => setShowGameInfo1(false)}
             onExit={() => handleExit('start')}
           />
@@ -363,7 +368,7 @@ function App() {
       );
     }
     
-    // Выбор сложности (без крестика и эмодзи)
+    // Выбор сложности
     if (!difficulty && !showShop) {
       return (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000 }}>
@@ -436,14 +441,20 @@ function App() {
           <ShopGame
             difficulty={difficulty}
             balance={shopBalance}
-            onFinish={(totalSpent, cheapDairy) => {
+            onFinish={(totalSpent, cheapRisky, hasBall) => {
               setShowShop(true);
               const remaining = (balance || stats.money) - totalSpent;
               setBalance(remaining);
               setStats(prev => ({ ...prev, money: remaining }));
               setProgress(prev => ({ ...prev, story1: 100 }));
               setLastTotalSpent(totalSpent);
-              setLastEndingType(cheapDairy ? 'bad' : 'good');
+              if (cheapRisky) {
+                setLastEndingType('bad');
+              } else if (!hasBall) {
+                setLastEndingType('noBall');
+              } else {
+                setLastEndingType('good');
+              }
               fetch('http://localhost:3001/api/game/earn', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount: totalSpent }) }).catch(err => console.warn('API error:', err));
               setShowShopOutro(true);
             }}
@@ -460,9 +471,8 @@ function App() {
     );
   }
   
-  // ИСТОРИЯ 2
+  // ИСТОРИЯ 2 (без изменений, уже правильная)
   if (currentScreen === 'story2') {
-    // Семейный диалог
     if (showFamilyDialog) {
       return (
         <>
@@ -476,7 +486,6 @@ function App() {
       );
     }
     
-    // Выбор между мамой и папой
     if (showChoice) {
       return (
         <>
@@ -490,7 +499,6 @@ function App() {
       );
     }
     
-    // Показываем правила игры с совёнком
     if (showGameInfo2) {
       return (
         <>
@@ -509,7 +517,6 @@ function App() {
       );
     }
     
-    // Сама игра
     if (showGame && gameConfig) {
       return (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'white', zIndex: 1000, overflow: 'auto' }}>
@@ -556,7 +563,6 @@ function App() {
       );
     }
     
-    // Финальные диалоги после игры
     if (gameResult) {
       if ((story2Choice === 'credit' && gameResult === 'credit_success') || (story2Choice === 'deposit' && gameResult === 'deposit_success')) {
         return <VictoryDialog onComplete={() => { setGameResult(null); setStory2Choice(null); setShowChoice(false); setGameStarted(false); setCurrentScreen('start'); }} score={stats.money} type={story2Choice} />;

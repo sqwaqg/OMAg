@@ -1,6 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-
-// Импорт картинок продуктов
 import breadImg from '../assets/images/bread.png';
 import milkImg from '../assets/images/milk.png';
 import eggsImg from '../assets/images/eggs.png';
@@ -16,18 +14,18 @@ import appleImg from '../assets/images/apples.png';
 
 const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: balanceProp }) => {
   const categories = [
-    { id: 'bread', name: 'Хлеб', required: true, img: breadImg, priceEasy: [40, 60], priceHard: [52, 67] },
-    { id: 'milk', name: 'Молоко', required: true, img: milkImg, priceEasy: [70, 90], priceHard: [69, 112] },
-    { id: 'eggs', name: 'Яйца', required: true, img: eggsImg, priceEasy: [100, 130], priceHard: [87, 115] },
-    { id: 'carrot', name: 'Морковка', required: true, img: carrotImg, priceEasy: [30, 50], priceHard: [45, 89] },
-    { id: 'sausage', name: 'Колбаса', required: false, img: sausageImg, priceEasy: [150, 200], priceHard: [120, 209] },
-    { id: 'yogurt', name: 'Йогурт', required: false, img: yogurtImg, priceEasy: [60, 90], priceHard: [77, 118] },
-    { id: 'banana', name: 'Банан', required: false, img: bananaImg, priceEasy: [50, 80], priceHard: [66, 99] },
-    { id: 'candy', name: 'Конфеты', required: false, img: candyImg, priceEasy: [20, 35], priceHard: [29, 54] },
-    { id: 'lollipop', name: 'Леденец', required: false, img: lollipopImg, priceEasy: [15, 25], priceHard: [22, 41] },
-    { id: 'cocacola', name: 'Кола', required: false, img: colaImg, priceEasy: [80, 110], priceHard: [99, 144] },
-    { id: 'ball', name: 'Мячик', required: false, img: ballImg, priceEasy: [200, 300], priceHard: [99, 199] },
-    { id: 'apple', name: 'Яблоки', required: false, img: appleImg, priceEasy: [60, 90], priceHard: [79, 119] }
+    { id: 'bread', name: 'Хлеб', required: true, img: breadImg, priceEasy: [30, 40], priceHard: [33, 47] },
+    { id: 'milk', name: 'Молоко', required: true, img: milkImg, priceEasy: [25, 70], priceHard: [27, 74] },
+    { id: 'eggs', name: 'Яйца', required: true, img: eggsImg, priceEasy: [29, 60], priceHard: [34, 79] },
+    { id: 'carrot', name: 'Морковка', required: true, img: carrotImg, priceEasy: [20, 35], priceHard: [23, 32] },
+    { id: 'sausage', name: 'Колбаса', required: false, img: sausageImg, priceEasy: [80, 150], priceHard: [84, 159] },
+    { id: 'yogurt', name: 'Йогурт', required: false, img: yogurtImg, priceEasy: [15, 40], priceHard: [18, 45] },
+    { id: 'banana', name: 'Банан', required: false, img: bananaImg, priceEasy: [45, 55], priceHard: [49, 56] },
+    { id: 'candy', name: 'Конфеты', required: false, img: candyImg, priceEasy: [25, 30], priceHard: [28, 33] },
+    { id: 'lollipop', name: 'Леденец', required: false, img: lollipopImg, priceEasy: [15, 20], priceHard: [19, 24] },
+    { id: 'cocacola', name: 'Кола', required: false, img: colaImg, priceEasy: [50, 65], priceHard: [52, 67] },
+    { id: 'ball', name: 'Мячик', required: false, img: ballImg, priceEasy: [100, 150], priceHard: [108, 149] },
+    { id: 'apple', name: 'Яблоки', required: false, img: appleImg, priceEasy: [50, 65], priceHard: [54, 69] }
   ];
 
   const getPrices = (cat) => (difficulty === 'easy' ? cat.priceEasy : cat.priceHard);
@@ -56,19 +54,21 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [showInfo, setShowInfo] = useState(false);
-  const [infoContent, setInfoContent] = useState({ title: '', text: '' });
   const balance = balanceProp ?? 500;
   const itemsPerSlide = 6;
   const totalSlides = Math.ceil(categories.length / itemsPerSlide);
 
-  const hasCheapDairy = () => {
-    const dairyIds = ['milk', 'yogurt', 'eggs'];
-    for (let id of dairyIds) {
+  const hasCheapRisky = () => {
+    const riskyIds = ['milk', 'yogurt', 'eggs', 'sausage'];
+    for (let id of riskyIds) {
       const item = selectedItems[id];
       if (item && item.variant === 0) return true;
     }
     return false;
+  };
+
+  const isBallBought = () => {
+    return !!selectedItems['ball'];
   };
 
   const changeSlide = (direction) => {
@@ -199,15 +199,18 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
   };
 
   const confirmFinish = () => {
-    const cheapDairy = hasCheapDairy();
+    const cheapRisky = hasCheapRisky();
+    const hasBall = isBallBought();
     if (onEncouragement) {
-      if (cheapDairy) {
-        onEncouragement(`Осторожно! Ты купил дешёвые молочные продукты. Они могут испортиться быстрее и вызвать отравление. Родители очень расстроены.`);
+      if (cheapRisky) {
+        onEncouragement(`Осторожно! Ты купил дешёвые продукты. Они могут быть некачественными. Родители очень расстроены.`);
+      } else if (!hasBall) {
+        onEncouragement(`Ты купил всё нужное, но на мячик не хватило. В следующий раз планируй бюджет тщательнее.`);
       } else {
         onEncouragement(`Отлично! Покупки завершены, родители тобой гордятся!`);
       }
     }
-    onFinish(total, cheapDairy);
+    onFinish(total, cheapRisky, hasBall);
   };
 
   const cancelFinish = () => {
@@ -260,7 +263,7 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
         gap: '30px',
         overflow: 'hidden'
       }}>
-        {/* ЛЕВАЯ ЧАСТЬ: полки */}
+        {/* ЛЕВАЯ ЧАСТЬ: полки (без изменений) */}
         <div style={{ flex: 2.5, height: 'calc(100vh - 120px)', overflow: 'hidden' }}>
           <div style={{
             background: 'rgba(139, 69, 19, 0.85)',
@@ -366,12 +369,12 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
                 onClick={undo}
                 disabled={history.length === 0}
                 style={{ padding: '12px 40px', background: history.length === 0 ? '#ccc' : 'linear-gradient(135deg, #ff9800, #f57c00)', border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: 'bold', color: 'white', cursor: history.length === 0 ? 'not-allowed' : 'pointer' }}
-              >🔄 Отменить</button>
+              >Отменить</button>
               <button
                 onClick={finish}
                 disabled={!canFinish()}
                 style={{ padding: '12px 50px', background: !canFinish() ? '#ccc' : 'linear-gradient(135deg, #5c3d2e, #3d2a1f)', border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: 'bold', color: 'white', cursor: !canFinish() ? 'not-allowed' : 'pointer' }}
-              >✅ Завершить покупки</button>
+              >Завершить покупки</button>
             </div>
           </div>
         </div>
