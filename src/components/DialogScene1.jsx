@@ -176,7 +176,7 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
             border: '2px solid #ffd966'
           }}>
             <div style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', width: '60px', height: '8px', background: '#d4b87a', borderRadius: '4px' }} />
-            <h2 style={{ color: '#3e2723', marginBottom: '30px', fontSize: '2rem' }}>📋 Список продуктов</h2>
+            <h2 style={{ color: '#3e2723', marginBottom: '30px', fontSize: '2rem' }}>Список продуктов:</h2>
             <ul style={{ textAlign: 'left', fontSize: '1.3rem', lineHeight: '2', marginBottom: '35px', paddingLeft: '25px', listStyleType: 'none', color: '#4a3b2c' }}>
               <li><img src={milkImg} alt="Молоко" style={{ width: '30px', height: '30px', marginRight: '10px', verticalAlign: 'middle' }} /> Молоко</li>
               <li><img src={breadImg} alt="Хлеб" style={{ width: '30px', height: '30px', marginRight: '10px', verticalAlign: 'middle' }} /> Хлеб</li>
@@ -184,7 +184,6 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
               <li><img src={carrotImg} alt="Морковка" style={{ width: '30px', height: '30px', marginRight: '10px', verticalAlign: 'middle' }} /> Морковка</li>
               <li style={{ marginTop: '15px', color: '#ff9800' }}>🍬 На сдачу купи себе вкусняшку!</li>
             </ul>
-            <button onClick={handleListModalClose} style={{ padding: '14px 35px', background: 'linear-gradient(135deg, #2e7d32, #1b5e20)', color: 'white', border: 'none', borderRadius: '50px', fontSize: '1.1rem', cursor: 'pointer' }}>Понятно →</button>
           </div>
         </div>
       )}

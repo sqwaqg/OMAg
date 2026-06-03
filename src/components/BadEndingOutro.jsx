@@ -4,7 +4,7 @@ import foxFather from '../assets/images/fox_father.png';
 import foxChild from '../assets/images/fox_child.png';
 import foxGirl from '../assets/images/fox_girl.png';
 import foxMother from '../assets/images/fox_mother.png';
-import botHappy from '../assets/images/bot_happy.png';
+import botSad from '../assets/images/bot_sad.png';
 import background2 from '../assets/images/background2.png';
 
 function BadEndingOutro({ onComplete }) {
@@ -32,19 +32,19 @@ function BadEndingOutro({ onComplete }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000,
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.4s ease'
     }}>
-      {/* Отец – левый край */}
+      {/* Отец */}
       <div style={{ position: 'absolute', bottom: 0, left: '2%', width: '30%', maxWidth: '300px', animation: 'slideInLeft 0.5s ease' }}>
         <img src={foxFather} alt="Папа" style={{ width: '100%', height: 'auto', transform: 'scale(1.4)', transformOrigin: 'bottom center' }} />
       </div>
-      {/* Дочь – рядом с отцом */}
+      {/* Дочь */}
       <div style={{ position: 'absolute', bottom: 0, left: '8%', width: '30%', maxWidth: '300px', animation: 'slideInLeft 0.5s ease 0.1s' }}>
         <img src={foxGirl} alt="Дочь" style={{ width: '100%', height: 'auto', transform: 'scale(1.5)', transformOrigin: 'bottom center' }} />
       </div>
-      {/* Мать – правый край */}
+      {/* Мать */}
       <div style={{ position: 'absolute', bottom: 0, right: '2%', width: '32%', maxWidth: '320px', animation: 'slideInRight 0.5s ease' }}>
         <img src={foxMother} alt="Мама" style={{ width: '100%', height: 'auto', transform: 'scale(1.3)', transformOrigin: 'bottom center' }} />
       </div>
-      {/* Сын – рядом с матерью */}
+      {/* Сын */}
       <div style={{ position: 'absolute', bottom: 0, right: '8%', width: '30%', maxWidth: '300px', animation: 'slideInRight 0.5s ease 0.1s' }}>
         <img src={foxChild} alt="Сын" style={{ width: '100%', height: 'auto', transform: 'scale(1.5)', transformOrigin: 'bottom center' }} />
       </div>
@@ -57,7 +57,7 @@ function BadEndingOutro({ onComplete }) {
         borderRadius: '60px', boxShadow: '0 25px 50px rgba(0,0,0,0.3)',
         border: '2px solid #ffd966', animation: 'slideIn 0.4s ease'
       }}>
-        <img src={botHappy} alt="Совёнок" style={{ width: '100px', height: '100px', marginBottom: '15px', objectFit: 'contain' }} />
+        <img src={botSad} alt="Совёнок" style={{ width: '100px', height: '100px', marginBottom: '15px', objectFit: 'contain' }} />
         <h2 style={{ color: '#c62828', marginBottom: '20px', fontSize: '2.2rem', fontWeight: 'bold' }}>{title}</h2>
         <p style={{ fontSize: '1.3rem', lineHeight: '1.5', color: '#333', marginBottom: '35px' }}>{text}</p>
         <button onClick={handleFinish} style={{

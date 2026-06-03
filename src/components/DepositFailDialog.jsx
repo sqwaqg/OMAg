@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import useSpeech from '../hooks/useSpeech';
 import background2 from '../assets/images/background2.png';
-import foxGirlSad from '../assets/images/fox_girl_without_bows.png';
+import foxGirlWithBows from '../assets/images/fox_girl_with_bows.png';  // заменил на с бантиками
 import foxMother from '../assets/images/fox_mother.png';
 import foxFather from '../assets/images/fox_father.png';
-import botHappy from '../assets/images/bot_happy.png';
+import botSad from '../assets/images/bot_sad.png';
 
 function DepositFailDialog({ onComplete, score }) {
   const [isVisible, setIsVisible] = useState(true);
@@ -36,25 +36,26 @@ function DepositFailDialog({ onComplete, score }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000,
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.5s ease'
     }}>
-      {/* Девочка */}
+      {/* Девочка с бантиками */}
       <div style={{ position: 'absolute', bottom: 0, left: '8%', width: '30%', maxWidth: '300px', animation: 'slideInLeft 0.5s ease' }}>
-        <img src={foxGirlSad} alt="Лисичка грустная" style={{ width: '100%', height: 'auto', transform: 'scale(1.5)', transformOrigin: 'bottom center' }} />
+        <img src={foxGirlWithBows} alt="Лисичка" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
       </div>
       {/* Мама */}
       <div style={{ position: 'absolute', bottom: 0, right: '12%', width: '32%', maxWidth: '320px', animation: 'slideInRight 0.5s ease' }}>
         <img src={foxMother} alt="Мама" style={{ width: '100%', height: 'auto', transform: 'scale(1.3)', transformOrigin: 'bottom center' }} />
       </div>
-      {/* Папа – на одной линии */}
+      {/* Папа */}
       <div style={{ position: 'absolute', bottom: 0, right: '2%', width: '32%', maxWidth: '320px', animation: 'slideInRight 0.5s ease' }}>
         <img src={foxFather} alt="Папа" style={{ width: '100%', height: 'auto', transform: 'scale(1.4)', transformOrigin: 'bottom center' }} />
       </div>
+      {/* Центральное окно – сдвинуто ниже */}
       <div style={{
-        position: 'absolute', bottom: '40%', left: '50%', transform: 'translateX(-50%)',
+        position: 'absolute', bottom: '30%', left: '50%', transform: 'translateX(-50%)',
         width: '65%', maxWidth: '600px', backgroundColor: 'rgba(255,255,255,0.96)',
         borderRadius: '48px', padding: '35px 40px', textAlign: 'center',
         boxShadow: '0 20px 40px rgba(0,0,0,0.25)', animation: 'bubbleAppear 0.4s ease'
       }}>
-        <img src={botHappy} alt="Совёнок" style={{ width: '100px', height: '100px', marginBottom: '15px', objectFit: 'contain' }} />
+        <img src={botSad} alt="Совёнок" style={{ width: '100px', height: '100px', marginBottom: '15px', objectFit: 'contain' }} />
         <h2 style={{ color: '#ff9800', marginBottom: '20px', fontSize: '2rem', fontWeight: 'bold' }}>История с вкладом</h2>
         <p style={{ fontSize: '1.2rem', lineHeight: '1.5', color: '#333', marginBottom: '30px' }}>{text}</p>
         <button onClick={handleFinish} style={{

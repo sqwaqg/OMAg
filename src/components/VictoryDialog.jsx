@@ -3,8 +3,8 @@ import useSpeech from '../hooks/useSpeech';
 import background2 from '../assets/images/background2.png';
 import foxGirl from '../assets/images/fox_girl.png';
 import foxGirlHappy from '../assets/images/fox_girl_happy.png';
-import foxMother from '../assets/images/fox_mother.png';
-import foxFather from '../assets/images/fox_father.png';
+import foxMotherHappy from '../assets/images/mother_happy.png';
+import foxFatherHappy from '../assets/images/father_happy.png';
 import tablet from '../assets/images/tablet.png';
 import botHappy from '../assets/images/bot_happy.png';
 
@@ -41,9 +41,9 @@ function VictoryDialog({ onComplete, score, type }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000,
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.5s ease'
     }}>
-      {/* Девочка */}
+      {/* Девочка – масштаб как в диалогах (1.15) */}
       <div style={{ position: 'absolute', bottom: 0, left: '8%', width: '32%', maxWidth: '320px', animation: 'slideInLeft 0.5s ease' }}>
-        <img src={isHappy ? foxGirlHappy : foxGirl} alt="Лисичка" style={{ width: '100%', height: 'auto', transform: 'scale(1.5)', transformOrigin: 'bottom center' }} />
+        <img src={isHappy ? foxGirlHappy : foxGirl} alt="Лисичка" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
       </div>
       {/* Планшет */}
       {showTablet && (
@@ -52,7 +52,7 @@ function VictoryDialog({ onComplete, score, type }) {
           bottom: isHappy ? '25%' : '35%',
           left: isHappy ? '22%' : '50%',
           transform: 'translateX(-50%)',
-          width: isHappy ? '100px' : '120px',
+          width: isHappy ? '200px' : '240px',
           transition: 'all 1s ease-in-out',
           animation: 'tabletGlow 1s ease-in-out',
           zIndex: 15
@@ -60,13 +60,13 @@ function VictoryDialog({ onComplete, score, type }) {
           <img src={tablet} alt="Планшет" style={{ width: '100%', height: 'auto', filter: 'drop-shadow(0 0 15px gold)' }} />
         </div>
       )}
-      {/* Мама */}
-      <div style={{ position: 'absolute', bottom: 0, right: '12%', width: '32%', maxWidth: '320px', animation: 'slideInRight 0.5s ease' }}>
-        <img src={foxMother} alt="Мама" style={{ width: '100%', height: 'auto', transform: 'scale(1.3)', transformOrigin: 'bottom center' }} />
+      {/* Мама – счастливая, с анимацией радости */}
+      <div style={{ position: 'absolute', bottom: 0, right: '12%', width: '32%', maxWidth: '320px'}}>
+        <img src={foxMotherHappy} alt="Мама" style={{ width: '100%', height: 'auto', transform: 'scale(1.3)', transformOrigin: 'bottom center' }} />
       </div>
-      {/* Папа – на одной линии с мамой (bottom: 0) */}
-      <div style={{ position: 'absolute', bottom: 0, right: '2%', width: '32%', maxWidth: '320px', animation: 'slideInRight 0.5s ease' }}>
-        <img src={foxFather} alt="Папа" style={{ width: '100%', height: 'auto', transform: 'scale(1.4)', transformOrigin: 'bottom center' }} />
+      {/* Папа – счастливый, с анимацией радости */}
+      <div style={{ position: 'absolute', bottom: 0, right: '2%', width: '32%', maxWidth: '320px'}}>
+        <img src={foxFatherHappy} alt="Папа" style={{ width: '100%', height: 'auto', transform: 'scale(1.4)', transformOrigin: 'bottom center' }} />
       </div>
       {/* Центральное окно */}
       <div style={{
@@ -87,6 +87,7 @@ function VictoryDialog({ onComplete, score, type }) {
           fontWeight: 'bold', cursor: 'pointer', transition: 'transform 0.2s'
         }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}>Завершить →</button>
       </div>
+
       <style>{`
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
@@ -94,6 +95,11 @@ function VictoryDialog({ onComplete, score, type }) {
         @keyframes slideInRight { from { opacity: 0; transform: translateX(150px); } to { opacity: 1; transform: translateX(0); } }
         @keyframes bubbleAppear { from { opacity: 0; transform: translateX(-50%) scale(0.9); } to { opacity: 1; transform: translateX(-50%) scale(1); } }
         @keyframes tabletGlow { 0% { filter: drop-shadow(0 0 5px gold); } 50% { filter: drop-shadow(0 0 25px gold); } 100% { filter: drop-shadow(0 0 10px gold); } }
+        @keyframes happyGlow {
+          0% { filter: drop-shadow(0 0 0px gold); transform: scale(1); }
+          50% { filter: drop-shadow(0 0 15px gold); transform: scale(1.05); }
+          100% { filter: drop-shadow(0 0 0px gold); transform: scale(1); }
+        }
       `}</style>
     </div>
   );

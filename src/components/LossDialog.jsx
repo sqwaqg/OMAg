@@ -6,7 +6,7 @@ import foxGirlWithoutBows from '../assets/images/fox_girl_without_bows.png';
 import foxMother from '../assets/images/fox_mother.png';
 import foxFather from '../assets/images/fox_father.png';
 import bows from '../assets/images/bows.png';
-import botHappy from '../assets/images/bot_happy.png';
+import botSad from '../assets/images/bot_sad.png';
 
 function LossDialog({ onComplete, type }) {
   const [isVisible, setIsVisible] = useState(true);
@@ -45,7 +45,7 @@ function LossDialog({ onComplete, type }) {
     }}>
       {/* Лисичка */}
       <div style={{ position: 'absolute', bottom: 0, left: '8%', width: '30%', maxWidth: '300px', animation: 'slideInLeft 0.5s ease' }}>
-        <img src={foxImage} alt="Лисичка" style={{ width: '100%', height: 'auto', transform: 'scale(1.5)', transformOrigin: 'bottom center' }} />
+        <img src={foxImage} alt="Лисичка" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
         {showBowsLoss && (
           <div style={{ position: 'absolute', top: '10%', right: '-30%', width: '60px', animation: 'bowsFly 1s ease forwards' }}>
             <img src={bows} alt="Бантики" style={{ width: '100%', height: 'auto' }} />
@@ -66,7 +66,7 @@ function LossDialog({ onComplete, type }) {
         borderRadius: '48px', padding: '35px 40px', textAlign: 'center',
         boxShadow: '0 20px 40px rgba(0,0,0,0.25)', animation: 'bubbleAppear 0.4s ease'
       }}>
-        <img src={botHappy} alt="Совёнок" style={{ width: '100px', height: '100px', marginBottom: '15px', objectFit: 'contain' }} />
+        <img src={botSad} alt="Совёнок" style={{ width: '100px', height: '100px', marginBottom: '15px', objectFit: 'contain' }} />
         <h2 style={{ color: '#c62828', marginBottom: '20px', fontSize: '2rem', fontWeight: 'bold' }}>Неудача...</h2>
         <p style={{ fontSize: '1.3rem', lineHeight: '1.5', color: '#333', marginBottom: '30px' }}>
           За год ты не накопила нужную сумму.<br />
