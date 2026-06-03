@@ -20,7 +20,8 @@ import LossDialog from './components/LossDialog';
 import ShopGame from './components/ShopGame';
 import BadEndingOutro from './components/BadEndingOutro';
 import DepositFailDialog from './components/DepositFailDialog';
-import GameInfoModal from './components/GameInfoModal';
+import GoodEndingStory1 from './components/GoodEndingStory1';
+import RulesWithOwl from './components/RulesWithOwl';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState('start');
@@ -58,7 +59,6 @@ function App() {
 
   const [showGameInfo1, setShowGameInfo1] = useState(false);
   const [showGameInfo2, setShowGameInfo2] = useState(false);
-  const [game2PendingConfig, setGame2PendingConfig] = useState(null);
 
   const [stats, setStats] = useState({ money: 0, score: 0, level: 1 });
   const [progress, setProgress] = useState({ story1: 0, story2: 0 });
@@ -138,7 +138,6 @@ function App() {
     setShowShopOutro(false);
     setShowGameInfo1(false);
     setShowGameInfo2(false);
-    setGame2PendingConfig(null);
 
     if (storyId === 'story1') {
       const newBalance = Math.floor(Math.random() * (800 - 390 + 1)) + 390;
@@ -163,7 +162,7 @@ function App() {
 
   const handleFamilyDialogComplete = () => {
     setShowFamilyDialog(false);
-    setShowChoice(true);
+    setShowGameInfo2(true);   // Показываем правила с совёнком (вместо выбора)
   };
 
   const handleChoiceComplete = (choice) => {
@@ -193,14 +192,13 @@ function App() {
         stopOnTarget: true
       };
     }
-    setGame2PendingConfig(config);
-    setShowGameInfo2(true);
+    setGameConfig(config);
+    setShowGame(true);
   };
 
   const handleGameInfo2Play = () => {
-    setGameConfig(game2PendingConfig);
-    setShowGame(true);
     setShowGameInfo2(false);
+    setShowChoice(true);
   };
 
   const handleDialogComplete = () => {
@@ -227,7 +225,6 @@ function App() {
     setShowShopOutro(false);
     setShowGameInfo1(false);
     setShowGameInfo2(false);
-    setGame2PendingConfig(null);
   };
 
   const handleExit = (targetScreen) => {
@@ -251,7 +248,6 @@ function App() {
       setShowShopOutro(false);
       setShowGameInfo1(false);
       setShowGameInfo2(false);
-      setGame2PendingConfig(null);
     }
   };
 
@@ -273,7 +269,6 @@ function App() {
     setShowShopOutro(false);
     setShowGameInfo1(false);
     setShowGameInfo2(false);
-    setGame2PendingConfig(null);
   };
 
   const cancelExit = () => {
@@ -282,7 +277,7 @@ function App() {
   };
 
   if (loading) {
-    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontSize: '1.2rem', color: '#666' }}>Загрузка...</div>;
+    return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontSize: '1.2rem', color: '#489b4fff' }}>Подожди немного. Сейчас всё появится!</div>;
   }
 
   // СТАРТОВЫЙ ЭКРАН
@@ -290,13 +285,13 @@ function App() {
     return (
       <div className="app-container">
         <InteractiveBackground />
-        <HeaderWithLogo title="Финансы с лисятами" subtitle="Учись управлять деньгами весело и интересно с лисятами!" />
+        <HeaderWithLogo title="Финансы с лисятами" subtitle="Учись управлять деньгами весело и интересно вместе с лисятами!" />
         <main className="main-content">
           <div className="stories-grid">
             <div className="story-card" onClick={() => openStory('story1', 'Покупка продуктов', 'Тебе нужно купить хлеб, молоко и что-то вкусное')}>
               <div className="story-image"><img src={story1Image} alt="Покупка продуктов" /></div>
               <h2>Покупка продуктов</h2>
-              <p>У тебя есть {balance} рублей. Сможешь купить всё необходимое?</p>
+              <p>Мама дала денег, чтобы ты купил все, что есть в списке. Сможешь купить всё необходимое?</p>
             </div>
             <div className="story-card" onClick={() => openStory('story2', 'Копим или берём в долг?', 'Узнай, что выгоднее: копить или взять кредит')}>
               <div className="story-image"><img src={story2Image} alt="Копим или берём в долг?" /></div>
@@ -307,7 +302,6 @@ function App() {
         </main>
         <footer className="footer">
           <div>© 2026 Банк Центр-Инвест</div>
-          <div className="contact-info"><span>📞 8-800-XXX-XX-XX</span><span>✉ info@center-invest.ru</span></div>
         </footer>
         <BotHelper tips={getTipsForScreen()} highlight={botHighlight} customTip={botCustomTip} isMuted={isBotMuted} />
         <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
@@ -346,18 +340,18 @@ function App() {
       if (lastEndingType === 'bad') {
         return <BadEndingOutro onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} />;
       } else {
-        return <StoryOutro title="Отличная работа!" text="Ты купил все качественные продукты. Родители гордятся тобой!" onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} />;
+        return <GoodEndingStory1 onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} />;
       }
     }
     
-    // Показываем информационное окно перед игрой (правила)
+    // Показываем правила игры с совёнком
     if (showGameInfo1 && !difficulty && !showShop) {
       return (
         <>
           <InteractiveBackground />
-          <GameInfoModal
+          <RulesWithOwl
             title="Правила игры в магазин"
-            content="Перед тобой магазин. Нужно купить обязательные продукты: хлеб, молоко, яйца, морковку. У тебя будет случайный бюджет от 390 до 800 рублей. Также можно добавить другие товары, но не выходи за бюджет. Дешёвые молочные продукты могут быстро испортиться – будь внимателен! Нажми 'Начать игру', чтобы выбрать сложность."
+            text="Перед тобой магазин. Нужно купить обязательные продукты: хлеб, молоко, яйца, морковку. У тебя будет случайный бюджет от 390 до 800 рублей. Также можно добавить другие товары, но не выходи за бюджет. Дешёвые молочные продукты могут быстро испортиться – будь внимателен! Нажми 'Начать игру', чтобы выбрать сложность."
             onPlay={() => setShowGameInfo1(false)}
             onExit={() => handleExit('start')}
           />
@@ -369,7 +363,7 @@ function App() {
       );
     }
     
-    // Выбор сложности
+    // Выбор сложности (без крестика и эмодзи)
     if (!difficulty && !showShop) {
       return (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000 }}>
@@ -389,26 +383,7 @@ function App() {
             boxShadow: '0 30px 50px rgba(0,0,0,0.3)',
             border: '2px solid #ffd966'
           }}>
-            <button
-              onClick={() => handleExit('start')}
-              style={{
-                position: 'absolute',
-                top: '15px',
-                left: '15px',
-                background: 'rgba(0,0,0,0.1)',
-                border: 'none',
-                borderRadius: '50%',
-                width: '36px',
-                height: '36px',
-                fontSize: '1.2rem',
-                cursor: 'pointer',
-                color: '#666',
-                transition: 'color 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.color = '#000'}
-              onMouseLeave={(e) => e.currentTarget.style.color = '#666'}
-            >✕</button>
-            <h2 style={{ color: '#2e7d32', marginBottom: '20px', fontSize: '2rem' }}>🛒 Выбери уровень сложности</h2>
+            <h2 style={{ color: '#2e7d32', marginBottom: '20px', fontSize: '2rem' }}>Выбери уровень сложности</h2>
             <p style={{ marginBottom: '30px', color: '#666', fontSize: '1rem' }}>Чем выше сложность, тем дороже продукты!</p>
             <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
               <button
@@ -426,7 +401,7 @@ function App() {
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-              >🟢 Лёгкий уровень</button>
+              >Лёгкий уровень</button>
               <button
                 onClick={() => setDifficulty('hard')}
                 style={{
@@ -442,7 +417,7 @@ function App() {
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-              >🔴 Сложный уровень</button>
+              >Сложный уровень</button>
             </div>
           </div>
           <BotHelper tips={getTipsForScreen()} highlight={botHighlight} customTip={botCustomTip} isMuted={isBotMuted} />
@@ -515,14 +490,14 @@ function App() {
       );
     }
     
-    // Показываем правила игры перед самой игрой
-    if (showGameInfo2 && game2PendingConfig) {
+    // Показываем правила игры с совёнком
+    if (showGameInfo2) {
       return (
         <>
           <InteractiveBackground />
-          <GameInfoModal
+          <RulesWithOwl
             title="Правила игры"
-            content="Помоги лисичке накопить на планшет! Лови падающие монетки. Положительные монеты (100 и 150 ₽) увеличивают сумму, отрицательные (-50 и -150 ₽) – уменьшают. Нужно набрать целевую сумму. Будь внимателен! Нажми 'Начать игру', чтобы продолжить."
+            text="Помоги лисичке накопить на планшет! Лови падающие монетки. Положительные монеты (100 и 150 ₽) увеличивают сумму, отрицательные (-50 и -150 ₽) – уменьшают. Нужно набрать целевую сумму. Будь внимателен! Нажми 'Начать игру', чтобы продолжить."
             onPlay={handleGameInfo2Play}
             onExit={() => handleExit('start')}
           />

@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import useSpeech from '../hooks/useSpeech';
 import background2 from '../assets/images/background2.png';
-import foxGirlWithBows from '../assets/images/fox_girl_with_bows.png';  // заменил на с бантиками
+import foxGirlWithBows from '../assets/images/fox_girl_with_bows.png';
 import foxMother from '../assets/images/fox_mother.png';
 import foxFather from '../assets/images/fox_father.png';
-import botSad from '../assets/images/bot_sad.png';
+import botSmart from '../assets/images/bot_smart.png'; // умный совёнок
 
 function DepositFailDialog({ onComplete, score }) {
   const [isVisible, setIsVisible] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const { speak, stop } = useSpeech();
-  const text = 'Доченька, со дня твоего рождения и вклада прошёл ровно год. У тебя накопилось 11500 рублей. Ты не накопила 500 рублей, как мы договаривались? Смотри, у тебя сегодня было день рождения, тебе подарили деньги, плюс остались деньги с прошлого дня рождения, плюс 1500 рублей благодаря вкладу. Ты можешь сложить свои деньги и купить ноутбук вместо планшета, либо купить планшет и какой-нибудь чехол к нему.';
+  // Короткое повествование вместо прямой речи
+  const text = 'За год ты не накопила нужную сумму. Вклад принёс 1500 рублей, но до планшета не хватило. Ты можешь купить ноутбук или планшет с чехлом.';
 
   useEffect(() => {
     speak(text, { rate: 0.95 });
@@ -37,25 +38,25 @@ function DepositFailDialog({ onComplete, score }) {
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.5s ease'
     }}>
       {/* Девочка с бантиками */}
-      <div style={{ position: 'absolute', bottom: 0, left: '8%', width: '30%', maxWidth: '300px', animation: 'slideInLeft 0.5s ease' }}>
+      <div style={{ position: 'absolute', bottom: 0, left: '8%', width: '30%', maxWidth: '300px'}}>
         <img src={foxGirlWithBows} alt="Лисичка" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
       </div>
       {/* Мама */}
-      <div style={{ position: 'absolute', bottom: 0, right: '12%', width: '32%', maxWidth: '320px', animation: 'slideInRight 0.5s ease' }}>
+      <div style={{ position: 'absolute', bottom: 0, right: '12%', width: '32%', maxWidth: '320px'}}>
         <img src={foxMother} alt="Мама" style={{ width: '100%', height: 'auto', transform: 'scale(1.3)', transformOrigin: 'bottom center' }} />
       </div>
       {/* Папа */}
-      <div style={{ position: 'absolute', bottom: 0, right: '2%', width: '32%', maxWidth: '320px', animation: 'slideInRight 0.5s ease' }}>
+      <div style={{ position: 'absolute', bottom: 0, right: '2%', width: '32%', maxWidth: '320px'}}>
         <img src={foxFather} alt="Папа" style={{ width: '100%', height: 'auto', transform: 'scale(1.4)', transformOrigin: 'bottom center' }} />
       </div>
-      {/* Центральное окно – сдвинуто ниже */}
+      {/* Центральное окно – с умным совёнком */}
       <div style={{
         position: 'absolute', bottom: '30%', left: '50%', transform: 'translateX(-50%)',
         width: '65%', maxWidth: '600px', backgroundColor: 'rgba(255,255,255,0.96)',
         borderRadius: '48px', padding: '35px 40px', textAlign: 'center',
         boxShadow: '0 20px 40px rgba(0,0,0,0.25)', animation: 'bubbleAppear 0.4s ease'
       }}>
-        <img src={botSad} alt="Совёнок" style={{ width: '100px', height: '100px', marginBottom: '15px', objectFit: 'contain' }} />
+        <img src={botSmart} alt="Совёнок" style={{ width: '100px', height: '100px', marginBottom: '15px', objectFit: 'contain' }} />
         <h2 style={{ color: '#ff9800', marginBottom: '20px', fontSize: '2rem', fontWeight: 'bold' }}>История с вкладом</h2>
         <p style={{ fontSize: '1.2rem', lineHeight: '1.5', color: '#333', marginBottom: '30px' }}>{text}</p>
         <button onClick={handleFinish} style={{

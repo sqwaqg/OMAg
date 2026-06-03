@@ -30,15 +30,12 @@ function GoodEndingStory1({ onComplete }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000,
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.4s ease'
     }}>
-      {/* Ребёнок */}
       <div style={{ position: 'absolute', bottom: 0, left: '8%', width: '30%', maxWidth: '300px', animation: 'slideInLeft 0.5s ease' }}>
         <img src={foxChildWithMoney} alt="Лисёнок" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
       </div>
-      {/* Мама – счастливая, с анимацией */}
       <div style={{ position: 'absolute', bottom: 0, right: '8%', width: '32%', maxWidth: '320px', animation: 'slideInRight 0.5s ease, happyGlow 1s ease 0.5s' }}>
         <img src={foxMotherHappy} alt="Мама" style={{ width: '100%', height: 'auto', transform: 'scale(1.3)', transformOrigin: 'bottom center' }} />
       </div>
-      {/* Центральное окно */}
       <div style={{
         position: 'relative', zIndex: 20,
         maxWidth: '700px', width: '85%', padding: '40px 35px',
@@ -54,7 +51,6 @@ function GoodEndingStory1({ onComplete }) {
           color: 'white', border: 'none', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold', cursor: 'pointer'
         }}>Завершить →</button>
       </div>
-
       <style>{`
         @keyframes slideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes happyGlow {

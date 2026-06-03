@@ -42,7 +42,7 @@ function RulesWithOwl({ title, text, onPlay }) {
         width: '85%',
         maxWidth: '1200px'
       }}>
-        {/* Облачко – центрировано, фиксированной ширины */}
+        {/* Облачко – слева, центрировано */}
         <div style={{
           position: 'relative',
           width: '65%',
@@ -102,7 +102,7 @@ function RulesWithOwl({ title, text, onPlay }) {
           </button>
         </div>
 
-        {/* Совёнок – абсолютно справа от облачка, не влияет на центрирование */}
+        {/* Совёнок – абсолютно справа */}
         <div style={{
           position: 'absolute',
           right: '0',

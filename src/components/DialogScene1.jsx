@@ -136,12 +136,10 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.5s ease'
     }} onClick={handleScreenClick}>
       
-      {/* Лисёнок – уменьшен до 1.15 */}
       <div style={{ position: 'absolute', bottom: 0, left: '8%', width: '32%', maxWidth: '320px', animation: 'slideInLeft 0.5s ease' }}>
         <img src={hasMoney ? foxChildWithMoney : foxChildNoMoney} alt="Лисёнок" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
       </div>
 
-      {/* Мама */}
       <div style={{ 
         position: 'absolute', bottom: 0, right: motherLeaving ? '-30%' : '8%', 
         width: '36%', maxWidth: '360px', transition: 'right 0.6s ease',
@@ -158,7 +156,7 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
           pointerEvents: 'none', zIndex: 20, display: 'flex', alignItems: 'center', gap: '12px',
           fontSize: '1.5rem', fontWeight: 'bold', color: '#2e7d32', whiteSpace: 'nowrap'
         }}>
-          {balance} ₽
+          <span>💰</span> Деньги на продукты!
         </div>
       )}
 

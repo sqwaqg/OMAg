@@ -41,11 +41,9 @@ function VictoryDialog({ onComplete, score, type }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000,
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.5s ease'
     }}>
-      {/* Девочка – масштаб как в диалогах (1.15) */}
       <div style={{ position: 'absolute', bottom: 0, left: '8%', width: '32%', maxWidth: '320px', animation: 'slideInLeft 0.5s ease' }}>
         <img src={isHappy ? foxGirlHappy : foxGirl} alt="Лисичка" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
       </div>
-      {/* Планшет */}
       {showTablet && (
         <div style={{
           position: 'absolute',
@@ -60,15 +58,12 @@ function VictoryDialog({ onComplete, score, type }) {
           <img src={tablet} alt="Планшет" style={{ width: '100%', height: 'auto', filter: 'drop-shadow(0 0 15px gold)' }} />
         </div>
       )}
-      {/* Мама – счастливая, с анимацией радости */}
-      <div style={{ position: 'absolute', bottom: 0, right: '12%', width: '32%', maxWidth: '320px'}}>
+      <div style={{ position: 'absolute', bottom: 0, right: '12%', width: '32%', maxWidth: '320px', animation: 'slideInRight 0.5s ease, happyGlow 1s ease 0.5s' }}>
         <img src={foxMotherHappy} alt="Мама" style={{ width: '100%', height: 'auto', transform: 'scale(1.3)', transformOrigin: 'bottom center' }} />
       </div>
-      {/* Папа – счастливый, с анимацией радости */}
-      <div style={{ position: 'absolute', bottom: 0, right: '2%', width: '32%', maxWidth: '320px'}}>
+      <div style={{ position: 'absolute', bottom: 0, right: '2%', width: '32%', maxWidth: '320px', animation: 'slideInRight 0.5s ease, happyGlow 1s ease 0.5s' }}>
         <img src={foxFatherHappy} alt="Папа" style={{ width: '100%', height: 'auto', transform: 'scale(1.4)', transformOrigin: 'bottom center' }} />
       </div>
-      {/* Центральное окно */}
       <div style={{
         position: 'absolute', bottom: '40%', left: '50%', transform: 'translateX(-50%)',
         width: '65%', maxWidth: '600px', backgroundColor: 'rgba(255,255,255,0.96)',
@@ -87,7 +82,6 @@ function VictoryDialog({ onComplete, score, type }) {
           fontWeight: 'bold', cursor: 'pointer', transition: 'transform 0.2s'
         }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}>Завершить →</button>
       </div>
-
       <style>{`
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
