@@ -11,7 +11,7 @@ function BadEndingOutro({ onComplete }) {
   const [isFadingOut, setIsFadingOut] = useState(false);
   const { speak, stop } = useSpeech();
   const title = 'Будь внимательнее!';
-  const text = 'Ты купил дешёвые молочные продукты. Они быстро испортились, и все члены семьи отравились. В следующий раз выбирай качественные продукты!';
+  const text = 'Осторожно! Дешёвые продукты оказались некачественными. Семья отравилась. В следующий раз не экономь на качестве.';
 
   useEffect(() => {
     speak(text, { rate: 1.1 });

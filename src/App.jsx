@@ -22,6 +22,7 @@ import BadEndingOutro from './components/BadEndingOutro';
 import DepositFailDialog from './components/DepositFailDialog';
 import GoodEndingStory1 from './components/GoodEndingStory1';
 import RulesWithOwl from './components/RulesWithOwl';
+import GoodEndingWithBall from './components/GoodEndingWithBall';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState('start');
@@ -325,6 +326,8 @@ function App() {
             onBotHint={(isHighlight) => setBotHighlight(isHighlight)}
             dialogs={story1Dialogs}
             onUpdateBalance={(newBalance) => { setBalance(newBalance); setStats(prev => ({ ...prev, money: newBalance })); }}
+            onExit={() => handleExit('start')}
+            onSkip={() => setGameStarted(true)}
           />
           <BotHelper tips={story1Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
@@ -339,13 +342,9 @@ function App() {
       if (lastEndingType === 'bad') {
         return <BadEndingOutro onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} />;
       } else if (lastEndingType === 'noBall') {
-        return <StoryOutro 
-          title="Почти получилось!" 
-          text="Ты купил всё нужное, но на мячик не хватило. В следующий раз планируй бюджет тщательнее." 
-          onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} 
-        />;
-      } else {
         return <GoodEndingStory1 onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} />;
+      } else {
+        return <GoodEndingWithBall onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} />;
       }
     }
     
@@ -459,7 +458,7 @@ function App() {
               setShowShopOutro(true);
             }}
             onBack={() => setDifficulty(null)}
-            onEncouragement={(phrase) => { setBotCustomTip(phrase); speak(phrase); }}
+            onEncouragement={(phrase) => setBotCustomTip(phrase)} // убрали speak(phrase)
           />
         )}
         <BotHelper tips={getTipsForScreen()} highlight={botHighlight} customTip={botCustomTip} isMuted={isBotMuted} />
@@ -471,13 +470,20 @@ function App() {
     );
   }
   
-  // ИСТОРИЯ 2 (без изменений, уже правильная)
+  // ИСТОРИЯ 2
   if (currentScreen === 'story2') {
     if (showFamilyDialog) {
       return (
         <>
           <InteractiveBackground />
-          <DialogScene2 onComplete={handleFamilyDialogComplete} balance={balance || stats.money} dialogs={familyDialogs} onBotHint={(isHighlight) => setBotHighlight(isHighlight)} />
+          <DialogScene2 
+            onComplete={handleFamilyDialogComplete} 
+            balance={balance || stats.money} 
+            dialogs={familyDialogs} 
+            onBotHint={(isHighlight) => setBotHighlight(isHighlight)} 
+            onExit={() => handleExit('start')}
+            onSkip={handleFamilyDialogComplete}
+          />
           <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
             <button onClick={toggleBotMute} style={{ width: '40px', height: '40px', borderRadius: '50%', background: isBotMuted ? '#c62828' : '#2e7d32', border: 'none', fontSize: '1.3rem', color: 'white', cursor: 'pointer' }}>{isBotMuted ? '🔇' : '🔊'}</button>
@@ -553,7 +559,7 @@ function App() {
               speak(message);
             }}
             onBack={() => { setShowGame(false); setShowChoice(true); }}
-            onEncouragement={(phrase) => { setBotCustomTip(phrase); speak(phrase); }}
+            onEncouragement={(phrase) => setBotCustomTip(phrase)} // убрали speak(phrase)
           />
           <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>

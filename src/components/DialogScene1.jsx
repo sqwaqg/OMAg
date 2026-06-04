@@ -9,13 +9,13 @@ import milkImg from '../assets/images/milk.png'
 import eggsImg from '../assets/images/eggs.png'
 import carrotImg from '../assets/images/carrot.png'
 
-function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance }) {
+function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance, onExit, onSkip }) {
   const [step, setStep] = useState(0)
   const [isVisible, setIsVisible] = useState(true)
   const [isFadingOut, setIsFadingOut] = useState(false)
   const [motherLeaving, setMotherLeaving] = useState(false)
   const [showMoneyEffect, setShowMoneyEffect] = useState(false)
-  const [hasMoney, setHasMoney] = useState(false)
+  const [hasMoney, setHasMoney] = useState(false)   // true – лисёнок с деньгами
   const [showListModal, setShowListModal] = useState(false)
   const { speak, stop } = useSpeech()
   const isSpeakingRef = useRef(false)
@@ -67,7 +67,7 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
     }
     if (step === 2) {
       setShowMoneyEffect(true)
-      setHasMoney(true)
+      setHasMoney(true)                      // переключаем на изображение с деньгами
       if (onUpdateBalance) {
         onUpdateBalance(balance)
       }
@@ -84,6 +84,28 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
       setTimeout(() => {
         setIsVisible(false)
         onComplete()
+      }, 500)
+    }
+  }
+
+  const skipDialog = () => {
+    if (onSkip) {
+      stop()
+      setIsFadingOut(true)
+      setTimeout(() => {
+        setIsVisible(false)
+        onSkip()
+      }, 500)
+    }
+  }
+
+  const exitToMenu = () => {
+    if (onExit) {
+      stop()
+      setIsFadingOut(true)
+      setTimeout(() => {
+        setIsVisible(false)
+        onExit()
       }, 500)
     }
   }
@@ -126,6 +148,7 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
   const dialogText = currentDialog ? getDialogText(currentDialog) : ''
   const isMother = currentDialog?.speaker === 'mother'
   const isChild = currentDialog?.speaker === 'child'
+  const foxImage = hasMoney ? foxChildWithMoney : foxChildNoMoney
 
   return (
     <div style={{
@@ -136,10 +159,65 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.5s ease'
     }} onClick={handleScreenClick}>
       
-      <div style={{ position: 'absolute', bottom: 0, left: '8%', width: '32%', maxWidth: '320px', animation: 'slideInLeft 0.5s ease' }}>
-        <img src={hasMoney ? foxChildWithMoney : foxChildNoMoney} alt="Лисёнок" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
+      <div style={{
+        position: 'fixed',
+        top: '20px',
+        left: '20px',
+        zIndex: 100
+      }}>
+        <button
+          onClick={(e) => { e.stopPropagation(); exitToMenu(); }}
+          style={{
+            background: '#ff9800',
+            color: 'white',
+            border: 'none',
+            borderRadius: '50px',
+            padding: '14px 28px',
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            transition: 'background 0.2s, transform 0.2s',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.25)'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.background = '#f57c00'}
+          onMouseLeave={(e) => e.currentTarget.style.background = '#ff9800'}
+        >Выйти в меню</button>
       </div>
 
+      <div style={{
+        position: 'fixed',
+        top: '20px',
+        right: '20px',
+        zIndex: 100
+      }}>
+        <button
+          onClick={(e) => { e.stopPropagation(); skipDialog(); }}
+          style={{
+            background: '#2196f3',
+            color: 'white',
+            border: 'none',
+            borderRadius: '50px',
+            padding: '14px 28px',
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            transition: 'background 0.2s, transform 0.2s',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.25)'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.background = '#1976d2'}
+          onMouseLeave={(e) => e.currentTarget.style.background = '#2196f3'}
+        >Пропустить</button>
+      </div>
+
+      {/* Лисёнок – переключается в зависимости от hasMoney */}
+      <div style={{ 
+        position: 'absolute', bottom: 0, left: '8%', 
+        width: '36%', maxWidth: '360px', animation: 'slideInLeft 0.5s ease'
+      }}>
+        <img src={foxImage} alt="Лисёнок" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
+      </div>
+
+      {/* Мама – уходит или приходит */}
       <div style={{ 
         position: 'absolute', bottom: 0, right: motherLeaving ? '-30%' : '8%', 
         width: '36%', maxWidth: '360px', transition: 'right 0.6s ease',
@@ -186,14 +264,12 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
         </div>
       )}
 
-      {/* Облачко ребёнка */}
       {isChild && dialogText && (
         <div style={{ position: 'absolute', bottom: '55%', left: '18%', width: '45%', maxWidth: '500px', backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '24px 32px', animation: 'bubbleAppearLeft 0.3s ease', boxShadow: '0 12px 28px rgba(0,0,0,0.2)', border: '1px solid #ffd966' }}>
           <div style={{ position: 'absolute', bottom: '-12px', left: '30px', width: 0, height: 0, borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '14px solid rgba(255,255,255,0.96)' }} />
           <p style={{ fontSize: '1.3rem', lineHeight: '1.5', color: '#333' }}>{dialogText}</p>
         </div>
       )}
-      {/* Облачко мамы */}
       {isMother && dialogText && !motherLeaving && (
         <div style={{ position: 'absolute', bottom: '55%', right: '18%', width: '45%', maxWidth: '500px', backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '24px 32px', animation: 'bubbleAppearRight 0.3s ease', boxShadow: '0 12px 28px rgba(0,0,0,0.2)', border: '1px solid #ffd966' }}>
           <div style={{ position: 'absolute', bottom: '-12px', right: '30px', width: 0, height: 0, borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '14px solid rgba(255,255,255,0.96)' }} />

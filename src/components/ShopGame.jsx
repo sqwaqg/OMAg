@@ -11,6 +11,7 @@ import lollipopImg from '../assets/images/candy_pop.png';
 import colaImg from '../assets/images/cola.png';
 import ballImg from '../assets/images/ball.png';
 import appleImg from '../assets/images/apples.png';
+import botSmart from '../assets/images/bot_smart.png';
 
 const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: balanceProp }) => {
   const categories = [
@@ -203,11 +204,11 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
     const hasBall = isBallBought();
     if (onEncouragement) {
       if (cheapRisky) {
-        onEncouragement(`Осторожно! Ты купил дешёвые продукты. Они могут быть некачественными. Родители очень расстроены.`);
+        onEncouragement(`Осторожно! Дешёвые продукты оказались некачественными. Семья отравилась. В следующий раз не экономь на качестве.`);
       } else if (!hasBall) {
-        onEncouragement(`Ты купил всё нужное, но на мячик не хватило. В следующий раз планируй бюджет тщательнее.`);
+        onEncouragement(`Ты купил всё нужное, но на мячик не хватило. Лисёнок грустит. В следующий раз планируй бюджет тщательнее.`);
       } else {
-        onEncouragement(`Отлично! Покупки завершены, родители тобой гордятся!`);
+        onEncouragement(`Отлично! Покупки завершены, родители тобой гордятся! Лисёнок счастлив.`);
       }
     }
     onFinish(total, cheapRisky, hasBall);
@@ -217,7 +218,13 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
     setShowConfirm(false);
   };
 
-  useEffect(() => {}, []);
+  const ballItem = selectedItems['ball'];
+  const ballPrice = ballItem ? ballItem.price : null;
+
+  const getSlideLabel = () => {
+    if (totalSlides === 1) return 'Полка';
+    return `Полка ${currentSlide + 1}`;
+  };
 
   return (
     <div style={{
@@ -245,11 +252,10 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
           fontWeight: 'bold',
           cursor: 'pointer',
           color: '#5c3d2e',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-          transition: 'transform 0.2s'
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
         }}
       >
-        ← Выйти в меню
+        Назад
       </button>
 
       <div style={{
@@ -263,8 +269,8 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
         gap: '30px',
         overflow: 'hidden'
       }}>
-        {/* ЛЕВАЯ ЧАСТЬ: полки (без изменений) */}
-        <div style={{ flex: 2.5, height: 'calc(100vh - 120px)', overflow: 'hidden' }}>
+        {/* Левая часть: полки */}
+        <div style={{ flex: 2.5, height: 'calc(100vh - 100px)', overflow: 'hidden' }}>
           <div style={{
             background: 'rgba(139, 69, 19, 0.85)',
             borderRadius: '30px',
@@ -279,9 +285,10 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
             <div style={{
               background: 'rgba(255,248,225,0.95)',
               borderRadius: '20px',
-              padding: '20px',
+              padding: '15px',
               flex: 1,
-              overflow: 'hidden'
+              overflowY: 'auto',
+              overflowX: 'hidden'
             }}>
               <div className={`shelf-container ${isAnimating ? 'fade-anim' : ''}`}>
                 {rows.map((row, rowIndex) => (
@@ -295,20 +302,18 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
                       cat ? (
                         <div key={cat.id} className="product-card" style={{
                           background: 'white',
-                          borderRadius: '25px',
-                          padding: '18px 12px',
+                          borderRadius: '20px',
+                          padding: '12px 8px',
                           textAlign: 'center',
                           boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
                           position: 'relative',
-                          transition: 'transform 0.2s, border 0.2s, box-shadow 0.2s',
                           border: selectedItems[cat.id] ? '3px solid #ffd700' : '1px solid #ddd',
                           display: 'flex',
                           flexDirection: 'column',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          height: '240px',
-                          cursor: 'pointer',
-                          opacity: 1
+                          height: '270px',
+                          cursor: 'pointer'
                         }}
                         onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
                         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
@@ -317,31 +322,69 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
                               position: 'absolute',
                               top: '-10px',
                               right: '-10px',
-                              width: '32px',
-                              height: '32px',
+                              width: '28px',
+                              height: '28px',
                               background: '#5c3d2e',
                               borderRadius: '50%',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
                               zIndex: 10
                             }}>
-                              <span style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>✓</span>
+                              <span style={{ color: 'white', fontSize: '16px', fontWeight: 'bold' }}>✓</span>
                             </div>
                           )}
-                          <img src={cat.img} alt={cat.name} style={{ width: '85px', height: '85px', objectFit: 'contain', marginBottom: '8px' }} />
+                          <img 
+                            src={cat.img} 
+                            alt={cat.name} 
+                            style={{ 
+                              width: '130px', 
+                              height: '130px', 
+                              objectFit: 'contain', 
+                              marginBottom: '4px' 
+                            }} 
+                          />
                           <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#5c3d2e' }}>{cat.name}</div>
                           {cat.required && <div style={{ fontSize: '0.7rem', color: '#c62828' }}>обязательно</div>}
-                          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '10px', width: '100%' }}>
-                            <button onClick={() => selectItem(cat, 0)} style={{ flex: 1, padding: '6px 8px', background: selectedItems[cat.id]?.variant === 0 ? '#5c3d2e' : '#f5a623', border: 'none', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 'bold', color: 'white', cursor: 'pointer' }}>{getPrices(cat)[0]} ₽</button>
-                            <button onClick={() => selectItem(cat, 1)} style={{ flex: 1, padding: '6px 8px', background: selectedItems[cat.id]?.variant === 1 ? '#5c3d2e' : '#ff9800', border: 'none', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 'bold', color: 'white', cursor: 'pointer' }}>{getPrices(cat)[1]} ₽</button>
+                          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '8px', width: '100%' }}>
+                            <button 
+                              onClick={() => selectItem(cat, 0)} 
+                              style={{ 
+                                flex: 1, 
+                                padding: '5px 8px', 
+                                background: selectedItems[cat.id]?.variant === 0 ? '#5c3d2e' : '#f5a623', 
+                                border: 'none', 
+                                borderRadius: '30px', 
+                                fontSize: '0.75rem', 
+                                fontWeight: 'bold', 
+                                color: 'white', 
+                                cursor: 'pointer' 
+                              }}
+                            >
+                              {getPrices(cat)[0]} ₽
+                            </button>
+                            <button 
+                              onClick={() => selectItem(cat, 1)} 
+                              style={{ 
+                                flex: 1, 
+                                padding: '5px 8px', 
+                                background: selectedItems[cat.id]?.variant === 1 ? '#5c3d2e' : '#ff9800', 
+                                border: 'none', 
+                                borderRadius: '30px', 
+                                fontSize: '0.75rem', 
+                                fontWeight: 'bold', 
+                                color: 'white', 
+                                cursor: 'pointer' 
+                              }}
+                            >
+                              {getPrices(cat)[1]} ₽
+                            </button>
                           </div>
                         </div>
                       ) : (
                         <div key={`empty-${rowIndex}-${colIndex}`} style={{
                           background: 'transparent',
-                          height: '240px'
+                          height: '270px'
                         }} />
                       )
                     ))}
@@ -350,61 +393,81 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '40px', marginTop: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '30px', marginTop: '15px' }}>
               <button
                 onClick={() => changeSlide('prev')}
                 disabled={currentSlide === 0}
-                style={{ padding: '12px 30px', background: currentSlide === 0 ? '#ccc' : 'linear-gradient(135deg, #5c3d2e, #3d2a1f)', border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: 'bold', color: 'white', cursor: currentSlide === 0 ? 'not-allowed' : 'pointer' }}
+                style={{ padding: '10px 25px', background: currentSlide === 0 ? '#ccc' : 'linear-gradient(135deg, #5c3d2e, #3d2a1f)', border: 'none', borderRadius: '40px', fontSize: '0.9rem', fontWeight: 'bold', color: 'white', cursor: currentSlide === 0 ? 'not-allowed' : 'pointer' }}
               >← Назад</button>
-              <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#5c3d2e' }}>Слайд {currentSlide + 1} из {totalSlides}</span>
+              <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#5c3d2e' }}>{getSlideLabel()}</span>
               <button
                 onClick={() => changeSlide('next')}
                 disabled={currentSlide === totalSlides - 1}
-                style={{ padding: '12px 30px', background: currentSlide === totalSlides - 1 ? '#ccc' : 'linear-gradient(135deg, #5c3d2e, #3d2a1f)', border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: 'bold', color: 'white', cursor: currentSlide === totalSlides - 1 ? 'not-allowed' : 'pointer' }}
+                style={{ padding: '10px 25px', background: currentSlide === totalSlides - 1 ? '#ccc' : 'linear-gradient(135deg, #5c3d2e, #3d2a1f)', border: 'none', borderRadius: '40px', fontSize: '0.9rem', fontWeight: 'bold', color: 'white', cursor: currentSlide === totalSlides - 1 ? 'not-allowed' : 'pointer' }}
               >Далее →</button>
             </div>
 
-            <div style={{ display: 'flex', gap: '30px', justifyContent: 'center', marginTop: '20px', marginBottom: '10px' }}>
+            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', marginTop: '15px', marginBottom: '5px' }}>
               <button
                 onClick={undo}
                 disabled={history.length === 0}
-                style={{ padding: '12px 40px', background: history.length === 0 ? '#ccc' : 'linear-gradient(135deg, #ff9800, #f57c00)', border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: 'bold', color: 'white', cursor: history.length === 0 ? 'not-allowed' : 'pointer' }}
+                style={{ padding: '10px 30px', background: history.length === 0 ? '#ccc' : 'linear-gradient(135deg, #ff9800, #f57c00)', border: 'none', borderRadius: '40px', fontSize: '0.9rem', fontWeight: 'bold', color: 'white', cursor: history.length === 0 ? 'not-allowed' : 'pointer' }}
               >Отменить</button>
               <button
                 onClick={finish}
                 disabled={!canFinish()}
-                style={{ padding: '12px 50px', background: !canFinish() ? '#ccc' : 'linear-gradient(135deg, #5c3d2e, #3d2a1f)', border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: 'bold', color: 'white', cursor: !canFinish() ? 'not-allowed' : 'pointer' }}
+                style={{ padding: '10px 30px', background: !canFinish() ? '#ccc' : '#2e7d32', border: 'none', borderRadius: '40px', fontSize: '0.9rem', fontWeight: 'bold', color: 'white', cursor: !canFinish() ? 'not-allowed' : 'pointer' }}
               >Завершить покупки</button>
             </div>
           </div>
         </div>
 
-        {/* ПРАВАЯ ЧАСТЬ: список покупок */}
+        {/* Правая часть: список покупок */}
         <div style={{
           flex: 1,
-          maxWidth: '340px',
+          maxWidth: '280px',
           background: 'rgba(255, 255, 255, 0.95)',
           borderRadius: '30px',
-          padding: '20px',
+          padding: '15px',
           backdropFilter: 'blur(8px)',
-          height: 'calc(100vh - 120px)',
+          height: 'calc(100vh - 100px)',
           overflowY: 'auto',
           boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
         }}>
-          <div style={{ fontSize: '1.6rem', fontWeight: 'bold', marginBottom: '15px', textAlign: 'center', color: '#5c3d2e' }}>🛒 Баланс: {balance} ₽</div>
-          <div style={{ fontSize: '1.4rem', fontWeight: 'bold', marginBottom: '20px', textAlign: 'center', color: '#5c3d2e' }}>💰 Итого: {total} ₽</div>
-          <h3 style={{ color: '#5c3d2e', marginBottom: '15px', fontSize: '1.3rem', borderBottom: '2px solid #d4a373', paddingBottom: '5px' }}>📝 Список покупок</h3>
+          <div style={{ fontSize: '1.4rem', fontWeight: 'bold', marginBottom: '10px', textAlign: 'center', color: '#5c3d2e' }}>Баланс: {balance} ₽</div>
+          <div style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '15px', textAlign: 'center', color: '#5c3d2e' }}>Итого: {total} ₽</div>
+
+          <h3 style={{ color: '#5c3d2e', marginBottom: '10px', fontSize: '1.1rem', borderBottom: '2px solid #d4a373', paddingBottom: '5px' }}>Список покупок</h3>
           <div>
             {categories.map(cat => {
               const selected = selectedItems[cat.id];
+              if (cat.id === 'ball') return null;
               if (!selected && !cat.required) return null;
               return (
-                <div key={cat.id} style={{ padding: '10px 0', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div key={cat.id} style={{ padding: '8px 0', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem' }}>
                   <span style={{ color: selected ? '#5c3d2e' : '#999', fontWeight: selected ? 'bold' : 'normal' }}>{cat.name}</span>
                   <span style={{ fontWeight: 'bold', color: selected ? '#5c3d2e' : '#999' }}>{selected ? `${selected.price} ₽` : 'не выбран'}</span>
                 </div>
               );
             })}
+            
+            {/* Блок "Мечта лисёнка" – без картинки, только текст */}
+            <div style={{
+              marginTop: '15px',
+              paddingTop: '10px',
+              borderTop: '1px dashed #ccc',
+              fontSize: '0.9rem',
+              color: '#888'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>🎯 Мечта лисёнка: Мячик</span>
+                {ballItem ? (
+                  <span style={{ fontWeight: 'bold', color: '#2e7d32' }}>{ballPrice} ₽ ✓</span>
+                ) : (
+                  <span style={{ color: '#999' }}>не куплен</span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -426,20 +489,20 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
           <div style={{
             background: 'linear-gradient(135deg, #fff9ef, #fff0e0)',
             borderRadius: '48px',
-            padding: '40px 35px',
+            padding: '30px 30px',
             textAlign: 'center',
-            maxWidth: '480px',
-            width: '90%',
+            maxWidth: '450px',
+            width: '85%',
             boxShadow: '0 30px 50px rgba(0,0,0,0.3)',
             border: '1px solid rgba(255,215,0,0.5)'
           }}>
-            <div style={{ fontSize: '3rem', marginBottom: '10px' }}>🛍️</div>
-            <h3 style={{ color: '#2e7d32', marginBottom: '20px', fontSize: '1.8rem' }}>Завершить покупки?</h3>
-            <p style={{ marginBottom: '15px', fontSize: '1.2rem', color: '#5c3d2e', fontWeight: 'bold' }}>Ты потратил {total} ₽ из {balance} ₽</p>
-            <p style={{ marginBottom: '30px', color: '#666' }}>Остаток: {balance - total} ₽</p>
-            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
-              <button onClick={confirmFinish} style={{ padding: '12px 28px', background: '#2e7d32', color: 'white', border: 'none', borderRadius: '40px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer' }}>Да, завершить</button>
-              <button onClick={cancelFinish} style={{ padding: '12px 28px', background: '#ddd', color: '#333', border: 'none', borderRadius: '40px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer' }}>Вернуться</button>
+            <img src={botSmart} alt="Совёнок" style={{ width: '80px', height: '80px', margin: '0 auto 10px', objectFit: 'contain' }} />
+            <h3 style={{ color: '#2e7d32', marginBottom: '15px', fontSize: '1.5rem' }}>Завершить покупки?</h3>
+            <p style={{ marginBottom: '10px', fontSize: '1rem', color: '#5c3d2e', fontWeight: 'bold' }}>Ты потратил {total} ₽ из {balance} ₽</p>
+            <p style={{ marginBottom: '25px', color: '#666' }}>Остаток: {balance - total} ₽</p>
+            <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+              <button onClick={confirmFinish} style={{ padding: '10px 20px', background: '#2e7d32', color: 'white', border: 'none', borderRadius: '40px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}>Да, завершить</button>
+              <button onClick={cancelFinish} style={{ padding: '10px 20px', background: '#ddd', color: '#333', border: 'none', borderRadius: '40px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}>Вернуться</button>
             </div>
           </div>
         </div>

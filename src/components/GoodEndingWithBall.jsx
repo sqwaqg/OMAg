@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
 import useSpeech from '../hooks/useSpeech';
 import background2 from '../assets/images/background2.png';
-import foxChildSad from '../assets/images/fox_child_sad.png';
+import foxChildWithMoney from '../assets/images/fox_child_with_money.png';
 import foxMotherHappy from '../assets/images/mother_happy.png';
+import foxFatherHappy from '../assets/images/father_happy.png';
 import botHappy from '../assets/images/bot_happy.png';
 
-function GoodEndingStory1({ onComplete }) {
+function GoodEndingWithBall({ onComplete }) {
   const [isFadingOut, setIsFadingOut] = useState(false);
   const { speak, stop } = useSpeech();
-  const title = 'Почти получилось!';
-  const text = 'Ты купил все качественные продукты, но на мячик не хватило. Лисёнок грустит, но мама гордится тобой. В следующий раз планируй бюджет тщательнее.';
+  const title = 'Отличная работа!';
+  const text = 'Ты купил все качественные продукты и мячик – мечту лисёнка! Вся семья счастлива и гордится тобой!';
 
   useEffect(() => {
     speak(text, { rate: 0.95 });
@@ -30,14 +31,19 @@ function GoodEndingStory1({ onComplete }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000,
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.4s ease'
     }}>
-      {/* Грустный лисёнок (без денег) */}
-      <div style={{ position: 'absolute', bottom: 0, left: '8%', width: '30%', maxWidth: '300px'}}>
-        <img src={foxChildSad} alt="Лисёнок" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
+      {/* Счастливый лисёнок (без мячика) */}
+      <div style={{ position: 'absolute', bottom: 0, left: '8%', width: '30%', maxWidth: '300px', animation: 'slideInLeft 0.5s ease' }}>
+        <img src={foxChildWithMoney} alt="Лисёнок" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
       </div>
       {/* Счастливая мама */}
-      <div style={{ position: 'absolute', bottom: 0, right: '8%', width: '32%', maxWidth: '320px'}}>
+      <div style={{ position: 'absolute', bottom: 0, right: '12%', width: '32%', maxWidth: '320px'}}>
         <img src={foxMotherHappy} alt="Мама" style={{ width: '100%', height: 'auto', transform: 'scale(1.3)', transformOrigin: 'bottom center' }} />
       </div>
+      {/* Счастливый папа */}
+      <div style={{ position: 'absolute', bottom: 0, right: '2%', width: '32%', maxWidth: '320px'}}>
+        <img src={foxFatherHappy} alt="Папа" style={{ width: '100%', height: 'auto', transform: 'scale(1.4)', transformOrigin: 'bottom center' }} />
+      </div>
+
       {/* Центральное окно */}
       <div style={{
         position: 'relative', zIndex: 20,
@@ -56,15 +62,14 @@ function GoodEndingStory1({ onComplete }) {
       </div>
 
       <style>{`
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
         @keyframes slideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes happyGlow {
-          0% { filter: drop-shadow(0 0 0px gold); transform: scale(1); }
-          50% { filter: drop-shadow(0 0 15px gold); transform: scale(1.05); }
-          100% { filter: drop-shadow(0 0 0px gold); transform: scale(1); }
-        }
+        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-150px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(150px); } to { opacity: 1; transform: translateX(0); } }
       `}</style>
     </div>
   );
 }
 
-export default GoodEndingStory1;
+export default GoodEndingWithBall;

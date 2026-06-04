@@ -5,7 +5,7 @@ import foxGirl from '../assets/images/fox_girl.png'
 import foxMother from '../assets/images/fox_mother.png'
 import foxFather from '../assets/images/fox_father.png'
 
-function DialogScene2({ onComplete, balance, onBotHint, dialogs }) {
+function DialogScene2({ onComplete, balance, onBotHint, dialogs, onExit, onSkip }) {
   const [step, setStep] = useState(0)
   const [isVisible, setIsVisible] = useState(true)
   const [isFadingOut, setIsFadingOut] = useState(false)
@@ -76,6 +76,28 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs }) {
     }
   }
 
+  const skipDialog = () => {
+    if (onSkip) {
+      stop()
+      setIsFadingOut(true)
+      setTimeout(() => {
+        setIsVisible(false)
+        onSkip()
+      }, 500)
+    }
+  }
+
+  const exitToMenu = () => {
+    if (onExit) {
+      stop()
+      setIsFadingOut(true)
+      setTimeout(() => {
+        setIsVisible(false)
+        onExit()
+      }, 500)
+    }
+  }
+
   const handleScreenClick = (e) => {
     if (e.target.tagName === 'BUTTON') return
     goToNext()
@@ -118,6 +140,56 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs }) {
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.5s ease'
     }} onClick={handleScreenClick}>
       
+      <div style={{
+        position: 'fixed',
+        top: '20px',
+        left: '20px',
+        zIndex: 100
+      }}>
+        <button
+          onClick={(e) => { e.stopPropagation(); exitToMenu(); }}
+          style={{
+            background: '#ff9800',
+            color: 'white',
+            border: 'none',
+            borderRadius: '50px',
+            padding: '14px 28px',
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            transition: 'background 0.2s, transform 0.2s',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.25)'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.background = '#f57c00'}
+          onMouseLeave={(e) => e.currentTarget.style.background = '#ff9800'}
+        >Выйти в меню</button>
+      </div>
+
+      <div style={{
+        position: 'fixed',
+        top: '20px',
+        right: '20px',
+        zIndex: 100
+      }}>
+        <button
+          onClick={(e) => { e.stopPropagation(); skipDialog(); }}
+          style={{
+            background: '#2196f3',
+            color: 'white',
+            border: 'none',
+            borderRadius: '50px',
+            padding: '14px 28px',
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            transition: 'background 0.2s, transform 0.2s',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.25)'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.background = '#1976d2'}
+          onMouseLeave={(e) => e.currentTarget.style.background = '#2196f3'}
+        >Пропустить</button>
+      </div>
+
       {/* Девочка – чуть ближе к центру, масштаб 1.1 */}
       <div style={{ position: 'absolute', bottom: 0, left: '14%', width: '32%', maxWidth: '320px', animation: 'slideInLeft 0.5s ease', zIndex: 5 }}>
         <img src={foxGirl} alt="Лисёнок" style={{ width: '100%', height: 'auto', transform: 'scale(1.1)', transformOrigin: 'bottom center' }} />
@@ -133,7 +205,7 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs }) {
         <img src={foxFather} alt="Папа" style={{ width: '100%', height: 'auto', transform: 'scale(1.4)', transformOrigin: 'bottom center' }} />
       </div>
 
-      {/* Облачко девочки – сдвинуто вправо */}
+      {/* Облачко девочки */}
       {isGirl && dialogText && (
         <div style={{
           position: 'absolute', bottom: '55%', left: '18%', width: '35%', maxWidth: '420px',
@@ -145,7 +217,7 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs }) {
         </div>
       )}
 
-      {/* Облачко мамы – сдвинуто левее */}
+      {/* Облачко мамы */}
       {isMother && dialogText && (
         <div style={{
           position: 'absolute', bottom: '55%', left: '44%', width: '35%', maxWidth: '420px',
@@ -157,7 +229,7 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs }) {
         </div>
       )}
 
-      {/* Облачко папы – сдвинуто левее */}
+      {/* Облачко папы */}
       {isFather && dialogText && (
         <div style={{
           position: 'absolute', bottom: '55%', left: '62%', width: '35%', maxWidth: '420px',
