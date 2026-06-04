@@ -10,7 +10,7 @@ function ShopVictoryDialog({ onComplete, totalSpent, balance }) {
   const { speak, stop } = useSpeech();
 
   useEffect(() => {
-    speak('Молодец! Ты купил всё нужное! Родители тобой гордятся!', { rate: 1.0 });
+    speak('Молодец! Ты купил всё нужное! Родители тобой гордятся!', { rate: 1.1 });
     return () => stop();
   }, []);
 

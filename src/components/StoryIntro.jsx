@@ -8,7 +8,7 @@ function StoryIntro({ title, text, onComplete }) {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      speak(text, { rate: 0.95 });
+      speak(text, { rate: 1.1 });
     }, 100);
     return () => {
       clearTimeout(timer);

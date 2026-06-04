@@ -9,18 +9,19 @@ import milkImg from '../assets/images/milk.png'
 import eggsImg from '../assets/images/eggs.png'
 import carrotImg from '../assets/images/carrot.png'
 
-function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance, onExit, onSkip }) {
+function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance, onExit, onSkip, playSfx }) {
   const [step, setStep] = useState(0)
   const [isVisible, setIsVisible] = useState(true)
   const [isFadingOut, setIsFadingOut] = useState(false)
   const [motherLeaving, setMotherLeaving] = useState(false)
   const [showMoneyEffect, setShowMoneyEffect] = useState(false)
-  const [hasMoney, setHasMoney] = useState(false)   // true – лисёнок с деньгами
+  const [hasMoney, setHasMoney] = useState(false)
   const [showListModal, setShowListModal] = useState(false)
   const { speak, stop } = useSpeech()
   const isSpeakingRef = useRef(false)
   const timeoutRef = useRef(null)
   const stepRef = useRef(step)
+  const ringPlayedRef = useRef(false)
 
   const getDialogText = (dialog) => {
     if (typeof dialog.text === 'function') return dialog.text(balance);
@@ -36,6 +37,13 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
     }
   }, [stop])
 
+  useEffect(() => {
+    if (playSfx && !ringPlayedRef.current) {
+      ringPlayedRef.current = true
+      playSfx('ring')
+    }
+  }, [playSfx])
+
   const speakFull = async (text, speakerType, currentStep) => {
     if (isSpeakingRef.current) {
       stop()
@@ -45,7 +53,7 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
     return new Promise((resolve) => {
       const utterance = new SpeechSynthesisUtterance(text)
       utterance.lang = 'ru-RU'
-      utterance.rate = 1.2
+      utterance.rate = 1.0
       utterance.pitch = speakerType === 'child' ? 1.3 : 1.0
       utterance.onend = () => { isSpeakingRef.current = false; resolve() }
       utterance.onerror = () => { isSpeakingRef.current = false; resolve() }
@@ -63,14 +71,13 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
     if (step === 0) {
       setShowListModal(true)
+      if (playSfx) playSfx('sound')
       return
     }
     if (step === 2) {
       setShowMoneyEffect(true)
-      setHasMoney(true)                      // переключаем на изображение с деньгами
-      if (onUpdateBalance) {
-        onUpdateBalance(balance)
-      }
+      setHasMoney(true)
+      if (onUpdateBalance) onUpdateBalance(balance)
       setTimeout(() => setShowMoneyEffect(false), 2000)
     }
     if (step === 8) {
@@ -118,6 +125,7 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
   }
 
   const handleScreenClick = (e) => {
+    if (showListModal) return
     if (e.target.tagName === 'BUTTON') return
     goToNext()
   }
@@ -232,7 +240,7 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
           pointerEvents: 'none', zIndex: 20, display: 'flex', alignItems: 'center', gap: '12px',
           fontSize: '1.5rem', fontWeight: 'bold', color: '#2e7d32', whiteSpace: 'nowrap'
         }}>
-          <span>💰</span>
+          Денюжки!
         </div>
       )}
 
@@ -252,11 +260,11 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
             <div style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', width: '60px', height: '8px', background: '#d4b87a', borderRadius: '4px' }} />
             <h2 style={{ color: '#3e2723', marginBottom: '30px', fontSize: '2rem' }}>Список продуктов:</h2>
             <ul style={{ textAlign: 'left', fontSize: '1.3rem', lineHeight: '2', marginBottom: '35px', paddingLeft: '25px', listStyleType: 'none', color: '#4a3b2c' }}>
-              <li><img src={milkImg} alt="Молоко" style={{ width: '30px', height: '30px', marginRight: '10px', verticalAlign: 'middle' }} /> Молоко</li>
-              <li><img src={breadImg} alt="Хлеб" style={{ width: '30px', height: '30px', marginRight: '10px', verticalAlign: 'middle' }} /> Хлеб</li>
-              <li><img src={eggsImg} alt="Яйца" style={{ width: '30px', height: '30px', marginRight: '10px', verticalAlign: 'middle' }} /> Яйца</li>
-              <li><img src={carrotImg} alt="Морковка" style={{ width: '30px', height: '30px', marginRight: '10px', verticalAlign: 'middle' }} /> Морковка</li>
-              <li style={{ marginTop: '15px', color: '#ff9800' }}>🍬 На сдачу купи себе вкусняшку!</li>
+              <li> Молоко</li>
+              <li> Хлеб</li>
+              <li> Яйца</li>
+              <li> Морковка</li>
+              <li style={{ marginTop: '15px', color: '#ff9800' }}>На сдачу купи себе вкусняшку!</li>
             </ul>
           </div>
         </div>

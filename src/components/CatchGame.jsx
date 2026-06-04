@@ -253,7 +253,7 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
           alignItems: 'center',
           gap: '8px'
         }}>
-          <span>🎯</span> Цель: {target} ₽
+          Цель: {target} ₽
         </div>
         
         <div style={{ 
@@ -269,7 +269,7 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
           minWidth: '150px',
           justifyContent: 'center'
         }}>
-          <span>💰</span> <span style={{ minWidth: '70px', textAlign: 'center' }}>{score}</span> ₽
+          <span style={{ minWidth: '70px', textAlign: 'center' }}>{score}</span> ₽
         </div>
       </div>
 

@@ -7,7 +7,7 @@ function RulesWithOwl({ title, text, onPlay }) {
   const { speak, stop } = useSpeech();
 
   useEffect(() => {
-    speak(text, { rate: 0.95, pitch: 1.15 });
+    speak(text, { rate: 1.1, pitch: 1.15 });
     return () => stop();
   }, [text, speak, stop]);
 

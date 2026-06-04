@@ -5,16 +5,17 @@ import motherSonImg from '../assets/images/bad_ending_mother_son.png';
 import botSad from '../assets/images/bot_sad.png';
 import background2 from '../assets/images/background2.png';
 
-function BadEndingOutro({ onComplete }) {
+function BadEndingOutro({ onComplete, playSfx }) {
   const [isFadingOut, setIsFadingOut] = useState(false);
   const { speak, stop } = useSpeech();
   const title = 'Будь внимательнее!';
   const text = 'Осторожно! Дешёвые продукты оказались некачественными. Семья отравилась. В следующий раз не экономь на качестве.';
 
   useEffect(() => {
+    if (playSfx) playSfx('fail');
     speak(text, { rate: 1.1 });
     return () => stop();
-  }, []);
+  }, [playSfx]);
 
   const handleFinish = () => {
     stop();
@@ -30,17 +31,14 @@ function BadEndingOutro({ onComplete }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000,
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.4s ease'
     }}>
-      {/* Фрейм 1: дочка с отцом – слева */}
       <div style={{ position: 'absolute', bottom: 120, left: '5%', width: '40%', maxWidth: '400px' }}>
         <img src={fatherDaughterImg} alt="Отец и дочь" style={{ width: '100%', height: 'auto', transform: 'scale(1.6)' }} />
       </div>
       
-      {/* Фрейм 2: мама с сыном – справа */}
       <div style={{ position: 'absolute', bottom: 120, right: '5%', width: '40%', maxWidth: '400px' }}>
         <img src={motherSonImg} alt="Мама и сын" style={{ width: '100%', height: 'auto', transform: 'scale(1.6)' }} />
       </div>
 
-      {/* Центральное окно (без изменений) */}
       <div style={{
         position: 'relative', zIndex: 20,
         maxWidth: '700px', width: '85%', padding: '40px 35px',

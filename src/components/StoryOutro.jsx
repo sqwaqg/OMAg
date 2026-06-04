@@ -7,7 +7,7 @@ function StoryOutro({ title, text, onComplete }) {
   const { speak, stop } = useSpeech()
 
   useEffect(() => {
-    speak(text, { rate: 0.95 })
+    speak(text, { rate: 1.1 })
     return () => stop()
   }, [text, speak, stop])
 

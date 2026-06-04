@@ -14,7 +14,7 @@ function DepositFailDialog({ onComplete, score }) {
   const text = 'За год ты не накопила нужную сумму. Вклад принёс 1500 рублей, но до планшета не хватило. Ты можешь купить ноутбук или планшет с чехлом.';
 
   useEffect(() => {
-    speak(text, { rate: 0.95 });
+    speak(text, { rate: 1.1 });
     return () => stop();
   }, []);
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import useSpeech from '../hooks/useSpeech';
 import background2 from '../assets/images/background2.png';
 import foxGirlWithBows from '../assets/images/fox_girl_with_bows.png';
-import foxGirlWithoutBows from '../assets/images/fox_girl_without_bows.png';
+import foxGirlSad from '../assets/images/fox_girl_sad.png';
 import foxMother from '../assets/images/fox_mother.png';
 import foxFather from '../assets/images/fox_father.png';
 import bows from '../assets/images/bows.png';
@@ -16,11 +16,11 @@ function LossDialog({ onComplete, type }) {
   const { speak, stop } = useSpeech();
 
   useEffect(() => {
-    speak('За год ты не накопила нужную сумму. Бантики пришлось отдать.', { rate: 1.0 });
+    speak('За год ты не накопила нужную сумму. Бантики пришлось отдать.', { rate: 1.1 });
     
     const timer = setTimeout(() => {
       setShowBowsFly(true);
-      setFoxImage(foxGirlWithoutBows);
+      setFoxImage(foxGirlSad);
     }, 1500);
     
     return () => {

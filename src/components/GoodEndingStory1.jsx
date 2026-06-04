@@ -5,16 +5,17 @@ import foxChildSad from '../assets/images/fox_child_sad.png';
 import foxMotherHappy from '../assets/images/mother_happy.png';
 import botHappy from '../assets/images/bot_happy.png';
 
-function GoodEndingStory1({ onComplete }) {
+function GoodEndingStory1({ onComplete, playSfx }) {
   const [isFadingOut, setIsFadingOut] = useState(false);
   const { speak, stop } = useSpeech();
   const title = 'Почти получилось!';
   const text = 'Ты купил все качественные продукты, но на мячик не хватило. Лисёнок грустит, но мама гордится тобой. В следующий раз планируй бюджет тщательнее.';
 
   useEffect(() => {
-    speak(text, { rate: 0.95 });
+    if (playSfx) playSfx('win'); // или playSfx('sound') – на твой выбор
+    speak(text, { rate: 1.1 });
     return () => stop();
-  }, [text]);
+  }, [text, playSfx]);
 
   const handleFinish = () => {
     stop();
@@ -30,15 +31,12 @@ function GoodEndingStory1({ onComplete }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000,
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.4s ease'
     }}>
-      {/* Грустный лисёнок (без денег) */}
       <div style={{ position: 'absolute', bottom: 0, left: '8%', width: '30%', maxWidth: '300px'}}>
         <img src={foxChildSad} alt="Лисёнок" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
       </div>
-      {/* Счастливая мама */}
       <div style={{ position: 'absolute', bottom: 0, right: '8%', width: '32%', maxWidth: '320px'}}>
         <img src={foxMotherHappy} alt="Мама" style={{ width: '100%', height: 'auto', transform: 'scale(1.3)', transformOrigin: 'bottom center' }} />
       </div>
-      {/* Центральное окно */}
       <div style={{
         position: 'relative', zIndex: 20,
         maxWidth: '700px', width: '85%', padding: '40px 35px',

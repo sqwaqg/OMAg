@@ -23,6 +23,7 @@ import DepositFailDialog from './components/DepositFailDialog';
 import GoodEndingStory1 from './components/GoodEndingStory1';
 import RulesWithOwl from './components/RulesWithOwl';
 import GoodEndingWithBall from './components/GoodEndingWithBall';
+import { useSound } from './hooks/useSound'; // <-- добавили
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState('start');
@@ -66,6 +67,9 @@ function App() {
 
   const [lastWishName, setLastWishName] = useState('');
   
+  // Подключаем звуки
+  const { playSfx } = useSound(); // <-- добавили
+
   useEffect(() => {
     fetch('http://localhost:3001/api/game/state')
       .then(res => {
@@ -338,6 +342,7 @@ function App() {
             onUpdateBalance={(newBalance) => { setBalance(newBalance); setStats(prev => ({ ...prev, money: newBalance })); }}
             onExit={() => handleExit('start')}
             onSkip={() => setGameStarted(true)}
+            playSfx={playSfx} // <-- добавили
           />
           <BotHelper tips={story1Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
@@ -350,13 +355,14 @@ function App() {
     // Аутро после магазина
     if (showShopOutro) {
       if (lastEndingType === 'bad') {
-        return <BadEndingOutro onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} />;
+        return <BadEndingOutro onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} playSfx={playSfx} />; // <-- добавили
       } else if (lastEndingType === 'noBall') {
-        return <GoodEndingStory1 onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} />;
+        return <GoodEndingStory1 onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} playSfx={playSfx} />; // <-- добавили
       } else {
         return <GoodEndingWithBall 
           onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} 
           wishName={lastWishName} 
+          playSfx={playSfx} // <-- добавили
         />;
       }
     }
@@ -585,13 +591,13 @@ function App() {
     
     if (gameResult) {
       if ((story2Choice === 'credit' && gameResult === 'credit_success') || (story2Choice === 'deposit' && gameResult === 'deposit_success')) {
-        return <VictoryDialog onComplete={() => { setGameResult(null); setStory2Choice(null); setShowChoice(false); setGameStarted(false); setCurrentScreen('start'); }} score={stats.money} type={story2Choice} />;
+        return <VictoryDialog onComplete={() => { setGameResult(null); setStory2Choice(null); setShowChoice(false); setGameStarted(false); setCurrentScreen('start'); }} score={stats.money} type={story2Choice} playSfx={playSfx} />; // <-- добавили
       }
       if (story2Choice === 'credit' && gameResult === 'credit_fail') {
-        return <LossDialog onComplete={() => { setGameResult(null); setStory2Choice(null); setShowChoice(false); setGameStarted(false); setCurrentScreen('start'); }} type="credit" />;
+        return <LossDialog onComplete={() => { setGameResult(null); setStory2Choice(null); setShowChoice(false); setGameStarted(false); setCurrentScreen('start'); }} type="credit" playSfx={playSfx} />; // <-- добавили
       }
       if (story2Choice === 'deposit' && gameResult === 'deposit_fail') {
-        return <DepositFailDialog onComplete={() => { setGameResult(null); setStory2Choice(null); setShowChoice(false); setGameStarted(false); setCurrentScreen('start'); }} score={stats.money} />;
+        return <DepositFailDialog onComplete={() => { setGameResult(null); setStory2Choice(null); setShowChoice(false); setGameStarted(false); setCurrentScreen('start'); }} score={stats.money} playSfx={playSfx} />; // <-- добавили
       }
       let endingTitle = '';
       let endingText = '';

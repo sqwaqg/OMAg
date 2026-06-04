@@ -8,7 +8,7 @@ import foxFatherHappy from '../assets/images/father_happy.png';
 import tablet from '../assets/images/tablet.png';
 import botHappy from '../assets/images/bot_happy.png';
 
-function VictoryDialog({ onComplete, score, type }) {
+function VictoryDialog({ onComplete, score, type, playSfx }) {
   const [isVisible, setIsVisible] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [showTablet, setShowTablet] = useState(false);
@@ -16,11 +16,12 @@ function VictoryDialog({ onComplete, score, type }) {
   const { speak, stop } = useSpeech();
 
   useEffect(() => {
+    if (playSfx) playSfx('win');
     speak('Ура! Ты справилась! Родители тобой гордятся!', { rate: 1.0 });
     setTimeout(() => setShowTablet(true), 1000);
     setTimeout(() => setIsHappy(true), 2500);
     return () => stop();
-  }, []);
+  }, [playSfx]);
 
   const handleFinish = () => {
     stop();
@@ -45,14 +46,12 @@ function VictoryDialog({ onComplete, score, type }) {
         <img src={isHappy ? foxGirlHappy : foxGirl} alt="Лисичка" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
       </div>
       
-      {/* Планшет привязан к девочке: появляется над её головой и слегка смещается */}
       {showTablet && (
         <div style={{
           position: 'absolute',
-          bottom: '45%',      // над головой девочки (девочка bottom:0, её высота ~ 50% экрана)
-          left: '12%',        // примерно над её телом
+          bottom: '12%',
+          left: '18%',
           width: isHappy ? '180px' : '200px',
-          transform: 'translateX(-10%)',
           animation: 'tabletFlyToGirl 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards',
           zIndex: 15,
           filter: 'drop-shadow(0 0 15px gold)'
@@ -76,7 +75,7 @@ function VictoryDialog({ onComplete, score, type }) {
         <img src={botHappy} alt="Совёнок" style={{ width: '100px', height: '100px', marginBottom: '15px', objectFit: 'contain' }} />
         <h2 style={{ color: '#2e7d32', marginBottom: '20px', fontSize: '2rem', fontWeight: 'bold' }}>Поздравляем!</h2>
         <p style={{ fontSize: '1.3rem', lineHeight: '1.5', color: '#333', marginBottom: '30px' }}>
-          Ты накопила {score} ₽ и получила планшет!<br />
+          Ты накопила нужную сумму и получила планшет!<br />
           Родители тобой гордятся!
         </p>
         <button onClick={handleFinish} style={{
@@ -92,15 +91,9 @@ function VictoryDialog({ onComplete, score, type }) {
         @keyframes slideInRight { from { opacity: 0; transform: translateX(150px); } to { opacity: 1; transform: translateX(0); } }
         @keyframes bubbleAppear { from { opacity: 0; transform: translateX(-50%) scale(0.9); } to { opacity: 1; transform: translateX(-50%) scale(1); } }
         @keyframes tabletFlyToGirl {
-          0% { opacity: 0; transform: translateX(-10%) scale(0.2) rotate(-15deg); }
-          40% { opacity: 1; transform: translateX(-10%) scale(1.1) rotate(2deg); }
-          70% { transform: translateX(-10%) scale(0.95); }
-          100% { opacity: 1; transform: translateX(-10%) scale(1) rotate(0deg); }
-        }
-        @keyframes happyGlow {
-          0% { filter: drop-shadow(0 0 0px gold); transform: scale(1); }
-          50% { filter: drop-shadow(0 0 15px gold); transform: scale(1.05); }
-          100% { filter: drop-shadow(0 0 0px gold); transform: scale(1); }
+          0% { opacity: 0; transform: translateY(100px) scale(0.5); }
+          50% { opacity: 1; transform: translateY(-20px) scale(1.1); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
         }
       `}</style>
     </div>

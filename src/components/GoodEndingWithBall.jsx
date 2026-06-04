@@ -6,16 +6,17 @@ import foxMotherHappy from '../assets/images/mother_happy.png';
 import foxFatherHappy from '../assets/images/father_happy.png';
 import botHappy from '../assets/images/bot_happy.png';
 
-function GoodEndingWithBall({ onComplete, wishName }) {
+function GoodEndingWithBall({ onComplete, wishName, playSfx }) {
   const [isFadingOut, setIsFadingOut] = useState(false);
   const { speak, stop } = useSpeech();
   const title = 'Отличная работа!';
   const text = `Ты купил всё необходимое и порадовал лисёнка — он получил ${wishName || 'подарок'}. Семья счастлива!`;
 
   useEffect(() => {
-    speak(text, { rate: 0.95 });
+    if (playSfx) playSfx('win');
+    speak(text, { rate: 1.1 });
     return () => stop();
-  }, [text]);
+  }, [text, playSfx]);
 
   const handleFinish = () => {
     stop();

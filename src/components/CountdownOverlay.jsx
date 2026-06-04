@@ -1,4 +1,3 @@
-// src/components/CountdownOverlay.jsx
 import { useState, useEffect } from 'react';
 
 function CountdownOverlay({ onComplete }) {
