@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import useSpeech from '../hooks/useSpeech';
 import background2 from '../assets/images/background2.png';
-import foxChildWithMoney from '../assets/images/fox_child_with_money.png';
+import foxChildHappy from '../assets/images/fox_child_happy.png';
 import foxMotherHappy from '../assets/images/mother_happy.png';
 import foxFatherHappy from '../assets/images/father_happy.png';
 import botHappy from '../assets/images/bot_happy.png';
 
-function GoodEndingWithBall({ onComplete }) {
+function GoodEndingWithBall({ onComplete, wishName }) {
   const [isFadingOut, setIsFadingOut] = useState(false);
   const { speak, stop } = useSpeech();
   const title = 'Отличная работа!';
-  const text = 'Ты купил все качественные продукты и мячик – мечту лисёнка! Вся семья счастлива и гордится тобой!';
+  const text = `Ты купил всё необходимое и порадовал лисёнка — он получил ${wishName || 'подарок'}. Семья счастлива!`;
 
   useEffect(() => {
     speak(text, { rate: 0.95 });
@@ -31,20 +31,16 @@ function GoodEndingWithBall({ onComplete }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000,
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.4s ease'
     }}>
-      {/* Счастливый лисёнок (без мячика) */}
       <div style={{ position: 'absolute', bottom: 0, left: '8%', width: '30%', maxWidth: '300px', animation: 'slideInLeft 0.5s ease' }}>
-        <img src={foxChildWithMoney} alt="Лисёнок" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
+        <img src={foxChildHappy} alt="Лисёнок" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
       </div>
-      {/* Счастливая мама */}
       <div style={{ position: 'absolute', bottom: 0, right: '12%', width: '32%', maxWidth: '320px'}}>
         <img src={foxMotherHappy} alt="Мама" style={{ width: '100%', height: 'auto', transform: 'scale(1.3)', transformOrigin: 'bottom center' }} />
       </div>
-      {/* Счастливый папа */}
       <div style={{ position: 'absolute', bottom: 0, right: '2%', width: '32%', maxWidth: '320px'}}>
         <img src={foxFatherHappy} alt="Папа" style={{ width: '100%', height: 'auto', transform: 'scale(1.4)', transformOrigin: 'bottom center' }} />
       </div>
 
-      {/* Центральное окно */}
       <div style={{
         position: 'relative', zIndex: 20,
         maxWidth: '700px', width: '85%', padding: '40px 35px',

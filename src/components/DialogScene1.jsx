@@ -23,9 +23,9 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
   const stepRef = useRef(step)
 
   const getDialogText = (dialog) => {
-    if (typeof dialog.text === 'function') return dialog.text(balance)
-    return dialog.text
-  }
+    if (typeof dialog.text === 'function') return dialog.text(balance);
+    return dialog.text;
+  };
 
   useEffect(() => { stepRef.current = step }, [step])
 
@@ -209,21 +209,19 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
         >Пропустить</button>
       </div>
 
-      {/* Лисёнок – переключается в зависимости от hasMoney */}
       <div style={{ 
         position: 'absolute', bottom: 0, left: '8%', 
         width: '36%', maxWidth: '360px', animation: 'slideInLeft 0.5s ease'
       }}>
-        <img src={foxImage} alt="Лисёнок" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
+        <img src={foxImage} alt="Лисёнок" style={{ width: '100%', height: 'auto', transform: 'scale(1.0)', transformOrigin: 'bottom center' }} />
       </div>
 
-      {/* Мама – уходит или приходит */}
       <div style={{ 
         position: 'absolute', bottom: 0, right: motherLeaving ? '-30%' : '8%', 
         width: '36%', maxWidth: '360px', transition: 'right 0.6s ease',
         animation: motherLeaving ? 'slideOutRightSlow 2.5s ease forwards' : 'slideInRight 0.5s ease' 
       }}>
-        <img src={foxMother} alt="Мама" style={{ width: '100%', height: 'auto', transform: 'scale(1.3)', transformOrigin: 'bottom center' }} />
+        <img src={foxMother} alt="Мама" style={{ width: '100%', height: 'auto', transform: 'scale(1.35)', transformOrigin: 'bottom center' }} />
       </div>
 
       {showMoneyEffect && (
@@ -234,7 +232,7 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
           pointerEvents: 'none', zIndex: 20, display: 'flex', alignItems: 'center', gap: '12px',
           fontSize: '1.5rem', fontWeight: 'bold', color: '#2e7d32', whiteSpace: 'nowrap'
         }}>
-          <span>💰</span> Деньги на продукты!
+          <span>💰</span>
         </div>
       )}
 

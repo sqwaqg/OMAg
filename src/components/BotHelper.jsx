@@ -20,14 +20,26 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', d
   const autoTipTimer = useRef(null);
   const tipTimer = useRef(null);
 
+  // Обработка customTip (подсказки из игры)
   useEffect(() => {
     if (customTip && customTip !== '') {
-      window.speechSynthesis.cancel();
-      setCurrentTip(customTip);
-      setShowTip(true);
-      if (tipTimer.current) clearTimeout(tipTimer.current);
-      const duration = Math.min(8000, Math.max(3000, customTip.length * 60));
-      tipTimer.current = setTimeout(() => setShowTip(false), duration);
+      // Сразу скрываем старую подсказку и сбрасываем таймер
+      if (tipTimer.current) {
+        clearTimeout(tipTimer.current);
+        tipTimer.current = null;
+      }
+      setShowTip(false); // мгновенно скрываем старую
+      // Небольшая задержка перед показом новой, чтобы избежать мерцания
+      setTimeout(() => {
+        setCurrentTip(customTip);
+        setShowTip(true);
+        // Длительность показа в зависимости от длины текста (минимум 2.5 сек, максимум 8 сек)
+        const duration = Math.min(8000, Math.max(2500, customTip.length * 70));
+        tipTimer.current = setTimeout(() => {
+          setShowTip(false);
+          tipTimer.current = null;
+        }, duration);
+      }, 50);
     }
   }, [customTip]);
 
@@ -43,21 +55,13 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', d
     setShowTip(true);
     const duration = Math.min(8000, Math.max(3000, tipText.length * 60));
     tipTimer.current = setTimeout(() => setShowTip(false), duration);
-
-    // Озвучка отключена – бот только показывает облачко
-    /*
-    if (!isMuted) {
-      stop();
-      speak(tipText, { pitch: 1.15, rate: 0.95 });
-    }
-    */
   };
 
   const startAutoTips = () => {
     if (disableAutoTips) return;
     if (autoTipTimer.current) clearInterval(autoTipTimer.current);
     autoTipTimer.current = setInterval(() => {
-      if (botState === 'normal' && !showTip) {
+      if (botState === 'normal' && !showTip && !customTip) {
         showRandomTip();
       }
     }, 10000);
@@ -111,8 +115,8 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', d
   }, [disableAutoTips, stop]);
 
   useEffect(() => {
-    if (botState === 'normal' && !disableAutoTips) startAutoTips();
-  }, [botState, disableAutoTips]);
+    if (botState === 'normal' && !disableAutoTips && !customTip) startAutoTips();
+  }, [botState, disableAutoTips, customTip]);
 
   useEffect(() => {
     if (isHovered) resetInactivity();
@@ -120,7 +124,9 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', d
 
   const handleBotClick = () => {
     resetInactivity();
-    setTimeout(() => showRandomTip(), 100);
+    if (!customTip) {
+      setTimeout(() => showRandomTip(), 100);
+    }
   };
 
   const getBotImage = () => {

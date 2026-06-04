@@ -24,10 +24,23 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
     { id: 'banana', name: 'Банан', required: false, img: bananaImg, priceEasy: [45, 55], priceHard: [49, 56] },
     { id: 'candy', name: 'Конфеты', required: false, img: candyImg, priceEasy: [25, 30], priceHard: [28, 33] },
     { id: 'lollipop', name: 'Леденец', required: false, img: lollipopImg, priceEasy: [15, 20], priceHard: [19, 24] },
-    { id: 'cocacola', name: 'Кола', required: false, img: colaImg, priceEasy: [50, 65], priceHard: [52, 67] },
+    { id: 'cocacola', name: 'Газировка', required: false, img: colaImg, priceEasy: [50, 65], priceHard: [52, 67] },
     { id: 'ball', name: 'Мячик', required: false, img: ballImg, priceEasy: [100, 150], priceHard: [108, 149] },
     { id: 'apple', name: 'Яблоки', required: false, img: appleImg, priceEasy: [50, 65], priceHard: [54, 69] }
   ];
+
+  // Функция для перемешивания массива
+  const shuffleArray = (array) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  // Перемешанные категории при каждом запуске игры
+  const [shuffledCategories] = useState(() => shuffleArray(categories));
 
   const getPrices = (cat) => (difficulty === 'easy' ? cat.priceEasy : cat.priceHard);
 
@@ -42,7 +55,7 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
       'Банан': 'банан',
       'Конфеты': 'конфеты',
       'Леденец': 'леденец',
-      'Кола': 'колу',
+      'Газировка': 'газировку',
       'Мячик': 'мячик',
       'Яблоки': 'яблоки'
     };
@@ -57,7 +70,27 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
   const [showConfirm, setShowConfirm] = useState(false);
   const balance = balanceProp ?? 500;
   const itemsPerSlide = 6;
-  const totalSlides = Math.ceil(categories.length / itemsPerSlide);
+  const totalSlides = Math.ceil(shuffledCategories.length / itemsPerSlide);
+
+  // Случайный желаемый товар (не обязательный)
+  const getRandomWish = () => {
+    const optionalProducts = shuffledCategories.filter(c => !c.required);
+    const randomIndex = Math.floor(Math.random() * optionalProducts.length);
+    return optionalProducts[randomIndex];
+  };
+
+  const [wishProduct, setWishProduct] = useState(null);
+  const [wishBought, setWishBought] = useState(false);
+
+  useEffect(() => {
+    setWishProduct(getRandomWish());
+  }, []);
+
+  useEffect(() => {
+    if (wishProduct) {
+      setWishBought(!!selectedItems[wishProduct.id]);
+    }
+  }, [selectedItems, wishProduct]);
 
   const hasCheapRisky = () => {
     const riskyIds = ['milk', 'yogurt', 'eggs', 'sausage'];
@@ -66,10 +99,6 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
       if (item && item.variant === 0) return true;
     }
     return false;
-  };
-
-  const isBallBought = () => {
-    return !!selectedItems['ball'];
   };
 
   const changeSlide = (direction) => {
@@ -83,7 +112,7 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
     setTimeout(() => setIsAnimating(false), 300);
   };
 
-  const currentRaw = categories.slice(currentSlide * itemsPerSlide, (currentSlide + 1) * itemsPerSlide);
+  const currentRaw = shuffledCategories.slice(currentSlide * itemsPerSlide, (currentSlide + 1) * itemsPerSlide);
   const items = [...currentRaw];
   while (items.length < 6) items.push(null);
   const rows = [items.slice(0, 3), items.slice(3, 6)];
@@ -120,7 +149,7 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
   };
 
   const areRequiredSelected = () => {
-    return categories.filter(c => c.required).every(c => selectedItems[c.id]);
+    return shuffledCategories.filter(c => c.required).every(c => selectedItems[c.id]);
   };
 
   const selectItem = (category, variant) => {
@@ -176,7 +205,7 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
     if (last.action === 'add') {
       removeItem(last.categoryId, false);
     } else {
-      const category = categories.find(c => c.id === last.categoryId);
+      const category = shuffledCategories.find(c => c.id === last.categoryId);
       const prices = getPrices(category);
       const variant = last.price === prices[0] ? 0 : 1;
       setSelectedItems(prev => ({ ...prev, [last.categoryId]: { variant, price: last.price, name: category.name, required: category.required } }));
@@ -185,7 +214,7 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
     if (onEncouragement) onEncouragement(`Отмена последнего действия.`);
   };
 
-  const canFinish = () => categories.filter(c => c.required).every(c => selectedItems[c.id]) && total <= balance;
+  const canFinish = () => shuffledCategories.filter(c => c.required).every(c => selectedItems[c.id]) && total <= balance;
 
   const finish = () => {
     if (canFinish()) {
@@ -201,25 +230,23 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
 
   const confirmFinish = () => {
     const cheapRisky = hasCheapRisky();
-    const hasBall = isBallBought();
+    const hasWish = wishBought;
+    const wishName = wishProduct?.name || '';
     if (onEncouragement) {
       if (cheapRisky) {
         onEncouragement(`Осторожно! Дешёвые продукты оказались некачественными. Семья отравилась. В следующий раз не экономь на качестве.`);
-      } else if (!hasBall) {
-        onEncouragement(`Ты купил всё нужное, но на мячик не хватило. Лисёнок грустит. В следующий раз планируй бюджет тщательнее.`);
+      } else if (!hasWish) {
+        onEncouragement(`Ты купил всё нужное, но не порадовал лисёнка. Он мечтал о ${wishName}. В следующий раз спроси его, чего он хочет.`);
       } else {
         onEncouragement(`Отлично! Покупки завершены, родители тобой гордятся! Лисёнок счастлив.`);
       }
     }
-    onFinish(total, cheapRisky, hasBall);
+    onFinish(total, cheapRisky, hasWish, wishName);
   };
 
   const cancelFinish = () => {
     setShowConfirm(false);
   };
-
-  const ballItem = selectedItems['ball'];
-  const ballPrice = ballItem ? ballItem.price : null;
 
   const getSlideLabel = () => {
     if (totalSlides === 1) return 'Полка';
@@ -272,7 +299,7 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
         {/* Левая часть: полки */}
         <div style={{ flex: 2.5, height: 'calc(100vh - 100px)', overflow: 'hidden' }}>
           <div style={{
-            background: 'rgba(139, 69, 19, 0.85)',
+            background: 'rgba(122, 58, 13, 0.85)',
             borderRadius: '30px',
             padding: '20px',
             boxShadow: '0 15px 35px rgba(0,0,0,0.3)',
@@ -338,15 +365,15 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
                             src={cat.img} 
                             alt={cat.name} 
                             style={{ 
-                              width: '130px', 
-                              height: '130px', 
+                              width: '250px', 
+                              height: '250px', 
                               objectFit: 'contain', 
-                              marginBottom: '4px' 
+                              marginBottom: '15px' 
                             }} 
                           />
                           <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#5c3d2e' }}>{cat.name}</div>
-                          {cat.required && <div style={{ fontSize: '0.7rem', color: '#c62828' }}>обязательно</div>}
-                          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '8px', width: '100%' }}>
+                          {cat.required && difficulty === 'easy' && <div style={{ fontSize: '0.8rem', color: '#991616ff' }}>обязательно</div>}
+                          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '17px', width: '100%' }}>
                             <button 
                               onClick={() => selectItem(cat, 0)} 
                               style={{ 
@@ -439,9 +466,8 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
 
           <h3 style={{ color: '#5c3d2e', marginBottom: '10px', fontSize: '1.1rem', borderBottom: '2px solid #d4a373', paddingBottom: '5px' }}>Список покупок</h3>
           <div>
-            {categories.map(cat => {
+            {shuffledCategories.map(cat => {
               const selected = selectedItems[cat.id];
-              if (cat.id === 'ball') return null;
               if (!selected && !cat.required) return null;
               return (
                 <div key={cat.id} style={{ padding: '8px 0', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem' }}>
@@ -451,23 +477,27 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
               );
             })}
             
-            {/* Блок "Мечта лисёнка" – без картинки, только текст */}
-            <div style={{
-              marginTop: '15px',
-              paddingTop: '10px',
-              borderTop: '1px dashed #ccc',
-              fontSize: '0.9rem',
-              color: '#888'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>🎯 Мечта лисёнка: Мячик</span>
-                {ballItem ? (
-                  <span style={{ fontWeight: 'bold', color: '#2e7d32' }}>{ballPrice} ₽ ✓</span>
-                ) : (
-                  <span style={{ color: '#999' }}>не куплен</span>
-                )}
+            {wishProduct && (
+              <div style={{
+                marginTop: '15px',
+                paddingTop: '10px',
+                borderTop: '1px dashed #ccc',
+                backgroundColor: '#fff8e7',
+                borderRadius: '16px',
+                padding: '10px',
+                marginBottom: '10px'
+              }}>
+                <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#f76f14ff', marginBottom: '8px' }}>Что хочет лисёнок</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ flex: 1, fontWeight: 'bold', color: '#5c3d2e' }}>{wishProduct.name}</div>
+                  {wishBought ? (
+                    <span style={{ fontWeight: 'bold', color: '#2e7d32' }}>куплен</span>
+                  ) : (
+                    <span style={{ color: '#999' }}>не куплен</span>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

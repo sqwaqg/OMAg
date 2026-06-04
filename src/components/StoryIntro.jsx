@@ -1,28 +1,28 @@
-import { useState, useEffect } from 'react'
-import useSpeech from '../hooks/useSpeech'
+import { useState, useEffect } from 'react';
+import useSpeech from '../hooks/useSpeech';
+import botSmart from '../assets/images/bot_smart.png';
 
 function StoryIntro({ title, text, onComplete }) {
-  const [isFadingOut, setIsFadingOut] = useState(false)
-  const { speak, stop } = useSpeech()
+  const [isFadingOut, setIsFadingOut] = useState(false);
+  const { speak, stop } = useSpeech();
 
   useEffect(() => {
-    // Небольшая задержка, чтобы избежать конфликта с предыдущей речью
     const timer = setTimeout(() => {
-      speak(text, { rate: 0.95 })
-    }, 100)
+      speak(text, { rate: 0.95 });
+    }, 100);
     return () => {
-      clearTimeout(timer)
-      stop()
-    }
-  }, [text, speak, stop])
+      clearTimeout(timer);
+      stop();
+    };
+  }, [text, speak, stop]);
 
   const handleContinue = () => {
-    stop()
-    setIsFadingOut(true)
+    stop();
+    setIsFadingOut(true);
     setTimeout(() => {
-      onComplete()
-    }, 400)
-  }
+      onComplete();
+    }, 400);
+  };
 
   return (
     <div style={{
@@ -31,7 +31,7 @@ function StoryIntro({ title, text, onComplete }) {
       left: 0,
       right: 0,
       bottom: 0,
-      background: 'linear-gradient(135deg, #e8f5e9 0%, #ffffff 100%)',
+      background: 'linear-gradient(135deg, #4caf50 0%, #2e7d32 50%, #1b5e20 100%)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -49,13 +49,9 @@ function StoryIntro({ title, text, onComplete }) {
         border: '2px solid #ffd966',
         animation: isFadingOut ? 'slideOut 0.4s ease forwards' : 'slideIn 0.4s ease'
       }}>
-        <div style={{ fontSize: '5rem', marginBottom: '20px', animation: 'bounce 0.5s ease' }}>📖</div>
-        <h2 style={{ color: '#2e7d32', marginBottom: '25px', fontSize: '2.4rem', fontWeight: '700' }}>
-          {title}
-        </h2>
-        <p style={{ fontSize: '1.3rem', lineHeight: '1.5', color: '#333', marginBottom: '40px' }}>
-          {text}
-        </p>
+        <img src={botSmart} alt="Совёнок" style={{ width: '100px', height: '100px', marginBottom: '20px', objectFit: 'contain' }} />
+        <h2 style={{ color: '#2e7d32', marginBottom: '25px', fontSize: '2.4rem', fontWeight: '700' }}>{title}</h2>
+        <p style={{ fontSize: '1.3rem', lineHeight: '1.5', color: '#333', marginBottom: '40px' }}>{text}</p>
         <button
           onClick={handleContinue}
           style={{
@@ -107,23 +103,10 @@ function StoryIntro({ title, text, onComplete }) {
               transform: translateY(-30px);
             }
           }
-          @keyframes bounce {
-            0% {
-              transform: scale(0.8);
-              opacity: 0;
-            }
-            50% {
-              transform: scale(1.1);
-            }
-            100% {
-              transform: scale(1);
-              opacity: 1;
-            }
-          }
         `}
       </style>
     </div>
-  )
+  );
 }
 
-export default StoryIntro
+export default StoryIntro;

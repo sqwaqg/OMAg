@@ -15,18 +15,16 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs, onExit, onSkip 
   const stepRef = useRef(step)
 
   const getDialogText = (dialog) => {
-    if (typeof dialog.text === 'function') return dialog.text(balance)
-    let text = dialog.text
-    text = text.replace(/10[\s]?000/g, 'десять тысяч')
-    text = text.replace(/2[\s]?000/g, 'две тысячи')
-    text = text.replace(/11[\s]?500/g, 'одиннадцать тысяч пятьсот')
-    text = text.replace(/2[\s]?300/g, 'две тысячи триста')
-    text = text.replace(/15%/g, 'пятнадцать процентов')
-    text = text.replace(/сынок/gi, 'дочка')
-    text = text.replace(/Сынок/gi, 'Дочка')
-    text = text.replace(/Лисёнок/gi, 'Дочка')
-    return text
-  }
+    if (typeof dialog.text === 'function') return dialog.text(balance);
+    let text = dialog.text;
+    text = text.replace(/сынок/gi, 'дочка');
+    text = text.replace(/Сынок/gi, 'Дочка');
+    text = text.replace(/Лисёнок/gi, 'Дочка');
+    text = text.replace(/\b\d+\b/g, (match) => {
+      return parseInt(match, 10).toLocaleString('ru-RU');
+    });
+    return text;
+  };
 
   useEffect(() => { stepRef.current = step }, [step])
 

@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import useSpeech from '../hooks/useSpeech';
-import foxFather from '../assets/images/fox_father.png';
-import foxChild from '../assets/images/fox_child.png';
-import foxGirl from '../assets/images/fox_girl.png';
-import foxMother from '../assets/images/fox_mother.png';
+import fatherDaughterImg from '../assets/images/bad_ending_father_daughter.png';
+import motherSonImg from '../assets/images/bad_ending_mother_son.png';
 import botSad from '../assets/images/bot_sad.png';
 import background2 from '../assets/images/background2.png';
 
@@ -32,24 +30,17 @@ function BadEndingOutro({ onComplete }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000,
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.4s ease'
     }}>
-      {/* Отец – левый край, отзеркален */}
-      <div style={{ position: 'absolute', bottom: 0, left: '2%', width: '30%', maxWidth: '300px'}}>
-        <img src={foxFather} alt="Папа" style={{ width: '100%', height: 'auto', transform: 'scale(1.4) scaleX(-1)', transformOrigin: 'bottom center' }} />
+      {/* Фрейм 1: дочка с отцом – слева */}
+      <div style={{ position: 'absolute', bottom: 120, left: '5%', width: '40%', maxWidth: '400px' }}>
+        <img src={fatherDaughterImg} alt="Отец и дочь" style={{ width: '100%', height: 'auto', transform: 'scale(1.6)' }} />
       </div>
-      {/* Дочь – рядом с отцом, не отзеркалена */}
-      <div style={{ position: 'absolute', bottom: 0, left: '15%', width: '30%', maxWidth: '300px'}}>
-        <img src={foxGirl} alt="Дочь" style={{ width: '100%', height: 'auto', transform: 'scale(1.15)', transformOrigin: 'bottom center' }} />
-      </div>
-      {/* Мать – правый край, отзеркалена */}
-      <div style={{ position: 'absolute', bottom: 0, right: '2%', width: '32%', maxWidth: '320px'}}>
-        <img src={foxMother} alt="Мама" style={{ width: '100%', height: 'auto', transform: 'scale(1.3)', transformOrigin: 'bottom center' }} />
-      </div>
-      {/* Сын – рядом с матерью, не отзеркален */}
-      <div style={{ position: 'absolute', bottom: 0, right: '15%', width: '30%', maxWidth: '300px'}}>
-        <img src={foxChild} alt="Сын" style={{ width: '100%', height: 'auto', transform: 'scale(1.05) scaleX(-1)', transformOrigin: 'bottom center' }} />
+      
+      {/* Фрейм 2: мама с сыном – справа */}
+      <div style={{ position: 'absolute', bottom: 120, right: '5%', width: '40%', maxWidth: '400px' }}>
+        <img src={motherSonImg} alt="Мама и сын" style={{ width: '100%', height: 'auto', transform: 'scale(1.6)' }} />
       </div>
 
-      {/* Центральное окно */}
+      {/* Центральное окно (без изменений) */}
       <div style={{
         position: 'relative', zIndex: 20,
         maxWidth: '700px', width: '85%', padding: '40px 35px',
@@ -70,8 +61,6 @@ function BadEndingOutro({ onComplete }) {
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
         @keyframes slideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-150px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(150px); } to { opacity: 1; transform: translateX(0); } }
       `}</style>
     </div>
   );

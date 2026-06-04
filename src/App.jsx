@@ -64,6 +64,8 @@ function App() {
   const [stats, setStats] = useState({ money: 0, score: 0, level: 1 });
   const [progress, setProgress] = useState({ story1: 0, story2: 0 });
 
+  const [lastWishName, setLastWishName] = useState('');
+  
   useEffect(() => {
     fetch('http://localhost:3001/api/game/state')
       .then(res => {
@@ -125,6 +127,8 @@ function App() {
   const openStory = (storyId, storyTitle, storyDesc) => {
     console.log('openStory called for', storyId);
     stop();
+    setBotCustomTip('');
+    setBotHighlight(false);
     setPendingStory(storyId);
     setShowIntro(true);
     setGameStarted(false);
@@ -226,6 +230,8 @@ function App() {
     setShowShopOutro(false);
     setShowGameInfo1(false);
     setShowGameInfo2(false);
+    setBotCustomTip('');
+    setBotHighlight(false);
   };
 
   const handleExit = (targetScreen) => {
@@ -249,6 +255,8 @@ function App() {
       setShowShopOutro(false);
       setShowGameInfo1(false);
       setShowGameInfo2(false);
+      setBotCustomTip('');
+      setBotHighlight(false);
     }
   };
 
@@ -270,6 +278,8 @@ function App() {
     setShowShopOutro(false);
     setShowGameInfo1(false);
     setShowGameInfo2(false);
+    setBotCustomTip('');
+    setBotHighlight(false);
   };
 
   const cancelExit = () => {
@@ -297,7 +307,7 @@ function App() {
             <div className="story-card" onClick={() => openStory('story2', 'Копим или берём в долг?', 'Узнай, что выгоднее: копить или взять кредит')}>
               <div className="story-image"><img src={story2Image} alt="Копим или берём в долг?" /></div>
               <h2>Копим или берём в долг?</h2>
-              <p>Хочешь новую игрушку? Что выгоднее: копить или взять кредит?</p>
+              <p>Хочешь планшет, но у тебя немного не хватает денег? Что же выгоднее: копить или взять кредит?</p>
             </div>
           </div>
         </main>
@@ -344,7 +354,10 @@ function App() {
       } else if (lastEndingType === 'noBall') {
         return <GoodEndingStory1 onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} />;
       } else {
-        return <GoodEndingWithBall onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} />;
+        return <GoodEndingWithBall 
+          onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} 
+          wishName={lastWishName} 
+        />;
       }
     }
     
@@ -440,16 +453,17 @@ function App() {
           <ShopGame
             difficulty={difficulty}
             balance={shopBalance}
-            onFinish={(totalSpent, cheapRisky, hasBall) => {
+            onFinish={(totalSpent, cheapRisky, hasWish, wishName) => {
               setShowShop(true);
               const remaining = (balance || stats.money) - totalSpent;
               setBalance(remaining);
               setStats(prev => ({ ...prev, money: remaining }));
               setProgress(prev => ({ ...prev, story1: 100 }));
               setLastTotalSpent(totalSpent);
+              setLastWishName(wishName || '');
               if (cheapRisky) {
                 setLastEndingType('bad');
-              } else if (!hasBall) {
+              } else if (!hasWish) {
                 setLastEndingType('noBall');
               } else {
                 setLastEndingType('good');
@@ -458,7 +472,7 @@ function App() {
               setShowShopOutro(true);
             }}
             onBack={() => setDifficulty(null)}
-            onEncouragement={(phrase) => setBotCustomTip(phrase)} // убрали speak(phrase)
+            onEncouragement={(phrase) => setBotCustomTip(phrase)}
           />
         )}
         <BotHelper tips={getTipsForScreen()} highlight={botHighlight} customTip={botCustomTip} isMuted={isBotMuted} />
@@ -559,7 +573,7 @@ function App() {
               speak(message);
             }}
             onBack={() => { setShowGame(false); setShowChoice(true); }}
-            onEncouragement={(phrase) => setBotCustomTip(phrase)} // убрали speak(phrase)
+            onEncouragement={(phrase) => setBotCustomTip(phrase)}
           />
           <BotHelper tips={story2Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
