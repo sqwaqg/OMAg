@@ -4,10 +4,10 @@ import background1 from '../assets/images/background1.png'
 import foxChildNoMoney from '../assets/images/fox_child_no_money.png'
 import foxChildWithMoney from '../assets/images/fox_child_with_money.png'
 import foxMother from '../assets/images/fox_mother.png'
-import breadImg from '../assets/images/bread.png'
-import milkImg from '../assets/images/milk.png'
-import eggsImg from '../assets/images/eggs.png'
-import carrotImg from '../assets/images/carrot.png'
+import milkIcon1 from '../assets/images/milk1.png'
+import breadIcon1 from '../assets/images/bread1.png'
+import eggsIcon1 from '../assets/images/eggs1.png'
+import carrotIcon1 from '../assets/images/carrot1.png'
 
 function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance, onExit, onSkip, playSfx }) {
   const [step, setStep] = useState(0)
@@ -260,10 +260,10 @@ function DialogScene1({ onComplete, balance, onBotHint, dialogs, onUpdateBalance
             <div style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', width: '60px', height: '8px', background: '#d4b87a', borderRadius: '4px' }} />
             <h2 style={{ color: '#3e2723', marginBottom: '30px', fontSize: '2rem' }}>Список продуктов:</h2>
             <ul style={{ textAlign: 'left', fontSize: '1.3rem', lineHeight: '2', marginBottom: '35px', paddingLeft: '25px', listStyleType: 'none', color: '#4a3b2c' }}>
-              <li> Молоко</li>
-              <li> Хлеб</li>
-              <li> Яйца</li>
-              <li> Морковка</li>
+              <li><img src={milkIcon1} alt="Молоко" style={{ width: '30px', height: '30px', marginRight: '10px', verticalAlign: 'middle' }} /> Молоко</li>
+              <li><img src={breadIcon1} alt="Хлеб" style={{ width: '30px', height: '30px', marginRight: '10px', verticalAlign: 'middle' }} /> Хлеб</li>
+              <li><img src={eggsIcon1} alt="Яйца" style={{ width: '30px', height: '30px', marginRight: '10px', verticalAlign: 'middle' }} /> Яйца</li>
+              <li><img src={carrotIcon1} alt="Морковка" style={{ width: '30px', height: '30px', marginRight: '10px', verticalAlign: 'middle' }} /> Морковка</li>
               <li style={{ marginTop: '15px', color: '#ff9800' }}>На сдачу купи себе вкусняшку!</li>
             </ul>
           </div>

@@ -10,14 +10,16 @@ function DepositFailDialog({ onComplete, score, playSfx }) {
   const [isVisible, setIsVisible] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const { speak, stop } = useSpeech();
-  
-  const displayText = 'За год ты не накопила нужную сумму. Вклад принёс всего 1500 рублей, и до планшета не хватило. Придётся выбрать ноутбук или планшет с чехлом.';
-  
+
+  // Новый текст для отображения в облачке
+  const displayText = 'За год ты не накопила 500 рублей. Но с подарками на день рождения, остатками с прошлого года и 1500 ₽ как проценты по вкладу у тебя всё равно есть выбор: купить ноутбук или планшет с чехлом.';
+
+  // Текст для озвучки: заменяем 1500 на "полторы тысячи"
   const speechText = displayText.replace(/1500/g, 'полторы тысячи');
 
   useEffect(() => {
     if (playSfx) playSfx('win');
-    speak(speechText, { rate: 1.0 });
+    speak(speechText, { rate: 0.95 });
     return () => stop();
   }, [playSfx, speechText]);
 
@@ -56,7 +58,7 @@ function DepositFailDialog({ onComplete, score, playSfx }) {
         boxShadow: '0 20px 40px rgba(0,0,0,0.25)', animation: 'bubbleAppear 0.4s ease'
       }}>
         <img src={botSmart} alt="Совёнок" style={{ width: '100px', height: '100px', marginBottom: '15px', objectFit: 'contain' }} />
-        <h2 style={{ color: '#ff9800', marginBottom: '20px', fontSize: '2rem', fontWeight: 'bold' }}>История с вкладом</h2>
+        <h2 style={{ color: '#ff9800', marginBottom: '20px', fontSize: '2rem', fontWeight: 'bold' }}>Почти получилось!</h2>
         <p style={{ fontSize: '1.2rem', lineHeight: '1.5', color: '#333', marginBottom: '30px' }}>{displayText}</p>
         <button onClick={handleFinish} style={{
           padding: '14px 40px', background: 'linear-gradient(135deg, #ff9800, #f57c00)',
