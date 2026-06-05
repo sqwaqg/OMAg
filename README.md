@@ -1,16 +1,150 @@
-# React + Vite
+# Финансы с лисятами
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Браузерная игра для детей 7–10 лет** — учимся копить, планировать бюджет, понимать вклады и кредиты.
 
-Currently, two official plugins are available:
+Проект сделан в рамках учебной практики  
+Факультет КТиИБ, РГЭУ (РИНХ), группа ПИ-311
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## React Compiler
+## Как запустить (по шагам)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**1. Скачай проект**
 
-## Expanding the ESLint configuration
+- На GitHub: зелёная кнопка **Code** → **Download ZIP** → распакуй.
+- Или просто открой папку, если она уже есть.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+**2. Открой в VS Code**
+
+Запусти VS Code → `File → Open Folder` → выбери папку `OMAg`.
+
+**3. Запусти сервер (бэкенд)**  
+> Сервер нужен для сохранения прогресса. Не закрывай это окно, пока играешь.
+
+Открой первый терминал: `Terminal → New Terminal`
+
+Выполни команды:
+
+```bash
+cd backend
+npm install          # только первый раз
+node server.js
+```
+
+Должно появиться:
+Server running on http://localhost:3001 — значит сервер работает.
+
+4. Запусти игру (фронтенд)
+
+Открой второй терминал (кнопка + в VS Code).
+
+Выполни:
+
+```bash
+cd frontend
+npm install          # только первый раз
+npm run dev
+```
+
+Появится ссылка http://localhost:5173 — нажми на неё (или скопируй в браузер).
+
+5. Играй
+
+- Выбери историю: «Магазин» или «Вклад или кредит».
+- Читай диалоги (озвучиваются автоматически), жми на кнопки.
+- В мини-играх собирай монетки или распределяй бюджет.
+- В конце узнаешь результат: купил планшет, потерял серёжки, не уложился в бюджет…
+
+## Где что искать (быстрый поиск)
+
+| Что нужно | Где лежит |
+|-----------|-----------|
+| Запуск сервера | `backend/server.js` |
+| Сохранения (баланс, долги) | `backend/game-state.json` |
+| Главный компонент | `frontend/src/App.jsx` |
+| Все экраны и игры | `frontend/src/components/` |
+| Стили | `frontend/src/index.css` |
+| Диалоги «Магазин» | `frontend/src/components/DialogScene1.jsx` |
+| Диалоги «Вклад/кредит» | `frontend/src/components/DialogScene2.jsx` |
+| Мини-игра «Магазин» | `frontend/src/components/ShopGame.jsx` |
+| Мини-игра с монетками | `frontend/src/components/CatchGame.jsx` |
+| Совёнок с озвучкой | `frontend/src/components/BotHelper.jsx` |
+| Картинки персонажей | `frontend/src/assets/` |
+| Настройки связи с сервером | `frontend/vite.config.js` |
+| Код запросов (fetch) | внутри `ShopGame.jsx` и `CatchGame.jsx` |
+
+Пример ответа сервера:
+
+```bush
+{
+  "balance": 11500,
+  "debt": 0,
+  "day": 365,
+  "scenario": "deposit",
+  "items": ["планшет"]
+}
+```
+## Как игра общается с сервером (API)
+
+| Метод | Эндпоинт | Что делает |
+|-------|----------|-------------|
+| GET | `/api/game/state` | Узнать баланс и прогресс |
+| POST | `/earn` | Начислить монетки (пример: `{ "amount": 50 }`) |
+| POST | `/buy` | Списать деньги (пример: `{ "price": 120 }`) |
+| POST | `/nextDay` | Перейти к следующему дню |
+| POST | `/reset` | Сбросить игру |
+
+О чём игры (сценарии)
+1. Магазин
+У тебя 500 рублей и список обязательных продуктов: хлеб, молоко, яйца, морковь.
+Можно купить ещё чипсы или игрушку, но если выйдешь за бюджет — мама расстроится.
+Учит не тратить всё на ерунду.
+
+2. Вклад или кредит
+- Хочешь планшет, но не хватает 2000 рублей.
+- Мама предлагает вклад: отдай 10 000 под 15% годовых. Через год получишь 11 500, надо будет докопить 500. Зато никаких долгов.
+- Папа предлагает кредит: даст 2000 сейчас, но через год верни 2300. Если не накопишь — продаст твои любимые серёжки.
+- Выбирай, потом лови монетки в мини-игре. В конце узнаешь, сохранил серёжки или нет.
+
+## Технологии
+
+- Фронтенд: React, Vite, JavaScript, CSS, Web Speech API (озвучка), Fetch API
+- Бэкенд: Node.js, Express, File System (fs), CORS
+- Хранение: JSON-файл (game-state.json)
+- Git: ветки main, develop, feature/game-backend, feature/frontend
+
+## Как проверить, что всё работает
+
+1. Сервер запустился на http://localhost:3001
+2. Игра открывается на http://localhost:5173
+3. При нажатии на кнопку баланс меняется (посмотри в game-state.json)
+4. Диалоги говорят разными голосами
+5. Кнопка совёнка отключает только его подсказки
+6. В «Магазине» нельзя купить больше, чем есть денег
+7. В «Ловле монет» монетки засчитываются один раз (мы починили удвоение)
+
+## Что делать, если что-то пошло не так
+
+| Проблема | Решение |
+|----------|---------|
+| `npm install` ругается | Проверь интернет. Установи [Node.js](https://nodejs.org/) версии 16+ |
+| `Cannot find module 'express'` | Зайди в папку `backend` и снова `npm install` |
+| Ошибка CORS | Убедись, что сервер запущен (`node server.js`) и в коде есть `app.use(cors())` |
+| Баланс не меняется | Открой `game-state.json` — если обновляется, значит API работает. Посмотри консоль браузера (F12) |
+| Нет озвучки | Браузер может блокировать звук. Кликни в любом месте игры. Проверь громкость |
+| Порт 3001 или 5173 занят | Закрой другие программы, которые используют эти порты |
+Пример ответа от сервера:
+
+## Как мы работали с Git
+
+1. main — стабильная версия
+2. develop — основная разработка
+3. feature/game-backend — моя ветка (бэкенд)
+4. feature/frontend — ветка напарника (интерфейс)
+
+Конфликты были в App.jsx и ShopGame.jsx. Решали вручную: оставляли мою логику (цены, бюджет) и дизайн напарника (анимации, кнопки).
+
+Автор документа
+Роменская Мария Евгеньевна, группа ПИ-311
+GitHub: sqwaqg
+
+Учебный проект 2026 года. Не для коммерции.
