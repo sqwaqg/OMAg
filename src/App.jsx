@@ -23,7 +23,7 @@ import DepositFailDialog from './components/DepositFailDialog';
 import GoodEndingStory1 from './components/GoodEndingStory1';
 import RulesWithOwl from './components/RulesWithOwl';
 import GoodEndingWithBall from './components/GoodEndingWithBall';
-import { useSound } from './hooks/useSound'; // <-- добавили
+import { useSound } from './hooks/useSound';
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState('start');
@@ -67,8 +67,7 @@ function App() {
 
   const [lastWishName, setLastWishName] = useState('');
   
-  // Подключаем звуки
-  const { playSfx } = useSound(); // <-- добавили
+  const { playSfx } = useSound();
 
   useEffect(() => {
     fetch('http://localhost:3001/api/game/state')
@@ -342,7 +341,7 @@ function App() {
             onUpdateBalance={(newBalance) => { setBalance(newBalance); setStats(prev => ({ ...prev, money: newBalance })); }}
             onExit={() => handleExit('start')}
             onSkip={() => setGameStarted(true)}
-            playSfx={playSfx} // <-- добавили
+            playSfx={playSfx}
           />
           <BotHelper tips={story1Tips} highlight={botHighlight} customTip={botCustomTip} disableAutoTips={true} isMuted={isBotMuted} />
           <div style={{ position: 'fixed', bottom: '30px', right: '190px', zIndex: 1001 }}>
@@ -355,14 +354,18 @@ function App() {
     // Аутро после магазина
     if (showShopOutro) {
       if (lastEndingType === 'bad') {
-        return <BadEndingOutro onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} playSfx={playSfx} />; // <-- добавили
+        return <BadEndingOutro onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} playSfx={playSfx} />;
       } else if (lastEndingType === 'noBall') {
-        return <GoodEndingStory1 onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} playSfx={playSfx} />; // <-- добавили
+        return <GoodEndingStory1
+          onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }}
+          wishName={lastWishName}
+          playSfx={playSfx}
+        />;
       } else {
         return <GoodEndingWithBall 
           onComplete={() => { setShowShopOutro(false); handleOutroComplete(); }} 
           wishName={lastWishName} 
-          playSfx={playSfx} // <-- добавили
+          playSfx={playSfx}
         />;
       }
     }
@@ -591,13 +594,13 @@ function App() {
     
     if (gameResult) {
       if ((story2Choice === 'credit' && gameResult === 'credit_success') || (story2Choice === 'deposit' && gameResult === 'deposit_success')) {
-        return <VictoryDialog onComplete={() => { setGameResult(null); setStory2Choice(null); setShowChoice(false); setGameStarted(false); setCurrentScreen('start'); }} score={stats.money} type={story2Choice} playSfx={playSfx} />; // <-- добавили
+        return <VictoryDialog onComplete={() => { setGameResult(null); setStory2Choice(null); setShowChoice(false); setGameStarted(false); setCurrentScreen('start'); }} score={stats.money} type={story2Choice} playSfx={playSfx} />;
       }
       if (story2Choice === 'credit' && gameResult === 'credit_fail') {
-        return <LossDialog onComplete={() => { setGameResult(null); setStory2Choice(null); setShowChoice(false); setGameStarted(false); setCurrentScreen('start'); }} type="credit" playSfx={playSfx} />; // <-- добавили
+        return <LossDialog onComplete={() => { setGameResult(null); setStory2Choice(null); setShowChoice(false); setGameStarted(false); setCurrentScreen('start'); }} type="credit" playSfx={playSfx} />;
       }
       if (story2Choice === 'deposit' && gameResult === 'deposit_fail') {
-        return <DepositFailDialog onComplete={() => { setGameResult(null); setStory2Choice(null); setShowChoice(false); setGameStarted(false); setCurrentScreen('start'); }} score={stats.money} playSfx={playSfx} />; // <-- добавили
+        return <DepositFailDialog onComplete={() => { setGameResult(null); setStory2Choice(null); setShowChoice(false); setGameStarted(false); setCurrentScreen('start'); }} score={stats.money} playSfx={playSfx} />;
       }
       let endingTitle = '';
       let endingText = '';

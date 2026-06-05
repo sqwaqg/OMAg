@@ -10,7 +10,26 @@ function GoodEndingWithBall({ onComplete, wishName, playSfx }) {
   const [isFadingOut, setIsFadingOut] = useState(false);
   const { speak, stop } = useSpeech();
   const title = 'Отличная работа!';
-  const text = `Ты купил всё необходимое и порадовал лисёнка — он получил ${wishName || 'подарок'}. Семья счастлива!`;
+
+  const getAccusativeForm = (name) => {
+    const exceptions = {
+      'Леденец': 'леденец',
+      'Мячик': 'мячик',
+      'Йогурт': 'йогурт',
+      'Банан': 'банан',
+      'Хлеб': 'хлеб',
+      'Молоко': 'молоко',
+      'Яйца': 'яйца',
+      'Морковка': 'морковку',
+      'Колбаса': 'колбасу',
+      'Конфеты': 'конфеты',
+      'Газировка': 'газировку',
+      'Яблоки': 'яблоки'
+    };
+    return exceptions[name] || name;
+  };
+
+  const text = `Ты купил всё необходимое и порадовал лисёнка — он получил ${getAccusativeForm(wishName)}. Семья счастлива!`;
 
   useEffect(() => {
     if (playSfx) playSfx('win');

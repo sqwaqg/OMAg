@@ -5,14 +5,33 @@ import foxChildSad from '../assets/images/fox_child_sad.png';
 import foxMotherHappy from '../assets/images/mother_happy.png';
 import botHappy from '../assets/images/bot_happy.png';
 
-function GoodEndingStory1({ onComplete, playSfx }) {
+function GoodEndingStory1({ onComplete, playSfx, wishName }) {
   const [isFadingOut, setIsFadingOut] = useState(false);
   const { speak, stop } = useSpeech();
   const title = 'Почти получилось!';
-  const text = 'Ты купил все качественные продукты, но на мячик не хватило. Лисёнок грустит, но мама гордится тобой. В следующий раз планируй бюджет тщательнее.';
+
+  const getPrepositionalForm = (name) => {
+    const exceptions = {
+      'Леденец': 'леденце',
+      'Мячик': 'мячике',
+      'Йогурт': 'йогурте',
+      'Банан': 'банане',
+      'Хлеб': 'хлебе',
+      'Молоко': 'молоке',
+      'Яйца': 'яйцах',
+      'Морковка': 'морковке',
+      'Колбаса': 'колбасе',
+      'Конфеты': 'конфетах',
+      'Газировка': 'газировке',
+      'Яблоки': 'яблоках'
+    };
+    return exceptions[name] || name;
+  };
+
+  const text = `Ты купил всё необходимое, но не порадовал лисёнка — он мечтал о ${getPrepositionalForm(wishName)}. Лисёнок грустит, но мама гордится тобой. В следующий раз планируй бюджет тщательнее.`;
 
   useEffect(() => {
-    if (playSfx) playSfx('win'); // или playSfx('sound') – на твой выбор
+    if (playSfx) playSfx('win');
     speak(text, { rate: 1.1 });
     return () => stop();
   }, [text, playSfx]);
@@ -55,11 +74,6 @@ function GoodEndingStory1({ onComplete, playSfx }) {
 
       <style>{`
         @keyframes slideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes happyGlow {
-          0% { filter: drop-shadow(0 0 0px gold); transform: scale(1); }
-          50% { filter: drop-shadow(0 0 15px gold); transform: scale(1.05); }
-          100% { filter: drop-shadow(0 0 0px gold); transform: scale(1); }
-        }
       `}</style>
     </div>
   );
