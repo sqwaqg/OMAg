@@ -14,24 +14,19 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs, onExit, onSkip 
   const timeoutRef = useRef(null);
   const stepRef = useRef(step);
 
-  // Текст для отображения в облачке (цифры с пробелами)
   const getDisplayText = (dialog) => {
     if (typeof dialog.text === 'function') return dialog.text(balance);
     let text = dialog.text;
     text = text.replace(/сынок/gi, 'дочка');
     text = text.replace(/Сынок/gi, 'Дочка');
     text = text.replace(/Лисёнок/gi, 'Дочка');
-    // Добавляем пробелы в числа для красивого отображения (10000 → 10 000)
     text = text.replace(/\b(\d{4,5})\b/g, (match) => parseInt(match, 10).toLocaleString('ru-RU'));
     return text;
   };
 
-  // Текст для озвучки (числа словами, удаляем знаки препинания)
   const getSpeechText = (displayText) => {
     let speech = displayText;
-    // Удаляем знаки препинания
     speech = speech.replace(/[.,!?;:()\-–—]/g, ' ');
-    // Заменяем числа (с пробелами или без) на слова
     speech = speech.replace(/10\s*000/g, 'десять тысяч');
     speech = speech.replace(/11\s*500/g, 'одиннадцать тысяч пятьсот');
     speech = speech.replace(/2\s*000/g, 'две тысячи');
@@ -39,7 +34,6 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs, onExit, onSkip 
     speech = speech.replace(/1\s*500/g, 'одна тысяча пятьсот');
     speech = speech.replace(/\b500\b/g, 'пятьсот');
     speech = speech.replace(/15%/g, 'пятнадцать процентов');
-    // Убираем лишние пробелы
     speech = speech.replace(/\s+/g, ' ').trim();
     return speech;
   };
@@ -55,7 +49,7 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs, onExit, onSkip 
     }
   };
 
-  const speakFull = async (speechText, speakerType, currentStep) => {
+  const speakFull = async (speechText, speakerType) => {
     if (isSpeakingRef.current) {
       stop();
       isSpeakingRef.current = false;
@@ -103,7 +97,7 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs, onExit, onSkip 
       setTimeout(() => {
         setIsVisible(false);
         onExit();
-      }, 500);
+      }, 400);
     }
   };
 
@@ -129,7 +123,7 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs, onExit, onSkip 
       onBotHint(true);
       timeoutRef.current = setTimeout(() => onBotHint(false), 3000);
     }
-    speakFull(speechText, currentDialog.speaker, step);
+    speakFull(speechText, currentDialog.speaker);
     return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
   }, [step]);
 
