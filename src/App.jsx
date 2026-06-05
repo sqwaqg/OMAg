@@ -545,7 +545,7 @@ function App() {
     
     if (showGame && gameConfig) {
       return (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'white', zIndex: 1000, overflow: 'auto' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'white', zIndex: 1000, overflow: 'hidden' }}>
           <CatchGame
             config={gameConfig}
             onFinish={(result, finalScore) => {
