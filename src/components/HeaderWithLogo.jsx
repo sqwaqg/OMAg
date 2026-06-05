@@ -8,17 +8,17 @@ function HeaderWithLogo({ title, subtitle, isSmall = false }) {
         alignItems: 'center',
         justifyContent: 'center',
         flexWrap: 'wrap',
-        padding: '25px 30px',
+        padding: 'clamp(15px, 2vw, 25px) clamp(20px, 3vw, 30px)',
         position: 'relative',
         backgroundColor: '#1a4d2a',
-        borderRadius: '80px',
-        margin: '20px 30px 0 30px',
+        borderRadius: 'clamp(50px, 10vw, 80px)',
+        margin: 'clamp(10px, 2vw, 20px) clamp(15px, 3vw, 30px) 0 clamp(15px, 3vw, 30px)',
         boxShadow: '0 6px 20px rgba(0,0,0,0.25)'
       }}>
         <div style={{
           position: 'absolute',
-          left: '40px',
-          height: isSmall ? '75px' : '95px',
+          left: 'clamp(20px, 3vw, 40px)',
+          height: isSmall ? 'clamp(45px, 8vh, 75px)' : 'clamp(60px, 10vh, 95px)',
           display: 'flex',
           alignItems: 'center'
         }}>
@@ -36,12 +36,12 @@ function HeaderWithLogo({ title, subtitle, isSmall = false }) {
         
         <div style={{
           textAlign: 'center',
-          marginLeft: '150px'
+          marginLeft: isSmall ? 'clamp(80px, 15vw, 120px)' : 'clamp(100px, 18vw, 150px)'
         }}>
           <h1 style={{ 
             margin: 0, 
             color: '#ffffff', 
-            fontSize: isSmall ? '2.2rem' : '3rem',
+            fontSize: isSmall ? 'clamp(1.2rem, 4vw, 2.2rem)' : 'clamp(1.8rem, 6vw, 3rem)',
             fontWeight: '800',
             fontFamily: "'Segoe UI', 'Arial', 'Comfortaa', sans-serif",
             letterSpacing: '-0.5px',
@@ -52,8 +52,8 @@ function HeaderWithLogo({ title, subtitle, isSmall = false }) {
           {subtitle && !isSmall && (
             <p style={{ 
               color: 'rgba(255,255,255,0.95)', 
-              margin: '12px 0 0 0', 
-              fontSize: '1.3rem',
+              margin: 'clamp(6px, 1.5vh, 12px) 0 0 0', 
+              fontSize: 'clamp(0.8rem, 2.5vw, 1.3rem)',
               fontWeight: '500',
               textShadow: '1px 1px 4px rgba(0,0,0,0.2)'
             }}>

@@ -28,7 +28,7 @@ function CountdownOverlay({ onComplete }) {
       animation: 'fadeIn 0.2s ease'
     }}>
       <div style={{
-        fontSize: '6rem',
+        fontSize: 'clamp(3rem, 15vw, 6rem)',
         fontWeight: 'bold',
         color: 'white',
         textShadow: '0 0 20px #ff9800',

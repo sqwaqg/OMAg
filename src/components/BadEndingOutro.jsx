@@ -31,27 +31,28 @@ function BadEndingOutro({ onComplete, playSfx }) {
       display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000,
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.4s ease'
     }}>
-      <div style={{ position: 'absolute', bottom: 120, left: '5%', width: '40%', maxWidth: '400px' }}>
-        <img src={fatherDaughterImg} alt="Отец и дочь" style={{ width: '100%', height: 'auto', transform: 'scale(1.6)' }} />
+      <div style={{ position: 'absolute', bottom: 'clamp(60px, 15vh, 120px)', left: '5%', width: 'clamp(250px, 40vw, 400px)' }}>
+        <img src={fatherDaughterImg} alt="Отец и дочь" style={{ width: '100%', height: 'auto', transform: 'scale(clamp(1.2, 4vw, 1.6))', transformOrigin: 'bottom center' }} />
       </div>
-      
-      <div style={{ position: 'absolute', bottom: 120, right: '5%', width: '40%', maxWidth: '400px' }}>
-        <img src={motherSonImg} alt="Мама и сын" style={{ width: '100%', height: 'auto', transform: 'scale(1.6)' }} />
+      <div style={{ position: 'absolute', bottom: 'clamp(60px, 15vh, 120px)', right: '5%', width: 'clamp(250px, 40vw, 400px)' }}>
+        <img src={motherSonImg} alt="Мама и сын" style={{ width: '100%', height: 'auto', transform: 'scale(clamp(1.2, 4vw, 1.6))', transformOrigin: 'bottom center' }} />
       </div>
 
       <div style={{
         position: 'relative', zIndex: 20,
-        maxWidth: '700px', width: '85%', padding: '40px 35px',
+        maxWidth: 'clamp(500px, 80vw, 700px)', width: '85%', padding: 'clamp(25px, 5vw, 40px) clamp(25px, 6vw, 35px)',
         textAlign: 'center', background: 'rgba(255,255,240,0.97)',
-        borderRadius: '60px', boxShadow: '0 25px 50px rgba(0,0,0,0.3)',
+        borderRadius: 'clamp(40px, 8vw, 60px)', boxShadow: '0 25px 50px rgba(0,0,0,0.3)',
         border: '2px solid #ffd966', animation: 'slideIn 0.4s ease'
       }}>
-        <img src={botSad} alt="Совёнок" style={{ width: '100px', height: '100px', marginBottom: '15px', objectFit: 'contain' }} />
-        <h2 style={{ color: '#c62828', marginBottom: '20px', fontSize: '2.2rem', fontWeight: 'bold' }}>{title}</h2>
-        <p style={{ fontSize: '1.3rem', lineHeight: '1.5', color: '#333', marginBottom: '35px' }}>{text}</p>
+        <img src={botSad} alt="Совёнок" style={{ width: 'clamp(70px, 12vw, 100px)', height: 'auto', marginBottom: 'clamp(10px, 2vw, 15px)', objectFit: 'contain' }} />
+        <h2 style={{ color: '#c62828', marginBottom: 'clamp(15px, 3vw, 20px)', fontSize: 'clamp(1.5rem, 5vw, 2.2rem)', fontWeight: 'bold' }}>{title}</h2>
+        <p style={{ fontSize: 'clamp(1rem, 3vw, 1.3rem)', lineHeight: '1.5', color: '#333', marginBottom: 'clamp(25px, 5vw, 35px)' }}>{text}</p>
         <button onClick={handleFinish} style={{
-          padding: '14px 40px', background: 'linear-gradient(135deg, #c62828, #b71c1c)',
-          color: 'white', border: 'none', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold', cursor: 'pointer'
+          padding: 'clamp(10px, 2vw, 14px) clamp(30px, 6vw, 40px)',
+          background: 'linear-gradient(135deg, #c62828, #b71c1c)',
+          color: 'white', border: 'none', borderRadius: '50px', fontSize: 'clamp(1rem, 2.5vw, 1.2rem)',
+          fontWeight: 'bold', cursor: 'pointer'
         }}>Завершить →</button>
       </div>
 

@@ -39,28 +39,28 @@ function StoryIntro({ title, text, onComplete }) {
       animation: isFadingOut ? 'fadeOut 0.4s ease forwards' : 'fadeIn 0.4s ease'
     }}>
       <div style={{
-        maxWidth: '750px',
+        maxWidth: 'clamp(300px, 80vw, 750px)',
         width: '85%',
-        padding: '50px 40px',
+        padding: 'clamp(25px, 5vw, 50px) clamp(25px, 6vw, 40px)',
         textAlign: 'center',
         background: 'rgba(255, 255, 240, 0.95)',
-        borderRadius: '60px',
+        borderRadius: 'clamp(30px, 8vw, 60px)',
         boxShadow: '0 25px 50px rgba(0,0,0,0.2)',
         border: '2px solid #ffd966',
         animation: isFadingOut ? 'slideOut 0.4s ease forwards' : 'slideIn 0.4s ease'
       }}>
-        <img src={botSmart} alt="Совёнок" style={{ width: '100px', height: '100px', marginBottom: '20px', objectFit: 'contain' }} />
-        <h2 style={{ color: '#2e7d32', marginBottom: '25px', fontSize: '2.4rem', fontWeight: '700' }}>{title}</h2>
-        <p style={{ fontSize: '1.3rem', lineHeight: '1.5', color: '#333', marginBottom: '40px' }}>{text}</p>
+        <img src={botSmart} alt="Совёнок" style={{ width: 'clamp(60px, 12vw, 100px)', height: 'auto', marginBottom: 'clamp(10px, 2vw, 20px)', objectFit: 'contain' }} />
+        <h2 style={{ color: '#2e7d32', marginBottom: 'clamp(15px, 3vw, 25px)', fontSize: 'clamp(1.2rem, 5vw, 2.4rem)', fontWeight: '700' }}>{title}</h2>
+        <p style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.3rem)', lineHeight: '1.5', color: '#333', marginBottom: 'clamp(25px, 5vw, 40px)' }}>{text}</p>
         <button
           onClick={handleContinue}
           style={{
-            padding: '16px 48px',
+            padding: 'clamp(10px, 2vw, 16px) clamp(30px, 6vw, 48px)',
             background: 'linear-gradient(135deg, #2e7d32, #1b5e20)',
             color: 'white',
             border: 'none',
             borderRadius: '60px',
-            fontSize: '1.3rem',
+            fontSize: 'clamp(0.9rem, 2.5vw, 1.3rem)',
             fontWeight: 'bold',
             cursor: 'pointer',
             transition: 'transform 0.2s, box-shadow 0.2s',
@@ -75,34 +75,10 @@ function StoryIntro({ title, text, onComplete }) {
 
       <style>
         {`
-          @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-          }
-          @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-          }
-          @keyframes slideIn {
-            from {
-              opacity: 0;
-              transform: translateY(30px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-          @keyframes slideOut {
-            from {
-              opacity: 1;
-              transform: translateY(0);
-            }
-            to {
-              opacity: 0;
-              transform: translateY(-30px);
-            }
-          }
+          @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+          @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+          @keyframes slideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes slideOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-30px); } }
         `}
       </style>
     </div>

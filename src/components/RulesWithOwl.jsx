@@ -39,44 +39,42 @@ function RulesWithOwl({ title, text, onPlay }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        width: '85%',
+        width: 'clamp(280px, 85vw, 1200px)',
         maxWidth: '1200px'
       }}>
-        {/* Облачко – слева, центрировано */}
         <div style={{
           position: 'relative',
-          width: '65%',
+          width: 'clamp(200px, 65vw, 65%)',
           background: 'rgba(255, 255, 255, 0.97)',
-          borderRadius: '60px',
-          padding: '35px 45px',
+          borderRadius: 'clamp(30px, 8vw, 60px)',
+          padding: 'clamp(20px, 5vw, 35px) clamp(25px, 6vw, 45px)',
           textAlign: 'center',
           boxShadow: '0 30px 60px rgba(0,0,0,0.4)',
           border: '3px solid #ffd966',
           animation: 'scaleIn 0.3s ease'
         }}>
-          {/* Стрелка вправо – к совёнку */}
           <div style={{
             position: 'absolute',
-            right: '-25px',
+            right: '-clamp(12px, 3vw, 25px)',
             top: '50%',
             transform: 'translateY(-50%)',
             width: 0,
             height: 0,
-            borderTop: '20px solid transparent',
-            borderBottom: '20px solid transparent',
-            borderLeft: '25px solid rgba(255,255,255,0.97)',
+            borderTop: 'clamp(10px, 2vw, 20px) solid transparent',
+            borderBottom: 'clamp(10px, 2vw, 20px) solid transparent',
+            borderLeft: 'clamp(12px, 3vw, 25px) solid rgba(255,255,255,0.97)',
             filter: 'drop-shadow(4px 0 4px rgba(0,0,0,0.1))'
           }} />
-          <h2 style={{ color: '#2e7d32', marginBottom: '20px', fontSize: '2rem', fontWeight: 'bold' }}>{title}</h2>
+          <h2 style={{ color: '#2e7d32', marginBottom: 'clamp(15px, 3vw, 20px)', fontSize: 'clamp(1.2rem, 4vw, 2rem)', fontWeight: 'bold' }}>{title}</h2>
           <div style={{
             background: '#f9f3e0',
-            borderRadius: '48px',
-            padding: '25px 30px',
+            borderRadius: 'clamp(30px, 6vw, 48px)',
+            padding: 'clamp(15px, 3vw, 25px) clamp(20px, 4vw, 30px)',
             textAlign: 'left',
-            fontSize: '1.2rem',
+            fontSize: 'clamp(0.85rem, 2.5vw, 1.2rem)',
             lineHeight: '1.5',
             color: '#2d3e2b',
-            marginBottom: '35px',
+            marginBottom: 'clamp(20px, 4vw, 35px)',
             border: '1px solid #ffd966'
           }}>
             {text}
@@ -84,12 +82,12 @@ function RulesWithOwl({ title, text, onPlay }) {
           <button
             onClick={handleStart}
             style={{
-              padding: '14px 40px',
+              padding: 'clamp(8px, 2vw, 14px) clamp(25px, 6vw, 40px)',
               background: 'linear-gradient(135deg, #2e7d32, #1b5e20)',
               color: 'white',
               border: 'none',
               borderRadius: '60px',
-              fontSize: '1.3rem',
+              fontSize: 'clamp(0.9rem, 2.5vw, 1.3rem)',
               fontWeight: 'bold',
               cursor: 'pointer',
               transition: 'transform 0.2s',
@@ -102,12 +100,11 @@ function RulesWithOwl({ title, text, onPlay }) {
           </button>
         </div>
 
-        {/* Совёнок – абсолютно справа */}
         <div style={{
           position: 'absolute',
           right: '0',
           transform: 'translateX(50%)',
-          width: '500px',
+          width: 'clamp(200px, 30vw, 500px)',
           display: 'flex',
           justifyContent: 'center',
           pointerEvents: 'none'
@@ -116,8 +113,8 @@ function RulesWithOwl({ title, text, onPlay }) {
             src={botSmart} 
             alt="Совёнок" 
             style={{ 
-              width: '500px', 
-              height: '500px', 
+              width: '100%', 
+              height: 'auto', 
               objectFit: 'contain', 
               filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.2))'
             }} 

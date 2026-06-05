@@ -14,24 +14,19 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs, onExit, onSkip 
   const timeoutRef = useRef(null);
   const stepRef = useRef(step);
 
-  // Текст для отображения в облачке (цифры с пробелами)
   const getDisplayText = (dialog) => {
     if (typeof dialog.text === 'function') return dialog.text(balance);
     let text = dialog.text;
     text = text.replace(/сынок/gi, 'дочка');
     text = text.replace(/Сынок/gi, 'Дочка');
     text = text.replace(/Лисёнок/gi, 'Дочка');
-    // Добавляем пробелы в числа для красивого отображения (10000 → 10 000)
     text = text.replace(/\b(\d{4,5})\b/g, (match) => parseInt(match, 10).toLocaleString('ru-RU'));
     return text;
   };
 
-  // Текст для озвучки (числа словами, удаляем знаки препинания)
   const getSpeechText = (displayText) => {
     let speech = displayText;
-    // Удаляем знаки препинания
     speech = speech.replace(/[.,!?;:()\-–—]/g, ' ');
-    // Заменяем числа (с пробелами или без) на слова
     speech = speech.replace(/10\s*000/g, 'десять тысяч');
     speech = speech.replace(/11\s*500/g, 'одиннадцать тысяч пятьсот');
     speech = speech.replace(/2\s*000/g, 'две тысячи');
@@ -39,7 +34,6 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs, onExit, onSkip 
     speech = speech.replace(/1\s*500/g, 'одна тысяча пятьсот');
     speech = speech.replace(/\b500\b/g, 'пятьсот');
     speech = speech.replace(/15%/g, 'пятнадцать процентов');
-    // Убираем лишние пробелы
     speech = speech.replace(/\s+/g, ' ').trim();
     return speech;
   };
@@ -55,7 +49,7 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs, onExit, onSkip 
     }
   };
 
-  const speakFull = async (speechText, speakerType, currentStep) => {
+  const speakFull = async (speechText, speakerType) => {
     if (isSpeakingRef.current) {
       stop();
       isSpeakingRef.current = false;
@@ -129,7 +123,7 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs, onExit, onSkip 
       onBotHint(true);
       timeoutRef.current = setTimeout(() => onBotHint(false), 3000);
     }
-    speakFull(speechText, currentDialog.speaker, step);
+    speakFull(speechText, currentDialog.speaker);
     return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
   }, [step]);
 
@@ -155,58 +149,103 @@ function DialogScene2({ onComplete, balance, onBotHint, dialogs, onExit, onSkip 
       <div style={{ position: 'fixed', top: '20px', left: '20px', zIndex: 100 }}>
         <button onClick={(e) => { e.stopPropagation(); exitToMenu(); }} style={{
           background: '#ff9800', color: 'white', border: 'none',
-          borderRadius: '50px', padding: '14px 28px', fontSize: '1.1rem',
-          fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s, transform 0.2s',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.25)'
-        }} onMouseEnter={(e) => e.currentTarget.style.background = '#f57c00'}
-          onMouseLeave={(e) => e.currentTarget.style.background = '#ff9800'}>Выйти в меню</button>
+          borderRadius: '50px', padding: 'clamp(10px, 2vw, 14px) clamp(20px, 4vw, 28px)',
+          fontSize: 'clamp(0.9rem, 2vw, 1.1rem)',
+          fontWeight: 'bold', cursor: 'pointer'
+        }}>Выйти в меню</button>
       </div>
       <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 100 }}>
         <button onClick={(e) => { e.stopPropagation(); skipDialog(); }} style={{
           background: '#2196f3', color: 'white', border: 'none',
-          borderRadius: '50px', padding: '14px 28px', fontSize: '1.1rem',
-          fontWeight: 'bold', cursor: 'pointer', transition: 'background 0.2s, transform 0.2s',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.25)'
-        }} onMouseEnter={(e) => e.currentTarget.style.background = '#1976d2'}
-          onMouseLeave={(e) => e.currentTarget.style.background = '#2196f3'}>Пропустить</button>
+          borderRadius: '50px', padding: 'clamp(10px, 2vw, 14px) clamp(20px, 4vw, 28px)',
+          fontSize: 'clamp(0.9rem, 2vw, 1.1rem)',
+          fontWeight: 'bold', cursor: 'pointer'
+        }}>Пропустить</button>
       </div>
 
-      <div style={{ position: 'absolute', bottom: 0, left: '14%', width: '32%', maxWidth: '320px', animation: 'slideInLeft 0.5s ease', zIndex: 5 }}>
-        <img src={foxGirl} alt="Лисёнок" style={{ width: '100%', height: 'auto', transform: 'scale(1.1)', transformOrigin: 'bottom center' }} />
-      </div>
-      <div style={{ position: 'absolute', bottom: 0, left: '48%', width: '34%', maxWidth: '340px', animation: 'slideInRight 0.5s ease', zIndex: 5 }}>
-        <img src={foxMother} alt="Мама" style={{ width: '100%', height: 'auto', transform: 'scale(1.3)', transformOrigin: 'bottom center' }} />
-      </div>
-      <div style={{ position: 'absolute', bottom: 0, left: '68%', width: '34%', maxWidth: '340px', animation: 'slideInRight 0.5s ease', zIndex: 4 }}>
-        <img src={foxFather} alt="Папа" style={{ width: '100%', height: 'auto', transform: 'scale(1.4)', transformOrigin: 'bottom center' }} />
+      {/* Девочка */}
+      <div style={{ position: 'absolute', bottom: 0, left: 'clamp(10%, 2vw, 14%)', width: 'clamp(200px, 32vw, 320px)', animation: 'slideInLeft 0.5s ease', zIndex: 5 }}>
+        <div style={{ position: 'relative', width: '100%' }}>
+          <img src={foxGirl} alt="Лисёнок" style={{ width: '100%', height: 'auto', transform: 'scale(1.1)', transformOrigin: 'bottom center' }} />
+          {isGirl && displayText && (
+            <div style={{
+              position: 'absolute',
+              bottom: 'clamp(80%, 10vh, 95%)',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: 'clamp(200px, 45vw, 500px)',
+              backgroundColor: 'rgba(255,255,255,0.96)',
+              borderRadius: 'clamp(20px, 4vw, 40px)',
+              padding: 'clamp(12px, 2vw, 22px) clamp(16px, 3vw, 30px)',
+              boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
+              border: '1px solid #ffd966',
+              zIndex: 10,
+              pointerEvents: 'none'
+            }}>
+              <div style={{ position: 'absolute', bottom: '-10px', left: '20px', width: 0, height: 0, borderLeft: '10px solid transparent', borderRight: '10px solid transparent', borderTop: '10px solid rgba(255,255,255,0.96)' }} />
+              <p style={{ margin: 0, fontSize: 'clamp(0.9rem, 2.5vw, 1.3rem)', lineHeight: '1.45', color: '#333' }}>{displayText}</p>
+            </div>
+          )}
+        </div>
       </div>
 
-      {isGirl && displayText && (
-        <div style={{ position: 'absolute', bottom: '55%', left: '18%', width: '35%', maxWidth: '420px', backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '22px 30px', animation: 'bubbleAppearLeft 0.3s ease', zIndex: 10, boxShadow: '0 12px 28px rgba(0,0,0,0.2)', border: '1px solid #ffd966' }}>
-          <div style={{ position: 'absolute', bottom: '-12px', left: '25px', width: 0, height: 0, borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '14px solid rgba(255,255,255,0.96)' }} />
-          <p style={{ fontSize: '1.3rem', lineHeight: '1.45', color: '#333' }}>{displayText}</p>
+      {/* Мама */}
+      <div style={{ position: 'absolute', bottom: 0, left: 'clamp(40%, 2vw, 48%)', width: 'clamp(220px, 34vw, 340px)', animation: 'slideInRight 0.5s ease', zIndex: 5 }}>
+        <div style={{ position: 'relative', width: '100%' }}>
+          <img src={foxMother} alt="Мама" style={{ width: '100%', height: 'auto', transform: 'scale(1.3)', transformOrigin: 'bottom center' }} />
+          {isMother && displayText && (
+            <div style={{
+              position: 'absolute',
+              bottom: 'clamp(80%, 10vh, 95%)',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: 'clamp(200px, 45vw, 500px)',
+              backgroundColor: 'rgba(255,255,255,0.96)',
+              borderRadius: 'clamp(20px, 4vw, 40px)',
+              padding: 'clamp(12px, 2vw, 22px) clamp(16px, 3vw, 30px)',
+              boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
+              border: '1px solid #ffd966',
+              zIndex: 10,
+              pointerEvents: 'none'
+            }}>
+              <div style={{ position: 'absolute', bottom: '-10px', right: '20px', width: 0, height: 0, borderLeft: '10px solid transparent', borderRight: '10px solid transparent', borderTop: '10px solid rgba(255,255,255,0.96)' }} />
+              <p style={{ margin: 0, fontSize: 'clamp(0.9rem, 2.5vw, 1.3rem)', lineHeight: '1.45', color: '#333' }}>{displayText}</p>
+            </div>
+          )}
         </div>
-      )}
-      {isMother && displayText && (
-        <div style={{ position: 'absolute', bottom: '55%', left: '44%', width: '35%', maxWidth: '420px', backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '22px 30px', animation: 'bubbleAppearRight 0.3s ease', zIndex: 10, boxShadow: '0 12px 28px rgba(0,0,0,0.2)', border: '1px solid #ffd966' }}>
-          <div style={{ position: 'absolute', bottom: '-12px', right: '25px', width: 0, height: 0, borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '14px solid rgba(255,255,255,0.96)' }} />
-          <p style={{ fontSize: '1.3rem', lineHeight: '1.45', color: '#333' }}>{displayText}</p>
+      </div>
+
+      {/* Папа */}
+      <div style={{ position: 'absolute', bottom: 0, left: 'clamp(60%, 2vw, 68%)', width: 'clamp(220px, 34vw, 340px)', animation: 'slideInRight 0.5s ease', zIndex: 4 }}>
+        <div style={{ position: 'relative', width: '100%' }}>
+          <img src={foxFather} alt="Папа" style={{ width: '100%', height: 'auto', transform: 'scale(1.4)', transformOrigin: 'bottom center' }} />
+          {isFather && displayText && (
+            <div style={{
+              position: 'absolute',
+              bottom: 'clamp(80%, 10vh, 95%)',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: 'clamp(200px, 45vw, 500px)',
+              backgroundColor: 'rgba(255,255,255,0.96)',
+              borderRadius: 'clamp(20px, 4vw, 40px)',
+              padding: 'clamp(12px, 2vw, 22px) clamp(16px, 3vw, 30px)',
+              boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
+              border: '1px solid #ffd966',
+              zIndex: 10,
+              pointerEvents: 'none'
+            }}>
+              <div style={{ position: 'absolute', bottom: '-10px', right: '20px', width: 0, height: 0, borderLeft: '10px solid transparent', borderRight: '10px solid transparent', borderTop: '10px solid rgba(255,255,255,0.96)' }} />
+              <p style={{ margin: 0, fontSize: 'clamp(0.9rem, 2.5vw, 1.3rem)', lineHeight: '1.45', color: '#333' }}>{displayText}</p>
+            </div>
+          )}
         </div>
-      )}
-      {isFather && displayText && (
-        <div style={{ position: 'absolute', bottom: '55%', left: '62%', width: '35%', maxWidth: '420px', backgroundColor: 'rgba(255,255,255,0.96)', borderRadius: '40px', padding: '22px 30px', animation: 'bubbleAppearRight 0.3s ease', zIndex: 10, boxShadow: '0 12px 28px rgba(0,0,0,0.2)', border: '1px solid #ffd966' }}>
-          <div style={{ position: 'absolute', bottom: '-12px', right: '25px', width: 0, height: 0, borderLeft: '14px solid transparent', borderRight: '14px solid transparent', borderTop: '14px solid rgba(255,255,255,0.96)' }} />
-          <p style={{ fontSize: '1.3rem', lineHeight: '1.45', color: '#333' }}>{displayText}</p>
-        </div>
-      )}
+      </div>
 
       <style>{`
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
         @keyframes slideInLeft { from { opacity: 0; transform: translateX(-150px); } to { opacity: 1; transform: translateX(0); } }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(150px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes bubbleAppearLeft { from { opacity: 0; transform: translateX(-40px) scale(0.9); } to { opacity: 1; transform: translateX(0) scale(1); } }
-        @keyframes bubbleAppearRight { from { opacity: 0; transform: translateX(40px) scale(0.9); } to { opacity: 1; transform: translateX(0) scale(1); } }
       `}</style>
     </div>
   );

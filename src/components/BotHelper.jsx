@@ -20,7 +20,6 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', d
   const autoTipTimer = useRef(null);
   const tipTimer = useRef(null);
 
-  // При смене массива подсказок (например, при возврате на главный экран) сбрасываем текущую подсказку
   useEffect(() => {
     if (tipTimer.current) clearTimeout(tipTimer.current);
     setShowTip(false);
@@ -42,10 +41,7 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', d
         setCurrentTip(customTip);
         setShowTip(true);
         const duration = Math.min(8000, Math.max(2500, customTip.length * 70));
-        tipTimer.current = setTimeout(() => {
-          setShowTip(false);
-          tipTimer.current = null;
-        }, duration);
+        tipTimer.current = setTimeout(() => setShowTip(false), duration);
         speakTip(customTip);
       }, 50);
     }
@@ -55,7 +51,6 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', d
     if (disableAutoTips) return;
     if (botState !== 'normal') return;
     if (!tips || tips.length === 0) return;
-
     if (tipTimer.current) clearTimeout(tipTimer.current);
     const randomIndex = Math.floor(Math.random() * tips.length);
     const tipText = tips[randomIndex];
@@ -152,10 +147,10 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', d
         onMouseLeave={() => setIsHovered(false)}
         style={{
           position: 'fixed',
-          bottom: '30px',
-          right: '30px',
-          width: isHovered ? '170px' : '160px',
-          height: isHovered ? '170px' : '160px',
+          bottom: 'clamp(10px, 3vh, 30px)',
+          right: 'clamp(10px, 3vw, 30px)',
+          width: isHovered ? 'clamp(100px, 15vw, 170px)' : 'clamp(90px, 14vw, 160px)',
+          height: isHovered ? 'clamp(100px, 15vw, 170px)' : 'clamp(90px, 14vw, 160px)',
           cursor: 'pointer',
           zIndex: 1000,
           transition: 'all 0.2s ease',
@@ -177,13 +172,13 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', d
         <div
           style={{
             position: 'fixed',
-            bottom: '200px',
-            right: '30px',
-            maxWidth: '380px',
-            minWidth: '280px',
+            bottom: 'clamp(120px, 20vh, 200px)',
+            right: 'clamp(10px, 3vw, 30px)',
+            maxWidth: 'clamp(280px, 40vw, 380px)',
+            minWidth: 'clamp(220px, 30vw, 280px)',
             backgroundColor: 'rgba(255, 255, 255, 0.98)',
-            borderRadius: '32px',
-            padding: '20px 28px',
+            borderRadius: 'clamp(20px, 4vw, 32px)',
+            padding: 'clamp(12px, 2vw, 20px) clamp(16px, 3vw, 28px)',
             boxShadow: '0 12px 28px rgba(0,0,0,0.2)',
             zIndex: 1001,
             animation: 'bubblePop 0.25s ease-out',
@@ -204,7 +199,7 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', d
               filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.1))'
             }}
           />
-          <p style={{ margin: 0, fontSize: '1.15rem', color: '#2d3e2b', lineHeight: '1.5', fontWeight: 500 }}>
+          <p style={{ margin: 0, fontSize: 'clamp(0.9rem, 2.5vw, 1.15rem)', color: '#2d3e2b', lineHeight: '1.5', fontWeight: 500 }}>
             {currentTip}
           </p>
         </div>

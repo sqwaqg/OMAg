@@ -281,14 +281,14 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
         onClick={onBack}
         style={{
           position: 'absolute',
-          top: '20px',
-          left: '20px',
+          top: 'clamp(10px, 2vh, 20px)',
+          left: 'clamp(10px, 2vw, 20px)',
           zIndex: 10,
           background: 'rgba(255, 255, 255, 0.9)',
           border: 'none',
-          padding: '12px 28px',
+          padding: 'clamp(8px, 1.5vw, 12px) clamp(16px, 3vw, 28px)',
           borderRadius: '40px',
-          fontSize: '1rem',
+          fontSize: 'clamp(0.8rem, 2vw, 1rem)',
           fontWeight: 'bold',
           cursor: 'pointer',
           color: '#5c3d2e',
@@ -301,20 +301,19 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
       <div style={{
         position: 'relative',
         zIndex: 2,
-        maxWidth: '1400px',
+        maxWidth: 'clamp(600px, 90vw, 1400px)',
         margin: '0 auto',
-        padding: '80px 20px 20px 20px',
+        padding: 'clamp(50px, 8vh, 80px) clamp(10px, 2vw, 20px) clamp(10px, 2vh, 20px) clamp(10px, 2vw, 20px)',
         height: '100vh',
         display: 'flex',
-        gap: '30px',
+        gap: 'clamp(10px, 2vw, 30px)',
         overflow: 'hidden'
       }}>
-        {/* Левая часть: полки */}
-        <div style={{ flex: 2.5, height: 'calc(100vh - 100px)', overflow: 'hidden' }}>
+        <div style={{ flex: 2.5, height: 'calc(100vh - 80px)', overflow: 'hidden' }}>
           <div style={{
             background: 'rgba(122, 58, 13, 0.85)',
-            borderRadius: '30px',
-            padding: '20px',
+            borderRadius: 'clamp(20px, 4vw, 30px)',
+            padding: 'clamp(10px, 2vw, 20px)',
             boxShadow: '0 15px 35px rgba(0,0,0,0.3)',
             border: '2px solid #d4a373',
             height: '100%',
@@ -324,8 +323,8 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
           }}>
             <div style={{
               background: 'rgba(255,248,225,0.95)',
-              borderRadius: '20px',
-              padding: '15px',
+              borderRadius: 'clamp(15px, 3vw, 20px)',
+              padding: 'clamp(10px, 2vw, 15px)',
               flex: 1,
               overflowY: 'auto',
               overflowX: 'hidden'
@@ -335,15 +334,15 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
                   <div key={rowIndex} style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: '25px',
-                    marginBottom: rowIndex === 0 ? '25px' : 0
+                    gap: 'clamp(10px, 2vw, 25px)',
+                    marginBottom: rowIndex === 0 ? 'clamp(10px, 2vw, 25px)' : 0
                   }}>
                     {row.map((cat, colIndex) => (
                       cat ? (
                         <div key={cat.id} className="product-card" style={{
                           background: 'white',
-                          borderRadius: '20px',
-                          padding: '12px 8px',
+                          borderRadius: 'clamp(15px, 3vw, 20px)',
+                          padding: 'clamp(8px, 1.5vw, 12px) clamp(6px, 1vw, 8px)',
                           textAlign: 'center',
                           boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
                           position: 'relative',
@@ -352,7 +351,8 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
                           flexDirection: 'column',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          height: '270px',
+                          minHeight: 'clamp(180px, 25vh, 270px)',
+                          height: 'auto',
                           cursor: 'pointer'
                         }}
                         onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
@@ -362,8 +362,8 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
                               position: 'absolute',
                               top: '-10px',
                               right: '-10px',
-                              width: '28px',
-                              height: '28px',
+                              width: 'clamp(20px, 4vw, 28px)',
+                              height: 'clamp(20px, 4vw, 28px)',
                               background: '#5c3d2e',
                               borderRadius: '50%',
                               display: 'flex',
@@ -371,31 +371,31 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
                               justifyContent: 'center',
                               zIndex: 10
                             }}>
-                              <span style={{ color: 'white', fontSize: '16px', fontWeight: 'bold' }}>✓</span>
+                              <span style={{ color: 'white', fontSize: 'clamp(12px, 2vw, 16px)', fontWeight: 'bold' }}>✓</span>
                             </div>
                           )}
                           <img 
                             src={cat.img} 
                             alt={cat.name} 
                             style={{ 
-                              width: '250px', 
-                              height: '250px', 
+                              width: 'clamp(80px, 15vw, 250px)', 
+                              height: 'auto', 
                               objectFit: 'contain', 
-                              marginBottom: '15px' 
+                              marginBottom: 'clamp(5px, 1vh, 15px)' 
                             }} 
                           />
-                          <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#5c3d2e' }}>{cat.name}</div>
-                          {cat.required && difficulty === 'easy' && <div style={{ fontSize: '0.8rem', color: '#991616ff' }}>обязательно</div>}
-                          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '17px', width: '100%' }}>
+                          <div style={{ fontWeight: 'bold', fontSize: 'clamp(0.8rem, 2vw, 1.1rem)', color: '#5c3d2e' }}>{cat.name}</div>
+                          {cat.required && difficulty === 'easy' && <div style={{ fontSize: 'clamp(0.6rem, 1.5vw, 0.8rem)', color: '#991616ff' }}>обязательно</div>}
+                          <div style={{ display: 'flex', gap: 'clamp(5px, 1vw, 10px)', justifyContent: 'center', marginTop: 'clamp(8px, 1.5vh, 17px)', width: '100%' }}>
                             <button 
                               onClick={() => selectItem(cat, 0)} 
                               style={{ 
                                 flex: 1, 
-                                padding: '5px 8px', 
+                                padding: 'clamp(3px, 1vw, 5px) clamp(5px, 1.5vw, 8px)', 
                                 background: selectedItems[cat.id]?.variant === 0 ? '#5c3d2e' : '#f5a623', 
                                 border: 'none', 
                                 borderRadius: '30px', 
-                                fontSize: '0.75rem', 
+                                fontSize: 'clamp(0.6rem, 1.5vw, 0.75rem)', 
                                 fontWeight: 'bold', 
                                 color: 'white', 
                                 cursor: 'pointer' 
@@ -407,11 +407,11 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
                               onClick={() => selectItem(cat, 1)} 
                               style={{ 
                                 flex: 1, 
-                                padding: '5px 8px', 
+                                padding: 'clamp(3px, 1vw, 5px) clamp(5px, 1.5vw, 8px)', 
                                 background: selectedItems[cat.id]?.variant === 1 ? '#5c3d2e' : '#ff9800', 
                                 border: 'none', 
                                 borderRadius: '30px', 
-                                fontSize: '0.75rem', 
+                                fontSize: 'clamp(0.6rem, 1.5vw, 0.75rem)', 
                                 fontWeight: 'bold', 
                                 color: 'white', 
                                 cursor: 'pointer' 
@@ -424,7 +424,7 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
                       ) : (
                         <div key={`empty-${rowIndex}-${colIndex}`} style={{
                           background: 'transparent',
-                          height: '270px'
+                          height: 'clamp(180px, 25vh, 270px)'
                         }} />
                       )
                     ))}
@@ -433,57 +433,56 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '30px', marginTop: '15px' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 'clamp(15px, 3vw, 30px)', marginTop: 'clamp(10px, 1.5vh, 15px)' }}>
               <button
                 onClick={() => changeSlide('prev')}
                 disabled={currentSlide === 0}
-                style={{ padding: '10px 25px', background: currentSlide === 0 ? '#ccc' : 'linear-gradient(135deg, #5c3d2e, #3d2a1f)', border: 'none', borderRadius: '40px', fontSize: '0.9rem', fontWeight: 'bold', color: 'white', cursor: currentSlide === 0 ? 'not-allowed' : 'pointer' }}
+                style={{ padding: 'clamp(6px, 1vw, 10px) clamp(15px, 3vw, 25px)', background: currentSlide === 0 ? '#ccc' : 'linear-gradient(135deg, #5c3d2e, #3d2a1f)', border: 'none', borderRadius: '40px', fontSize: 'clamp(0.7rem, 1.8vw, 0.9rem)', fontWeight: 'bold', color: 'white', cursor: currentSlide === 0 ? 'not-allowed' : 'pointer' }}
               >← Назад</button>
-              <span style={{ fontSize: '1rem', fontWeight: 'bold', color: '#5c3d2e' }}>{getSlideLabel()}</span>
+              <span style={{ fontSize: 'clamp(0.8rem, 2vw, 1rem)', fontWeight: 'bold', color: '#5c3d2e' }}>{getSlideLabel()}</span>
               <button
                 onClick={() => changeSlide('next')}
                 disabled={currentSlide === totalSlides - 1}
-                style={{ padding: '10px 25px', background: currentSlide === totalSlides - 1 ? '#ccc' : 'linear-gradient(135deg, #5c3d2e, #3d2a1f)', border: 'none', borderRadius: '40px', fontSize: '0.9rem', fontWeight: 'bold', color: 'white', cursor: currentSlide === totalSlides - 1 ? 'not-allowed' : 'pointer' }}
+                style={{ padding: 'clamp(6px, 1vw, 10px) clamp(15px, 3vw, 25px)', background: currentSlide === totalSlides - 1 ? '#ccc' : 'linear-gradient(135deg, #5c3d2e, #3d2a1f)', border: 'none', borderRadius: '40px', fontSize: 'clamp(0.7rem, 1.8vw, 0.9rem)', fontWeight: 'bold', color: 'white', cursor: currentSlide === totalSlides - 1 ? 'not-allowed' : 'pointer' }}
               >Далее →</button>
             </div>
 
-            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', marginTop: '15px', marginBottom: '5px' }}>
+            <div style={{ display: 'flex', gap: 'clamp(10px, 2vw, 20px)', justifyContent: 'center', marginTop: 'clamp(10px, 1.5vh, 15px)', marginBottom: 'clamp(5px, 1vh, 10px)' }}>
               <button
                 onClick={undo}
                 disabled={history.length === 0}
-                style={{ padding: '10px 30px', background: history.length === 0 ? '#ccc' : 'linear-gradient(135deg, #ff9800, #f57c00)', border: 'none', borderRadius: '40px', fontSize: '0.9rem', fontWeight: 'bold', color: 'white', cursor: history.length === 0 ? 'not-allowed' : 'pointer' }}
+                style={{ padding: 'clamp(6px, 1vw, 10px) clamp(15px, 3vw, 30px)', background: history.length === 0 ? '#ccc' : 'linear-gradient(135deg, #ff9800, #f57c00)', border: 'none', borderRadius: '40px', fontSize: 'clamp(0.7rem, 1.8vw, 0.9rem)', fontWeight: 'bold', color: 'white', cursor: history.length === 0 ? 'not-allowed' : 'pointer' }}
               >Отменить</button>
               <button
                 onClick={finish}
                 disabled={!canFinish()}
-                style={{ padding: '10px 30px', background: !canFinish() ? '#ccc' : '#2e7d32', border: 'none', borderRadius: '40px', fontSize: '0.9rem', fontWeight: 'bold', color: 'white', cursor: !canFinish() ? 'not-allowed' : 'pointer' }}
+                style={{ padding: 'clamp(6px, 1vw, 10px) clamp(15px, 3vw, 30px)', background: !canFinish() ? '#ccc' : '#2e7d32', border: 'none', borderRadius: '40px', fontSize: 'clamp(0.7rem, 1.8vw, 0.9rem)', fontWeight: 'bold', color: 'white', cursor: !canFinish() ? 'not-allowed' : 'pointer' }}
               >Завершить покупки</button>
             </div>
           </div>
         </div>
 
-        {/* Правая часть: список покупок */}
         <div style={{
           flex: 1,
-          maxWidth: '280px',
+          maxWidth: 'clamp(200px, 30vw, 280px)',
           background: 'rgba(255, 255, 255, 0.95)',
-          borderRadius: '30px',
-          padding: '15px',
+          borderRadius: 'clamp(20px, 4vw, 30px)',
+          padding: 'clamp(10px, 2vw, 15px)',
           backdropFilter: 'blur(8px)',
           height: 'calc(100vh - 100px)',
           overflowY: 'auto',
           boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
         }}>
-          <div style={{ fontSize: '1.4rem', fontWeight: 'bold', marginBottom: '10px', textAlign: 'center', color: '#5c3d2e' }}>Баланс: {balance} ₽</div>
-          <div style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '15px', textAlign: 'center', color: '#5c3d2e' }}>Итого: {total} ₽</div>
+          <div style={{ fontSize: 'clamp(1rem, 3vw, 1.4rem)', fontWeight: 'bold', marginBottom: 'clamp(5px, 1vh, 10px)', textAlign: 'center', color: '#5c3d2e' }}>Баланс: {balance} ₽</div>
+          <div style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.2rem)', fontWeight: 'bold', marginBottom: 'clamp(10px, 2vh, 15px)', textAlign: 'center', color: '#5c3d2e' }}>Итого: {total} ₽</div>
 
-          <h3 style={{ color: '#5c3d2e', marginBottom: '10px', fontSize: '1.1rem', borderBottom: '2px solid #d4a373', paddingBottom: '5px' }}>Список покупок</h3>
+          <h3 style={{ color: '#5c3d2e', marginBottom: 'clamp(5px, 1vh, 10px)', fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)', borderBottom: '2px solid #d4a373', paddingBottom: 'clamp(3px, 0.5vh, 5px)' }}>Список покупок</h3>
           <div>
             {shuffledCategories.map(cat => {
               const selected = selectedItems[cat.id];
               if (!selected && !cat.required) return null;
               return (
-                <div key={cat.id} style={{ padding: '8px 0', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem' }}>
+                <div key={cat.id} style={{ padding: 'clamp(5px, 1vh, 8px) 0', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 'clamp(0.7rem, 1.8vw, 0.9rem)' }}>
                   <span style={{ color: selected ? '#5c3d2e' : '#999', fontWeight: selected ? 'bold' : 'normal' }}>{cat.name}</span>
                   <span style={{ fontWeight: 'bold', color: selected ? '#5c3d2e' : '#999' }}>{selected ? `${selected.price} ₽` : 'не выбран'}</span>
                 </div>
@@ -492,21 +491,21 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
             
             {wishProduct && (
               <div style={{
-                marginTop: '15px',
-                paddingTop: '10px',
+                marginTop: 'clamp(10px, 2vh, 15px)',
+                paddingTop: 'clamp(5px, 1vh, 10px)',
                 borderTop: '1px dashed #ccc',
                 backgroundColor: '#fff8e7',
-                borderRadius: '16px',
-                padding: '10px',
-                marginBottom: '10px'
+                borderRadius: 'clamp(12px, 2vw, 16px)',
+                padding: 'clamp(5px, 1vh, 10px)',
+                marginBottom: 'clamp(5px, 1vh, 10px)'
               }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#f76f14ff', marginBottom: '8px' }}>Что хочет лисёнок</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ flex: 1, fontWeight: 'bold', color: '#5c3d2e' }}>{wishProduct.name}</div>
+                <div style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.85rem)', fontWeight: 'bold', color: '#f76f14ff', marginBottom: 'clamp(5px, 1vh, 8px)' }}>Что хочет лисёнок</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(5px, 1vw, 12px)' }}>
+                  <div style={{ flex: 1, fontWeight: 'bold', color: '#5c3d2e', fontSize: 'clamp(0.8rem, 2vw, 1rem)' }}>{wishProduct.name}</div>
                   {wishBought ? (
-                    <span style={{ fontWeight: 'bold', color: '#2e7d32' }}>куплен</span>
+                    <span style={{ fontWeight: 'bold', color: '#2e7d32', fontSize: 'clamp(0.7rem, 1.5vw, 0.9rem)' }}>куплен</span>
                   ) : (
-                    <span style={{ color: '#999' }}>не куплен</span>
+                    <span style={{ color: '#999', fontSize: 'clamp(0.7rem, 1.5vw, 0.9rem)' }}>не куплен</span>
                   )}
                 </div>
               </div>
@@ -531,21 +530,21 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
         }}>
           <div style={{
             background: 'linear-gradient(135deg, #fff9ef, #fff0e0)',
-            borderRadius: '48px',
-            padding: '30px 30px',
+            borderRadius: 'clamp(30px, 8vw, 48px)',
+            padding: 'clamp(20px, 5vw, 30px)',
             textAlign: 'center',
-            maxWidth: '450px',
+            maxWidth: 'clamp(280px, 80vw, 450px)',
             width: '85%',
             boxShadow: '0 30px 50px rgba(0,0,0,0.3)',
             border: '1px solid rgba(255,215,0,0.5)'
           }}>
-            <img src={botSmart} alt="Совёнок" style={{ width: '80px', height: '80px', margin: '0 auto 10px', objectFit: 'contain' }} />
-            <h3 style={{ color: '#2e7d32', marginBottom: '15px', fontSize: '1.5rem' }}>Завершить покупки?</h3>
-            <p style={{ marginBottom: '10px', fontSize: '1rem', color: '#5c3d2e', fontWeight: 'bold' }}>Ты потратил {total} ₽ из {balance} ₽</p>
-            <p style={{ marginBottom: '25px', color: '#666' }}>Остаток: {balance - total} ₽</p>
-            <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
-              <button onClick={confirmFinish} style={{ padding: '10px 20px', background: '#2e7d32', color: 'white', border: 'none', borderRadius: '40px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}>Да, завершить</button>
-              <button onClick={cancelFinish} style={{ padding: '10px 20px', background: '#ddd', color: '#333', border: 'none', borderRadius: '40px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}>Вернуться</button>
+            <img src={botSmart} alt="Совёнок" style={{ width: 'clamp(50px, 10vw, 80px)', height: 'auto', margin: '0 auto 10px', objectFit: 'contain' }} />
+            <h3 style={{ color: '#2e7d32', marginBottom: 'clamp(10px, 2vh, 15px)', fontSize: 'clamp(1rem, 3vw, 1.5rem)' }}>Завершить покупки?</h3>
+            <p style={{ marginBottom: 'clamp(5px, 1vh, 10px)', fontSize: 'clamp(0.8rem, 2vw, 1rem)', color: '#5c3d2e', fontWeight: 'bold' }}>Ты потратил {total} ₽ из {balance} ₽</p>
+            <p style={{ marginBottom: 'clamp(15px, 3vh, 25px)', color: '#666', fontSize: 'clamp(0.7rem, 1.5vw, 0.9rem)' }}>Остаток: {balance - total} ₽</p>
+            <div style={{ display: 'flex', gap: 'clamp(10px, 2vw, 15px)', justifyContent: 'center' }}>
+              <button onClick={confirmFinish} style={{ padding: 'clamp(6px, 1vw, 10px) clamp(15px, 3vw, 20px)', background: '#2e7d32', color: 'white', border: 'none', borderRadius: '40px', fontSize: 'clamp(0.8rem, 2vw, 1rem)', fontWeight: 'bold', cursor: 'pointer' }}>Да, завершить</button>
+              <button onClick={cancelFinish} style={{ padding: 'clamp(6px, 1vw, 10px) clamp(15px, 3vw, 20px)', background: '#ddd', color: '#333', border: 'none', borderRadius: '40px', fontSize: 'clamp(0.8rem, 2vw, 1rem)', fontWeight: 'bold', cursor: 'pointer' }}>Вернуться</button>
             </div>
           </div>
         </div>

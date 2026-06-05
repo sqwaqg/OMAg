@@ -207,22 +207,28 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
   return (
     <div style={{ 
       textAlign: 'center', 
-      padding: '20px',
+      padding: 'clamp(10px, 2vw, 20px)',
       background: 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)',
-      borderRadius: '40px',
-      boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
+      borderRadius: 'clamp(20px, 5vw, 40px)',
+      boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center'
     }}>
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center',
-        marginBottom: '20px',
-        padding: '15px 25px',
+        marginBottom: 'clamp(10px, 2vh, 20px)',
+        padding: 'clamp(10px, 2vh, 15px) clamp(15px, 3vw, 25px)',
         background: 'rgba(255,255,255,0.95)',
         backdropFilter: 'blur(10px)',
-        borderRadius: '60px',
+        borderRadius: 'clamp(30px, 8vw, 60px)',
         boxShadow: '0 8px 25px rgba(0,0,0,0.1)',
-        border: '1px solid rgba(255,255,255,0.5)'
+        border: '1px solid rgba(255,255,255,0.5)',
+        flexWrap: 'wrap',
+        gap: '10px'
       }}>
         <button 
           onClick={onBack}
@@ -230,9 +236,9 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
           style={{
             background: 'rgba(46,125,50,0.9)',
             border: 'none',
-            padding: '10px 24px',
+            padding: 'clamp(8px, 1.5vh, 10px) clamp(15px, 3vw, 24px)',
             borderRadius: '40px',
-            fontSize: '1rem',
+            fontSize: 'clamp(0.8rem, 2vw, 1rem)',
             fontWeight: 'bold',
             cursor: isPaused ? 'not-allowed' : 'pointer',
             color: 'white',
@@ -243,33 +249,33 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
         </button>
         
         <div style={{ 
-          fontSize: '1.3rem', 
+          fontSize: 'clamp(0.9rem, 2.5vw, 1.3rem)', 
           fontWeight: 'bold', 
           color: '#2e7d32',
           background: 'rgba(46,125,50,0.15)',
-          padding: '8px 20px',
+          padding: 'clamp(5px, 1vh, 8px) clamp(10px, 2vw, 20px)',
           borderRadius: '40px',
           display: 'flex',
           alignItems: 'center',
           gap: '8px'
         }}>
-          Цель: {target} ₽
+          <span>🎯</span> Цель: {target} ₽
         </div>
         
         <div style={{ 
-          fontSize: '1.5rem', 
+          fontSize: 'clamp(1.1rem, 3vw, 1.5rem)', 
           fontWeight: 'bold', 
           color: '#1b5e20',
           background: 'rgba(46,125,50,0.15)',
-          padding: '8px 20px',
+          padding: 'clamp(5px, 1vh, 8px) clamp(10px, 2vw, 20px)',
           borderRadius: '40px',
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
-          minWidth: '150px',
+          minWidth: 'clamp(100px, 20vw, 150px)',
           justifyContent: 'center'
         }}>
-          <span style={{ minWidth: '70px', textAlign: 'center' }}>{score}</span> ₽
+          <span>💰</span> <span style={{ minWidth: 'clamp(50px, 10vw, 70px)', textAlign: 'center' }}>{score}</span> ₽
         </div>
       </div>
 
@@ -277,12 +283,11 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
         ref={gameAreaRef}
         style={{
           position: 'relative',
-          width: '100%',
-          maxWidth: '1100px',
-          height: '750px',
+          width: 'clamp(600px, 80vw, 1100px)',
+          height: 'clamp(400px, 60vh, 750px)',
           margin: '0 auto',
           background: 'radial-gradient(circle at 30% 20%, #2e7d32, #1b5e20)',
-          borderRadius: '50px',
+          borderRadius: 'clamp(30px, 5vw, 50px)',
           border: '4px solid #ffd966',
           boxShadow: '0 30px 40px rgba(0,0,0,0.3), inset 0 0 20px rgba(255,215,0,0.3)',
           overflow: 'hidden',
@@ -297,7 +302,7 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
           bottom: 0,
           left: 0,
           right: 0,
-          height: '80px',
+          height: 'clamp(50px, 8vh, 80px)',
           background: 'linear-gradient(0deg, #2e7d32 0%, #4caf50 100%)',
           borderTop: '3px solid #ffd966',
           borderRadius: '0 0 50px 50px',
@@ -314,8 +319,8 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
                 position: 'absolute',
                 left: `${item.x}px`,
                 top: `${item.y}px`,
-                width: '70px',
-                height: '70px',
+                width: 'clamp(50px, 8vw, 70px)',
+                height: 'clamp(50px, 8vw, 70px)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -332,10 +337,10 @@ const CatchGame = ({ config, onFinish, onBack, onEncouragement }) => {
           ref={catcherRef}
           style={{
             position: 'absolute',
-            bottom: '20px',
-            width: '200px',
-            height: '150px',
-            left: '350px',
+            bottom: 'clamp(10px, 2vh, 20px)',
+            width: 'clamp(150px, 20vw, 200px)',
+            height: 'clamp(100px, 15vh, 150px)',
+            left: 'calc(50% - 100px)',
             zIndex: 20,
             transition: 'left 0.05s linear',
             cursor: isPaused ? 'default' : 'grab'

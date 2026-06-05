@@ -21,6 +21,7 @@ body {
   min-height: 100vh;
   background-attachment: fixed;
   position: relative;
+  overflow-x: hidden;
 }
 
 .app-container {
@@ -33,7 +34,7 @@ body {
 
 /* Шапка */
 .header {
-  padding: 20px 20px 15px 20px;
+  padding: clamp(12px, 2vw, 20px) clamp(12px, 2vw, 20px) clamp(8px, 1.5vw, 15px) clamp(12px, 2vw, 20px);
   text-align: left;
   background: transparent;
   backdrop-filter: blur(15px);
@@ -42,7 +43,7 @@ body {
 }
 
 .header-small {
-  padding: 12px 20px 10px 20px;
+  padding: clamp(8px, 1.5vw, 12px) clamp(12px, 2vw, 20px) clamp(6px, 1vw, 10px) clamp(12px, 2vw, 20px);
   text-align: left;
   background: transparent;
   backdrop-filter: blur(15px);
@@ -52,20 +53,20 @@ body {
 
 /* Подвал */
 .footer {
-  padding: 12px;
+  padding: clamp(8px, 1.5vw, 12px);
   text-align: center;
   color: rgba(255, 255, 255, 0.7);
-  font-size: 0.7rem;
+  font-size: clamp(0.6rem, 1.5vw, 0.7rem);
   margin-top: auto;
   background: transparent;
   backdrop-filter: blur(10px);
 }
 
 .footer-small {
-  padding: 8px;
+  padding: clamp(6px, 1vw, 8px);
   text-align: center;
   color: rgba(255, 255, 255, 0.7);
-  font-size: 0.65rem;
+  font-size: clamp(0.55rem, 1.2vw, 0.65rem);
   margin-top: auto;
   background: transparent;
   backdrop-filter: blur(10px);
@@ -74,14 +75,14 @@ body {
 .contact-info {
   display: flex;
   justify-content: center;
-  gap: 15px;
-  margin-top: 5px;
+  gap: clamp(8px, 2vw, 15px);
+  margin-top: clamp(3px, 0.8vh, 5px);
   flex-wrap: wrap;
 }
 
 .main-content {
   flex: 1;
-  padding: 40px 20px;
+  padding: clamp(20px, 5vh, 40px) clamp(15px, 3vw, 20px);
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
@@ -94,8 +95,8 @@ body {
 /* Карточки */
 .stories-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-  gap: 60px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: clamp(25px, 5vw, 60px);
   margin: 0 auto;
   width: 100%;
   max-width: 1200px;
@@ -104,8 +105,8 @@ body {
 .story-card {
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
-  border-radius: 48px;
-  padding: 50px 40px;
+  border-radius: clamp(30px, 8vw, 48px);
+  padding: clamp(25px, 5vw, 50px) clamp(20px, 4vw, 40px);
   text-align: center;
   cursor: pointer;
   transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
@@ -117,7 +118,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  min-height: 500px;
+  min-height: clamp(380px, 60vh, 500px);
 }
 
 .story-card::before {
@@ -128,12 +129,11 @@ body {
   right: -10px;
   bottom: -10px;
   background: #dbd29e;
-  border-radius: 50px;
+  border-radius: clamp(35px, 8vw, 50px);
   z-index: -2;
   opacity: 0.7;
   filter: blur(20px);
 }
-
 
 .story-card::after {
   content: '';
@@ -144,12 +144,12 @@ body {
   bottom: 0;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
-  border-radius: 40px;
+  border-radius: clamp(30px, 7vw, 40px);
   z-index: -1;
 }
 
 .story-card:hover {
-  transform: scale(1.04);
+  transform: scale(1.02);
   box-shadow: 0 30px 50px rgba(0, 0, 0, 0.25);
 }
 
@@ -162,9 +162,9 @@ body {
 }
 
 .story-image {
-  width: 200px;
-  height: 200px;
-  margin: 0 auto 25px auto;
+  width: clamp(120px, 25vw, 200px);
+  height: clamp(120px, 25vw, 200px);
+  margin: 0 auto clamp(15px, 3vw, 25px) auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -178,17 +178,17 @@ body {
 
 .story-card h2 {
   color: #1a5c1a;
-  font-size: 2.2rem;
-  margin-bottom: 20px;
+  font-size: clamp(1.2rem, 4vw, 2.2rem);
+  margin-bottom: clamp(10px, 2vw, 20px);
   font-weight: 700;
 }
 
 .story-card p {
   color: #3a5a3a;
-  font-size: 1.15rem;
+  font-size: clamp(0.85rem, 2.5vw, 1.15rem);
   line-height: 1.5;
   font-weight: 500;
-  margin-top: 10px;
+  margin-top: clamp(5px, 1vw, 10px);
 }
 
 button {
@@ -223,21 +223,60 @@ button:active {
   transform: translateZ(0);
 }
 
-@media (max-width: 768px) {
+/* Планшеты */
+@media (max-width: 1024px) {
   .stories-grid {
-    gap: 30px;
+    gap: 35px;
   }
   .story-card {
     padding: 35px 25px;
   }
   .story-image {
-    width: 200px;
-    height: 200px;
+    width: 160px;
+    height: 160px;
+  }
+}
+
+/* Телефоны (горизонтальная ориентация) */
+@media (max-width: 768px) and (orientation: landscape) {
+  .stories-grid {
+    gap: 20px;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .story-card {
+    padding: 20px 15px;
+    min-height: 280px;
+  }
+  .story-image {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 10px;
   }
   .story-card h2 {
-    font-size: 1.4rem;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
   }
-  .story-card:hover {
-    transform: scale(1.02);
+  .story-card p {
+    font-size: 0.75rem;
+  }
+  .main-content {
+    padding: 15px;
+  }
+  .footer {
+    font-size: 0.5rem;
+  }
+}
+
+/* Очень маленькие телефоны */
+@media (max-width: 640px) and (orientation: landscape) {
+  .story-image {
+    width: 70px;
+    height: 70px;
+  }
+  .story-card h2 {
+    font-size: 0.9rem;
+  }
+  .story-card p {
+    font-size: 0.65rem;
   }
 }
