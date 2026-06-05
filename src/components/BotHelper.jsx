@@ -20,21 +20,23 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', d
   const autoTipTimer = useRef(null);
   const tipTimer = useRef(null);
 
-  // Озвучивание подсказки (учитывает isMuted и disableAutoTips)
+  // При смене массива подсказок (например, при возврате на главный экран) сбрасываем текущую подсказку
+  useEffect(() => {
+    if (tipTimer.current) clearTimeout(tipTimer.current);
+    setShowTip(false);
+    setCurrentTip('');
+  }, [tips]);
+
   const speakTip = (tipText) => {
     if (isMuted) return;
-    if (disableAutoTips) return; // не озвучиваем во время диалогов/игр
-    stop(); // останавливаем текущую речь, чтобы не перебивать саму себя, но если идёт диалог, он всё равно не даст боту говорить из-за disableAutoTips
+    if (disableAutoTips) return;
+    stop();
     speak(tipText, { rate: 0.95, pitch: 1.15, speaker: 'bot' });
   };
 
-  // Обработка customTip (подсказки из игры)
   useEffect(() => {
     if (customTip && customTip !== '') {
-      if (tipTimer.current) {
-        clearTimeout(tipTimer.current);
-        tipTimer.current = null;
-      }
+      if (tipTimer.current) clearTimeout(tipTimer.current);
       setShowTip(false);
       setTimeout(() => {
         setCurrentTip(customTip);
@@ -44,10 +46,7 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', d
           setShowTip(false);
           tipTimer.current = null;
         }, duration);
-        // Озвучиваем, если не отключено
-        if (!disableAutoTips && !isMuted) {
-          speakTip(customTip);
-        }
+        speakTip(customTip);
       }, 50);
     }
   }, [customTip, disableAutoTips, isMuted]);
@@ -63,11 +62,7 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', d
     setCurrentTip(tipText);
     setShowTip(true);
     const duration = Math.min(8000, Math.max(3000, tipText.length * 60));
-    tipTimer.current = setTimeout(() => {
-      setShowTip(false);
-      tipTimer.current = null;
-    }, duration);
-    // Озвучиваем
+    tipTimer.current = setTimeout(() => setShowTip(false), duration);
     speakTip(tipText);
   };
 
@@ -116,7 +111,7 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', d
     const handleActivity = () => resetInactivity();
     events.forEach(event => window.addEventListener(event, handleActivity));
     startInactivityTimer();
-    if (!disableAutoTips) startAutoTips();
+    startAutoTips();
     return () => {
       events.forEach(event => window.removeEventListener(event, handleActivity));
       if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
@@ -129,17 +124,13 @@ function BotHelper({ tips, highlight = false, isHappy = false, customTip = '', d
   }, [disableAutoTips, stop]);
 
   useEffect(() => {
-    if (botState === 'normal' && !disableAutoTips && !customTip) startAutoTips();
-  }, [botState, disableAutoTips, customTip]);
-
-  useEffect(() => {
     if (isHovered) resetInactivity();
   }, [isHovered]);
 
   const handleBotClick = () => {
     resetInactivity();
     if (!customTip && !disableAutoTips) {
-      setTimeout(() => showRandomTip(), 100);
+      showRandomTip();
     }
   };
 

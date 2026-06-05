@@ -29,7 +29,6 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
     { id: 'apple', name: 'Яблоки', required: false, img: appleImg, priceEasy: [50, 65], priceHard: [54, 69] }
   ];
 
-  // Функция для перемешивания массива
   const shuffleArray = (array) => {
     const shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
@@ -39,7 +38,6 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
     return shuffled;
   };
 
-  // Перемешанные категории при каждом запуске игры
   const [shuffledCategories] = useState(() => shuffleArray(categories));
 
   const getPrices = (cat) => (difficulty === 'easy' ? cat.priceEasy : cat.priceHard);
@@ -72,7 +70,6 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
   const itemsPerSlide = 6;
   const totalSlides = Math.ceil(shuffledCategories.length / itemsPerSlide);
 
-  // Случайный желаемый товар (не обязательный)
   const getRandomWish = () => {
     const optionalProducts = shuffledCategories.filter(c => !c.required);
     const randomIndex = Math.floor(Math.random() * optionalProducts.length);
@@ -152,31 +149,47 @@ const ShopGame = ({ difficulty, onFinish, onBack, onEncouragement, balance: bala
     return shuffledCategories.filter(c => c.required).every(c => selectedItems[c.id]);
   };
 
+  const getNeededForm = (productName) => {
+    const feminine = ['Колбаса', 'Газировка', 'Морковка'];
+    const neuter = ['Молоко'];
+    const plural = ['Яйца', 'Конфеты', 'Яблоки'];
+    if (plural.includes(productName)) return 'нужны';
+    if (feminine.includes(productName)) return 'нужна';
+    if (neuter.includes(productName)) return 'нужно';
+    return 'нужен';
+  };
+
   const selectItem = (category, variant) => {
     const prices = getPrices(category);
     const price = prices[variant];
     const current = selectedItems[category.id];
+    
+    let productNameForSpeech = category.name;
+    if (productNameForSpeech === 'Йогурт') productNameForSpeech = 'йо́гурт';
+
     if (current && current.variant === variant) {
       removeItem(category.id);
-      if (onEncouragement) onEncouragement(`Ты убрал ${getAccusative(category.name)} из корзины.`);
+      if (onEncouragement) onEncouragement(`Ты убрал ${getAccusative(productNameForSpeech)} из корзины.`);
       return;
     }
     if (current) removeItem(category.id, false);
     if (total + price > balance) {
-      if (onEncouragement) onEncouragement(`Не хватает денег на ${getAccusative(category.name)}!`);
+      if (onEncouragement) onEncouragement(`Не хватает денег на ${getAccusative(productNameForSpeech)}!`);
       return;
     }
     setSelectedItems(prev => ({ ...prev, [category.id]: { variant, price, name: category.name, required: category.required } }));
     setTotal(prev => prev + price);
     setHistory(prev => [...prev, { categoryId: category.id, variant, price, action: 'add' }]);
 
+    const neededForm = getNeededForm(category.name);
+
     if (category.required) {
-      if (onEncouragement) onEncouragement(`Отлично! ${category.name} очень нужен!`);
+      if (onEncouragement) onEncouragement(`Отлично! ${category.name} очень ${neededForm}!`);
     } else {
       if (!areRequiredSelected()) {
-        if (onEncouragement) onEncouragement(`Ты уверен, что ${category.name} нам нужен? Сначала купи обязательные продукты!`);
+        if (onEncouragement) onEncouragement(`Ты уверен, что ${productNameForSpeech} нам ${neededForm}? Сначала купи обязательные продукты!`);
       } else {
-        if (onEncouragement) onEncouragement(`Ты добавил ${getAccusative(category.name)} в корзину.`);
+        if (onEncouragement) onEncouragement(`Ты добавил ${getAccusative(productNameForSpeech)} в корзину.`);
       }
     }
 

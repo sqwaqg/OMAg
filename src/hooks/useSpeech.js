@@ -8,38 +8,28 @@ function useSpeech() {
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = options.lang || 'ru-RU';
-    utterance.rate = options.rate ?? 0.95;
+    utterance.rate = options.rate ?? 1.0;
     utterance.pitch = options.pitch ?? 1.0;
-
-    let gender = 'female';
-    if (options.pitch !== undefined) {
-      if (options.pitch < 0.9) gender = 'male';
-      else if (options.pitch > 1.1) gender = 'female';
-    }
-
-    const getBestVoice = (gender) => {
-      const voices = window.speechSynthesis.getVoices();
-      const preferredFemale = ['Google русский', 'Microsoft Irina', 'Microsoft Anna', 'Yandex Russian', 'русский'];
-      const preferredMale = ['Google русский', 'Microsoft Pavel', 'Yandex Russian', 'русский'];
-      const preferredList = gender === 'female' ? preferredFemale : preferredMale;
-      let voice = voices.find(v => preferredList.some(p => v.name.includes(p)));
-      if (!voice) {
-        voice = voices.find(v => v.lang === 'ru-RU' &&
-          (gender === 'female' ? v.name.includes('Irina') || v.name.includes('Anna') || v.name.includes('Google')
-                              : v.name.includes('Pavel') || v.name.includes('Google')));
-      }
-      if (!voice) voice = voices.find(v => v.lang === 'ru-RU');
-      return voice;
-    };
 
     const setVoice = () => {
       const voices = window.speechSynthesis.getVoices();
-      if (options.voiceName) {
-        const namedVoice = voices.find(v => v.name === options.voiceName);
-        if (namedVoice) utterance.voice = namedVoice;
-      } else {
-        const voice = getBestVoice(gender);
-        if (voice) utterance.voice = voice;
+      const russianVoices = voices.filter(v => v.lang.includes('ru'));
+      if (russianVoices.length > 0) {
+        if (options.speaker === 'father') {
+          const maleVoice = russianVoices.find(v => v.name.includes('Microsoft Pavel') || v.name.includes('Pavel'));
+          if (maleVoice) utterance.voice = maleVoice;
+          else utterance.voice = russianVoices[0];
+        } else if (options.speaker === 'girl' || options.speaker === 'child') {
+          const femaleVoice = russianVoices.find(v => v.name.includes('Microsoft Irina') || v.name.includes('Irina') || v.name.includes('Dariya'));
+          if (femaleVoice) utterance.voice = femaleVoice;
+          else utterance.voice = russianVoices[0];
+        } else if (options.speaker === 'mother') {
+          const femaleVoice = russianVoices.find(v => v.name.includes('Microsoft Irina') || v.name.includes('Irina'));
+          if (femaleVoice) utterance.voice = femaleVoice;
+          else utterance.voice = russianVoices[0];
+        } else {
+          utterance.voice = russianVoices[0];
+        }
       }
     };
 
